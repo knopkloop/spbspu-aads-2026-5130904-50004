@@ -2,5 +2,5 @@
 #include "output.hpp"
 int main()
 {
-  output(std::cout) << "\n";
+  khairullin::output(std::cout) << "\n";
 }
