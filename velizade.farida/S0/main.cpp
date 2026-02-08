@@ -1,7 +1,7 @@
 #include <iostream>
-#include "credetials.hpp"
+#include "crendetials.hpp"
 
 int main()
 {
-  velizade::out_credetials(std::cout) << "\n";
+  velizade::out_credentials(std::cout) << "\n";
 }
