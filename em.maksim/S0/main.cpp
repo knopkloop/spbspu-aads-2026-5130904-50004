@@ -1,6 +1,7 @@
 #include <iostream>
+#include "credentials.hpp"
 
 int main()
 {
-  std::cout << "em.maksim" << "\n";
+  em::out_credentials(std::cout) << "\n";
 }
