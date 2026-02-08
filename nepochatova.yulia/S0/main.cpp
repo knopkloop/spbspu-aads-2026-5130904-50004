@@ -1,7 +1,3 @@
-#include <iostream>
-#include "credentials.hpp"
+#define BOOST_TEST_MODULE S0
+#include <boost/test/included/unit_test.hpp>
 
-int main()
-{
-  nepochatova::out_credentials(std::cout) << "\n";
-}
