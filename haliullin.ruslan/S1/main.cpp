@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <limits>
 #include "BiList.hpp"
 
 using namespace haliullin;
@@ -62,6 +63,64 @@ int main()
       std::cout << "\n0\n";
       return 0;
     }
+
+    BiList<unsigned long long> totalSums;
+    bool hasOverflow = false;
+    while (!posTrackers.is_empty() && !hasOverflow)
+    {
+      auto curTracker = posTrackers.begin();
+      std::cout << *(curTracker->first);
+      unsigned long long colSum = *(curTracker->first);
+      ++(curTracker->first);
+
+      if (curTracker->first == curTracker->second)
+      {
+        curTracker = posTrackers.erase(curTracker);
+      }
+      else
+      {
+        ++curTracker;
+      }
+
+      while (curTracker != posTrackers.end())
+      {
+        std::cout << " " << *(curTracker->first);
+
+        if (colSum > std::numeric_limits<unsigned long long>::max() - *(curTracker->first))
+        {
+          hasOverflow = true;
+          break;
+        }
+        colSum += *(curTracker->first);
+        ++(curTracker->first);
+
+        if (curTracker->first == curTracker->second)
+        {
+          curTracker = posTrackers.erase(curTracker);
+        }
+        else
+        {
+          ++curTracker;
+        }
+      }
+      if (!hasOverflow)
+      {
+        std::cout << "\n";
+        totalSums.push_back(colSum);
+      }
+    }
+
+    auto sumIter = totalSums.cbegin();
+    std::cout << *sumIter;
+    ++sumIter;
+    while (sumIter != totalSums.cend())
+    {
+      std::cout << " " << *sumIter;
+      ++sumIter;
+    }
+    std::cout << "\n";
+
+    return 0;
   }
   catch(const std::exception &e)
   {
