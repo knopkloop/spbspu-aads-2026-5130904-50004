@@ -339,11 +339,6 @@ namespace haliullin
       return LIter<T>(head, head);
     }
 
-    LCIter<T> begin() const noexcept
-    {
-      return LCIter<T>(head, head);
-    }
-
     LCIter<T> cbegin() const noexcept
     {
       return LCIter<T>(head, head);
@@ -352,11 +347,6 @@ namespace haliullin
     LIter<T> end() noexcept
     {
       return LIter<T>(nullptr, head);
-    }
-
-    LCIter<T> end() const noexcept
-    {
-      return LCIter<T>(nullptr, head);
     }
 
     LCIter<T> cend() const noexcept
