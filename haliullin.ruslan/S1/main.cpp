@@ -1,130 +1,140 @@
+#include "BiList.hpp"
 #include <iostream>
 #include <string>
 #include <utility>
 #include <limits>
-#include "BiList.hpp"
 
 using namespace haliullin;
 
 int main()
 {
-   try
+  try
   {
-    BiList<std::pair<std::string, BiList<unsigned long long>>> seq;
-    std::string token;
-    unsigned long long value = 0;
+    BiList<std::pair<std::string, BiList<unsigned long long>>> sequences;
+    std::string name;
 
-    while (std::cin >> token)
+    while (std::cin >> name)
     {
       BiList<unsigned long long> numbers;
-
-      while (std::cin >> value)
+      unsigned long long num;
+      char peek;
+      while (true)
       {
-        numbers.push_back(value);
+        peek = std::cin.peek();
+        if (peek == '\n' || peek == EOF || peek == '\r')
+        {
+          break;
+        }
+        if (std::cin >> num)
+        {
+          numbers.push_back(num);
+        }
+        else
+        {
+          break;
+        }
       }
-
-      seq.push_back(std::make_pair(token, std::move(numbers)));
-
-      if (!std::cin.eof())
-      {
-        std::cin.clear();
-      }
+      sequences.push_back(std::make_pair(name, std::move(numbers)));
     }
 
-    if (seq.is_empty())
+    if (sequences.is_empty())
     {
       std::cout << "0\n";
       return 0;
     }
 
-    auto nameIter = seq.cbegin();
-    std::cout << " " << nameIter->first;
-    ++nameIter;
-
-    while (nameIter != seq.cend())
+    bool first = true;
+    for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
     {
-      std::cout << " " << nameIter->first;
-      ++nameIter;
+      if (!first)
+      {
+        std::cout << ' ';
+      }
+      std::cout << it->first;
+      first = false;
     }
     std::cout << "\n";
 
-    BiList<std::pair<LIter<unsigned long long>, LIter<unsigned long long>>> posTrackers;
-
-    for (auto elIter = seq.begin(); elIter != seq.end(); ++elIter)
+    size_t maxLen = 0;
+    for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
     {
-      if (!elIter->second.is_empty())
+      if (it->second.getsize() > maxLen)
       {
-        posTrackers.push_back(std::make_pair(elIter->second.begin(), elIter->second.end()));
+        maxLen = it->second.getsize();
       }
     }
 
-    if (posTrackers.is_empty())
+    BiList<BiList<unsigned long long>> transposed;
+    for (size_t i = 0; i < maxLen; ++i)
     {
-      std::cout << "\n0\n";
-      return 0;
+      BiList<unsigned long long> newList;
+      for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
+      {
+        if (i < it->second.getsize())
+        {
+          auto elemIt = it->second.cbegin();
+          for (size_t j = 0; j < i; ++j)
+          {
+            ++elemIt;
+          }
+          newList.push_back(*elemIt);
+        }
+      }
+      transposed.push_back(std::move(newList));
     }
 
-    BiList<unsigned long long> totalSums;
-    bool hasOverflow = false;
-    while (!posTrackers.is_empty() && !hasOverflow)
+    for (auto it = transposed.cbegin(); it != transposed.cend(); ++it)
     {
-      auto curTracker = posTrackers.begin();
-      std::cout << *(curTracker->first);
-      unsigned long long colSum = *(curTracker->first);
-      ++(curTracker->first);
-
-      if (curTracker->first == curTracker->second)
+      if (it->is_empty())
       {
-        curTracker = posTrackers.erase(curTracker);
-      }
-      else
-      {
-        ++curTracker;
+        continue;
       }
 
-      while (curTracker != posTrackers.end())
+      bool firstInRow = true;
+      for (auto elemIt = it->cbegin(); elemIt != it->cend(); ++elemIt)
       {
-        std::cout << " " << *(curTracker->first);
-
-        if (colSum > std::numeric_limits<unsigned long long>::max() - *(curTracker->first))
+        if (!firstInRow)
         {
-          hasOverflow = true;
-          break;
+          std::cout << ' ';
         }
-        colSum += *(curTracker->first);
-        ++(curTracker->first);
-
-        if (curTracker->first == curTracker->second)
-        {
-          curTracker = posTrackers.erase(curTracker);
-        }
-        else
-        {
-          ++curTracker;
-        }
+        std::cout << *elemIt;
+        firstInRow = false;
       }
-      if (!hasOverflow)
-      {
-        std::cout << "\n";
-        totalSums.push_back(colSum);
-      }
+      std::cout << "\n";
     }
 
-    auto sumIter = totalSums.cbegin();
-    std::cout << *sumIter;
-    ++sumIter;
-    while (sumIter != totalSums.cend())
+    BiList<unsigned long long> sums;
+    for (auto it = transposed.cbegin(); it != transposed.cend(); ++it)
     {
-      std::cout << " " << *sumIter;
-      ++sumIter;
+      unsigned long long total = 0;
+      for (auto elemIt = it->cbegin(); elemIt != it->cend(); ++elemIt)
+      {
+        if (total > std::numeric_limits<unsigned long long>::max() - *elemIt)
+        {
+          throw std::overflow_error("Sum calculation overflow");
+        }
+        total += *elemIt;
+      }
+      sums.push_back(total);
+    }
+
+    first = true;
+    for (auto it = sums.cbegin(); it != sums.cend(); ++it)
+    {
+      if (!first)
+      {
+        std::cout << ' ';
+      }
+      std::cout << *it;
+      first = false;
     }
     std::cout << "\n";
 
     return 0;
   }
-  catch(const std::exception &e)
+  catch (const std::exception &e)
   {
-    std::cerr << e.what() << "\n";
+    std::cerr << "Error: " << e.what() << "\n";
     return 1;
   }
 }
