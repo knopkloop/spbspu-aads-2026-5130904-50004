@@ -117,16 +117,51 @@ namespace haliullin
     LCIter & operator=(const LCIter & other) noexcept = default;
     LCIter & operator=(LCIter && other) noexcept = default;
 
-    bool operator==(const LCIter & other) const noexcept;
-    bool operator!=(const LCIter & other) const noexcept;
+    bool operator==(const LCIter & other) const noexcept
+    {
+      return cur == other.cur;
+    }
 
-    const T & operator*() const noexcept;
-    const T * operator->() const noexcept;
+    bool operator!=(const LCIter & other) const noexcept
+    {
+      return !(*this == other);
+    }
+
+    const T & operator*() const noexcept
+    {
+      return cur->val;
+    }
+
+    const T * operator->() const noexcept
+    {
+      return &(cur->val);
+    }
 
     LCIter & operator++() noexcept;
+    {
+      cur = cur->next;
+      return *this;
+    }
+
     LCIter operator++(int) noexcept;
-    LCIter & operator--() noexcept;
-    LCIter operator--(int) noexcept;
+    {
+      LCIter tmp(*this);
+      cur = cur->next;
+      return tmp;
+    }
+
+    LCIter & operator--() noexcept
+    {
+      cur = cur->prev;
+      return *this;
+    }
+
+    LCIter operator--(int) noexcept
+    {
+      LCIter tmp(*this);
+      cur = cur->prev;
+      return tmp;
+    }
   };
 
 //----------BiList----------
