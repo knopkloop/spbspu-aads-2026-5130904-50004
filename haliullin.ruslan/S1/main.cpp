@@ -46,6 +46,22 @@ int main()
       ++nameIter;
     }
     std::cout << "\n";
+
+    BiList<std::pair<LIter<unsigned long long>, LIter<unsigned long long>>> posTrackers;
+
+    for (auto elIter = seq.begin(); elIter != seq.end(); ++elIter)
+    {
+      if (!elIter->second.is_empty())
+      {
+        posTrackers.push_back(std::make_pair(elIter->second.begin(), elIter->second.end()));
+      }
+    }
+
+    if (posTrackers.is_empty())
+    {
+      std::cout << "\n0\n";
+      return 0;
+    }
   }
   catch(const std::exception &e)
   {
