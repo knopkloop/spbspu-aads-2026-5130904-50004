@@ -73,13 +73,14 @@ namespace haliullin
       cur(nullptr)
     {}
 
-    LCIter(const LIter<T> & other) noexcept;
-    LCIter(const LCIter & other) noexcept;
-    LCIter(LCIter && other) noexcept;
-    ~LCIter();
+    LCIter(const LIter<T> & other) noexcept :
 
-    LCIter & operator=(const LCIter & other) noexcept;
-    LCIter & operator=(LCIter && other) noexcept;
+    LCIter(const LCIter & other) noexcept = default;
+    LCIter(LCIter && other) noexcept = default;
+    ~LCIter() = default;
+
+    LCIter & operator=(const LCIter & other) noexcept = default;
+    LCIter & operator=(LCIter && other) noexcept = default;
 
     bool operator==(const LCIter & other) const noexcept;
     bool operator!=(const LCIter & other) const noexcept;
@@ -104,13 +105,77 @@ namespace haliullin
     size_t size;
 
   public:
-    BiList() noexcept;
-    BiList(const BiList &other);
-    BiList(BiList &&other) noexcept;
-    ~BiList();
+    BiList() noexcept :
+      head(nullptr),
+      size(0)
+    {}
+    BiList(const BiList & other) :
+      head(nullptr),
+      size(0)
+    {
+      if (other.isempty())
+      {
+        return;
+      }
 
-    BiList& operator=(const BiList& other);
-    BiList& operator=(BiList&& other) noexcept;
+      Node< T > * cur = other.head;
+      Node< T > * first = new Node< T >(current->val);
+      head = first;
+      size = 1;
+
+      current = current->next;
+      Node< T > * prev = first;
+
+      while (current != other.head)
+      {
+        Node< T > * newNode = new Node< T >(current->val);
+        prev->next = newNode;
+        newNode->prev = prev;
+        prev = newNode;
+        current = current->next;
+        ++size;
+      }
+
+      prev->next = head;
+      head->prev = prev;
+    }
+
+    BiList(BiList && other) noexcept :
+      head(other.head);
+      size(other.size)
+    {
+      other.head = nullptr;
+      other.size = 0;
+
+    }
+
+    ~BiList()
+    {
+      clear();
+    }
+
+    BiList & operator=(const BiList & other)
+    {
+      if (this != &other)
+      {
+        BiList tmp(other);
+        swap(tmp);
+      }
+      return *this;
+    }
+
+    BiList & operator=(BiList && other)
+    {
+      if (this != &other)
+      {
+        clear();
+        head = other.head;
+        size = other.size;
+        other.head = nullptr;
+        other.size = 0;
+      }
+      return *this;
+    }
 
     void clear() noexcept;
 
