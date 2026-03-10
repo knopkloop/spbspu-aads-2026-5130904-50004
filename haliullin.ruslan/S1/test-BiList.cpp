@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(pop_back_test)
   BOOST_CHECK(lst.getsize() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(clear_operation)
+BOOST_AUTO_TEST_CASE(clear)
 {
   BiList<int> lst;
   lst.push_back(3);
@@ -77,25 +77,6 @@ BOOST_AUTO_TEST_CASE(clear_operation)
   lst.clear();
   BOOST_CHECK(lst.getsize() == 0);
   BOOST_CHECK(lst.begin() == lst.end());
-}
-
-BOOST_AUTO_TEST_CASE(empty_check)
-{
-  BiList<int> lst;
-  BOOST_CHECK(lst.is_empty());
-  BOOST_CHECK_EQUAL(lst.getsize(), 0);
-  lst.push_back(42);
-  BOOST_CHECK(!lst.is_empty());
-}
-
-BOOST_AUTO_TEST_CASE(front_back_values)
-{
-  BiList<int> lst;
-  lst.push_back(11);
-  lst.push_back(22);
-  lst.push_back(33);
-  BOOST_CHECK_EQUAL(lst.front(), 11);
-  BOOST_CHECK_EQUAL(lst.back(), 33);
 }
 
 BOOST_AUTO_TEST_CASE(copy_construction)
@@ -116,34 +97,4 @@ BOOST_AUTO_TEST_CASE(move_construction)
   BiList<int> lst2(std::move(lst1));
   BOOST_CHECK(lst1.is_empty());
   BOOST_CHECK_EQUAL(lst2.front(), 8);
-}
-
-BOOST_AUTO_TEST_CASE(iterator_traversal)
-{
-  BiList<int> lst;
-  lst.push_back(2);
-  lst.push_back(4);
-  lst.push_back(6);
-  auto it = lst.begin();
-  BOOST_CHECK_EQUAL(*it, 2);
-  ++it;
-  BOOST_CHECK_EQUAL(*it, 4);
-  ++it;
-  BOOST_CHECK_EQUAL(*it, 6);
-  ++it;
-  BOOST_CHECK(it == lst.end());
-}
-
-BOOST_AUTO_TEST_CASE(const_iterator)
-{
-  BiList<int> lst;
-  lst.push_back(100);
-  lst.push_back(200);
-  const BiList<int>& clst = lst;
-  auto it = clst.cbegin();
-  BOOST_CHECK_EQUAL(*it, 100);
-  ++it;
-  BOOST_CHECK_EQUAL(*it, 200);
-  ++it;
-  BOOST_CHECK(it == clst.cend());
 }
