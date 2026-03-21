@@ -11,7 +11,7 @@ int main()
 {
   try
   {
-    BiList<std::pair<std::string, BiList<unsigned long long>>> sequences;
+    BiList< std::pair< std::string, BiList<unsigned long long> > > sequences;
     std::string name;
 
     while (std::cin >> name)
