@@ -15,25 +15,13 @@ namespace haliullin
     Node *prev;
     Node *next;
 
-    Node(const T & value) :
-      val(value),
-      prev(nullptr),
-      next(nullptr)
-    {}
-
-    Node(T && value) :
-      val(std::move(value)),
-      prev(nullptr),
-      next(nullptr)
-    {}
-
-    Node(const T & value, Node * p, Node * n) :
+    Node(const T & value, Node * p = nullptr, Node * n = nullptr):
       val(value),
       prev(p),
       next(n)
     {}
 
-    Node(T && value, Node * p, Node * n) :
+    Node(T && value, Node * p = nullptr, Node * n = nullptr):
       val(std::move(value)),
       prev(p),
       next(n)
@@ -43,50 +31,52 @@ namespace haliullin
   template< class T >
   class LIter
   {
+  private:
     friend class BiList<T>;
     Node<T> * cur;
     Node<T> * head;
-    LIter(Node<T> * node, Node<T> * listHead) noexcept :
+    LIter(Node<T> * node, Node<T> * listHead):
       cur(node),
       head(listHead)
     {}
+
   public:
-    LIter() noexcept :
+    LIter():
       cur(nullptr),
       head(nullptr)
     {}
 
-    LIter(const LIter & other) noexcept = default;
+    LIter(const LIter & other) = default;
 
-    LIter(LIter && other) noexcept = default;
+    LIter(LIter && other) = default;
 
     ~LIter() = default;
 
-    LIter & operator=(const LIter & other) noexcept = default;
+    LIter & operator=(const LIter & other) = default;
 
-    LIter & operator=(LIter && other) noexcept = default;
+    LIter & operator=(LIter && other) = default;
 
-    bool operator==(const LIter & other) const noexcept
+    bool operator==(const LIter & other) const
     {
       return cur == other.cur;
     }
 
-    bool operator!=(const LIter & other) const noexcept
+    bool operator!=(const LIter & other) const
     {
       return !(*this == other);
     }
 
-    T & operator*() const noexcept
+    T & operator*() const
     {
       return cur->val;
     }
 
-    T * operator->() const noexcept
+    T * operator->() const
     {
       return &(cur->val);
     }
 
-    LIter & operator++() noexcept
+    LIter & operator++()
     {
       if (cur)
       {
@@ -99,14 +89,14 @@ namespace haliullin
       return *this;
     }
 
-    LIter operator++(int) noexcept
+    LIter operator++(int)
     {
       LIter tmp(*this);
       ++(*this);
       return tmp;
     }
 
-    LIter & operator--() noexcept
+    LIter & operator--()
     {
       if (cur == head)
       {
@@ -119,7 +109,7 @@ namespace haliullin
       return *this;
     }
 
-    LIter operator--(int) noexcept
+    LIter operator--(int)
     {
       LIter tmp(*this);
       --(*this);
@@ -130,55 +120,57 @@ namespace haliullin
   template< class T >
   class LCIter
   {
+  private:
     friend class BiList< T >;
     const Node< T > * cur;
     const Node< T > * head;
-    LCIter(const Node<T> * node, const Node<T> * listHead) noexcept :
+    LCIter(const Node<T> * node, const Node<T> * head):
       cur(node),
-      head(listHead)
+      head(head)
     {}
+
   public:
-    LCIter() noexcept :
+    LCIter():
       cur(nullptr),
       head(nullptr)
     {}
 
-    LCIter(const LIter<T> & other) noexcept :
+    LCIter(const LIter<T> & other):
       cur(other.cur),
       head(other.head)
     {}
 
-    LCIter(const LCIter & other) noexcept = default;
+    LCIter(const LCIter & other) = default;
 
-    LCIter(LCIter && other) noexcept = default;
+    LCIter(LCIter && other) = default;
 
     ~LCIter() = default;
 
-    LCIter & operator=(const LCIter & other) noexcept = default;
+    LCIter & operator=(const LCIter & other) = default;
 
-    LCIter & operator=(LCIter && other) noexcept = default;
+    LCIter & operator=(LCIter && other) = default;
 
-    bool operator==(const LCIter & other) const noexcept
+    bool operator==(const LCIter & other) const
     {
       return cur == other.cur;
     }
 
-    bool operator!=(const LCIter & other) const noexcept
+    bool operator!=(const LCIter & other) const
     {
       return !(*this == other);
     }
 
-    const T & operator*() const noexcept
+    const T & operator*() const
     {
       return cur->val;
     }
 
-    const T * operator->() const noexcept
+    const T * operator->() const
     {
       return &(cur->val);
     }
 
-    LCIter & operator++() noexcept
+    LCIter & operator++()
     {
       if (cur)
       {
@@ -191,14 +183,14 @@ namespace haliullin
       return *this;
     }
 
-    LCIter operator++(int) noexcept
+    LCIter operator++(int)
     {
       LCIter tmp(*this);
       ++(*this);
       return tmp;
     }
 
-    LCIter & operator--() noexcept
+    LCIter & operator--()
     {
       if (cur == head)
       {
@@ -211,7 +203,7 @@ namespace haliullin
       return *this;
     }
 
-    LCIter operator--(int) noexcept
+    LCIter operator--(int)
     {
       LCIter tmp(*this);
       --(*this);
@@ -225,13 +217,14 @@ namespace haliullin
   private:
     Node< T > *head;
     size_t size;
+
   public:
-    BiList() noexcept :
+    BiList():
       head(nullptr),
       size(0)
     {}
 
-    BiList(const BiList & other) :
+    BiList(const BiList & other):
       head(nullptr),
       size(0)
     {
@@ -258,7 +251,7 @@ namespace haliullin
       head->prev = prev;
     }
 
-    BiList(BiList && other) noexcept :
+    BiList(BiList && other) noexcept:
       head(other.head),
       size(other.size)
     {
@@ -294,12 +287,12 @@ namespace haliullin
       return *this;
     }
 
-    bool is_empty() const noexcept
+    bool is_empty() const
     {
       return size == 0;
     }
 
-    size_t getsize() const noexcept
+    size_t getsize() const
     {
       return size;
     }
@@ -340,22 +333,22 @@ namespace haliullin
       return head->prev->val;
     }
 
-    LIter<T> begin() noexcept
+    LIter<T> begin()
     {
       return LIter<T>(head, head);
     }
 
-    LCIter<T> cbegin() const noexcept
+    LCIter<T> cbegin() const
     {
       return LCIter<T>(head, head);
     }
 
-    LIter<T> end() noexcept
+    LIter<T> end()
     {
       return LIter<T>(nullptr, head);
     }
 
-    LCIter<T> cend() const noexcept
+    LCIter<T> cend() const
     {
       return LCIter<T>(nullptr, head);
     }
@@ -566,7 +559,7 @@ namespace haliullin
       }
     }
 
-    void clear() noexcept
+    void clear()
     {
       while(!is_empty())
       {
