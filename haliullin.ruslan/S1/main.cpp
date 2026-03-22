@@ -11,12 +11,12 @@ int main()
 {
   try
   {
-    BiList< std::pair< std::string, BiList<unsigned long long> > > sequences;
+    BiList< std::pair< std::string, BiList< unsigned long long > > > sequences;
     std::string name;
 
     while (std::cin >> name)
     {
-      BiList<unsigned long long> numbers;
+      BiList< unsigned long long > numbers;
       unsigned long long num;
       while (std::cin >> num)
       {
@@ -53,10 +53,10 @@ int main()
       }
     }
 
-    BiList<BiList<unsigned long long>> transp;
+    BiList< BiList< unsigned long long > > transp;
     for (size_t i = 0; i < maxLen; ++i)
     {
-      BiList<unsigned long long> newList;
+      BiList< unsigned long long > newList;
       for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
       {
         if (i < it->second.getsize())
@@ -90,13 +90,13 @@ int main()
       std::cout << "\n";
     }
 
-    BiList<unsigned long long> sums;
+    BiList< unsigned long long > sums;
     for (auto it = transp.cbegin(); it != transp.cend(); ++it)
     {
       unsigned long long total = 0;
       for (auto elemIt = it->cbegin(); elemIt != it->cend(); ++elemIt)
       {
-        if (total > std::numeric_limits<unsigned long long>::max() - *elemIt)
+        if (total > std::numeric_limits< unsigned long long >::max() - *elemIt)
         {
           throw std::overflow_error("Sum calculation overflow");
         }
@@ -126,7 +126,7 @@ int main()
 
     return 0;
   }
-  catch (const std::exception &e)
+  catch (const std::exception & e)
   {
     std::cerr << e.what() << "\n";
     return 1;
