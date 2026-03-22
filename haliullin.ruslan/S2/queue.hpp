@@ -1,6 +1,7 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
+#include <stdexcept>
 #include "../common/BiList.hpp"
 
 namespace haliullin
@@ -12,14 +13,70 @@ namespace haliullin
     BiList< T > data;
 
   public:
-    void push(const T& rhs);
+    void push(const T & rhs);
     T drop();
     T & front();
     const T & front() const;
-    bool isEmpty() const;
+    bool is_empty() const;
     size_t size() const;
     void clear();
   };
+
+  template < class T >
+  void Queue< T >::push(const T & rhs)
+  {
+    data.push_back(rhs);
+  }
+
+  template < class T >
+  T Queue< T >::drop()
+  {
+    if (data.is_empty())
+    {
+      throw std::runtime_error("Queue is empty");
+    }
+    T val = data.front();
+    data.pop_front();
+    return val;
+  }
+
+  template < class T >
+  T & Queue< T >::front()
+  {
+    if (data.is_empty())
+    {
+      throw std::runtime_error("Queue is empty");
+    }
+    return data.front();
+  }
+
+  template < class T >
+  const T & Queue< T >::front() const
+  {
+    if (data.is_empty())
+    {
+      throw std::runtime_error("Queue is empty");
+    }
+    return data.front();
+  }
+
+  template < class T >
+  bool Queue< T >::is_empty() const
+  {
+    return data.is_empty();
+  }
+
+  template < class T >
+  size_t Queue< T >::size() const
+  {
+    return data.getsize();
+  }
+
+  template < class T >
+  void Queue< T >::clear()
+  {
+    data.clear();
+  }
 }
 
 #endif
