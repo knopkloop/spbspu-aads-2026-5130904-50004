@@ -1,8 +1,8 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
-#include <stdexcept>
 #include "../common/BiList.hpp"
+#include <stdexcept>
 
 namespace haliullin
 {

@@ -1,8 +1,8 @@
 #ifndef STACK_HPP
 #define STACK_HPP
 
-#include <stdexcept>
 #include "../common/BiList.hpp"
+#include <stdexcept>
 
 namespace haliullin
 {
