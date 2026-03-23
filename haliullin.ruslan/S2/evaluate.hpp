@@ -12,6 +12,7 @@ namespace haliullin
   bool isOperator(const std::string & token);
   bool isNumber(const std::string & token);
 
+  Queue< std::string > infixToPostfix(const std::string & expression);
 }
 
 #endif
