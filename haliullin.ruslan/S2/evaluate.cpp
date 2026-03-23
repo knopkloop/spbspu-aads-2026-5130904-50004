@@ -64,7 +64,7 @@ bool haliullin::isOperator(const std::string & token)
   if (token.length() == 1)
   {
     char c = token[0];
-    return ((token[0] == '-') || (token[0] == '+') || (token[0] == '/') || (token[0] == '*') || (token[0] == '%'));
+    return ((c == '-') || (c == '+') || (c == '/') || (c == '*') || (c == '%'));
   }
   else if (token.length() == 3)
   {
