@@ -17,8 +17,8 @@ namespace haliullin
     T drop();
     T & front();
     const T & front() const;
-    bool is_empty() const;
-    size_t size() const;
+    bool is_empty() const noexcept;
+    size_t size() const noexcept;
     void clear();
   };
 
