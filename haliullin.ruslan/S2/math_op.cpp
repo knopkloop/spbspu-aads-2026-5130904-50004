@@ -51,11 +51,65 @@ long long haliullin::subtract(long long a, long long b)
 {
   if (b > 0 && a < haliullin::MIN + b)
   {
-    throw std::overflow_error("subtract overflow");
+    throw std::overflow_error("subtraction overflow");
   }
   else if (b < 0 && a > haliullin::MAX + b)
   {
-    throw std::overflow_error("subtract overflow");
+    throw std::overflow_error("subtraction overflow");
   }
   return a - b;
+}
+
+long long haliullin::multiply(long long a, long long b)
+{
+  if (a == 0 || b == 0)
+  {
+    return 0;
+  }
+
+  if (a > 0)
+  {
+    if (b > 0 && a > haliullin::MAX / b)
+    {
+      throw std::overflow_error("multiplication overflow");
+    }
+    else if (b < 0 && b < haliullin::MIN / b)
+    {
+      throw std::overflow_error("multiplication overflow");
+    }
+  }
+  else
+  {
+    if (b > 0 && a < haliullin::MIN / b)
+    {
+      throw std::overflow_error("multiplication overflow");
+    }
+    else if (b < 0 && a < haliullin::MAX / b)
+    {
+      throw std::overflow_error("multiplication overflow");
+    }
+  }
+  return a * b;
+}
+
+long long haliullin::divide(long long a, long long b)
+{
+  if (b == 0)
+  {
+    throw std::logic_error("division by zero");
+  }
+
+  if (a == haliullin::MIN && b == -1)
+  {
+    throw std::overflow_error("division overflow");
+  }
+}
+
+long long haliullin::mod(long long a, long long b)
+{
+  if (b == 0)
+  {
+    throw std::logic_error("division by zero");
+  }
+  return (a % b + b) % b;
 }
