@@ -61,13 +61,13 @@ namespace haliullin
   }
 
   template < class T >
-  bool Queue< T >::is_empty() const
+  bool Queue< T >::is_empty() const noexcept
   {
     return data.is_empty();
   }
 
   template < class T >
-  size_t Queue< T >::size() const
+  size_t Queue< T >::size() const noexcept
   {
     return data.getsize();
   }

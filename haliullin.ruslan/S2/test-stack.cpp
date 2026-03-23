@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(PushAndDrop)
 
 BOOST_AUTO_TEST_CASE(Top)
 {
-  haliullin::Stack<int> stack;
+  haliullin::Stack< int > stack;
   stack.push(42);
   BOOST_CHECK_EQUAL(stack.top(), 42);
   stack.drop();
