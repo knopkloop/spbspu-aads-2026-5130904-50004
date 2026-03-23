@@ -72,6 +72,7 @@ long long haliullin::divide(long long a, long long b)
   {
     throw std::overflow_error("division overflow");
   }
+  return a / b;
 }
 
 long long haliullin::mod(long long a, long long b)
