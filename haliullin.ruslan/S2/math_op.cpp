@@ -27,9 +27,35 @@ long long haliullin::lcm(long long a, long long b)
   a = std::abs(a);
   b = std::abs(b);
 
-  if ((a / g) > (MAX / b))
+  if ((a / g) > (haliullin::MAX / b))
   {
     throw std::overflow_error("lcm overflow");
   }
   return (a / g) * b;
+}
+
+long long haliullin::sum(long long a, long long b)
+{
+  if (b > 0 && a > haliullin::MAX - b)
+  {
+    throw std::overflow_error("sum overflow");
+  }
+  else if (b < 0 && a < haliullin::MIN - b)
+  {
+    throw std::overflow_error("sum overflow");
+  }
+  return a + b;
+}
+
+long long haliullin::subtract(long long a, long long b)
+{
+  if (b > 0 && a < haliullin::MIN + b)
+  {
+    throw std::overflow_error("subtract overflow");
+  }
+  else if (b < 0 && a > haliullin::MAX + b)
+  {
+    throw std::overflow_error("subtract overflow");
+  }
+  return a - b;
 }
