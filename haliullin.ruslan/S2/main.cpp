@@ -1,6 +1,9 @@
 #include "stack.hpp"
+#include "evaluate.hpp"
+
 #include <iostream>
 #include <fstream>
+#include <string>
 
 using namespace haliullin;
 int main(int argc, char * argv[])
@@ -13,7 +16,7 @@ int main(int argc, char * argv[])
     file.open(argv[1]);
     if (!file.is_open())
     {
-      std::cerr << "Reading file error" << "\n";
+      std::cerr << "Cannot open file" << "\n";
       return 1;
     }
     input = &file;
@@ -31,8 +34,11 @@ int main(int argc, char * argv[])
   {
     while (std::getline(*input, line))
     {
-      if (line.empty()) continue;
-      //!!
+      if (!line.empty())
+      {
+        res.push(evaluate(infixToPostfix(line)));
+      }
+
     }
   }
   catch(const std::exception & e)
@@ -40,7 +46,6 @@ int main(int argc, char * argv[])
     std::cerr << e.what() << "\n";
     return 1;
   }
-
 
   if (!res.is_empty())
   {
