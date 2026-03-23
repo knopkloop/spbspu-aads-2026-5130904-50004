@@ -13,6 +13,7 @@ namespace haliullin
   bool isNumber(const std::string & token);
 
   Queue< std::string > infixToPostfix(const std::string & expression);
+  long long evaluate(Queue< std::string > postfix);
 }
 
 #endif

@@ -239,3 +239,58 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string & ex
 
   return output;
 }
+
+long long haliullin::evaluate(haliullin::Queue< std::string > postfix)
+{
+  Stack< long long > evalStack;
+
+  while (!postfix.is_empty())
+  {
+    std::string token = postfix.drop();
+
+    if (isOperator(token))
+    {
+      if (evalStack.is_empty())
+      {
+        throw std::logic_error("not enough operands in expression");
+      }
+      long long b = evalStack.drop();
+      if (evalStack.is_empty())
+      {
+        throw std::logic_error("not enough operands in expression");
+      }
+      long long a = evalStack.drop();
+
+      long long res = calculate(a, b, token);
+      evalStack.push(res);
+    }
+    else if (isNumber(token))
+    {
+      try
+      {
+        long long num = std::stoll(token);
+        evalStack.push(num);
+      }
+      catch (...)
+      {
+        throw std::logic_error("invalid number");
+      }
+    }
+    else
+    {
+      throw std::logic_error("invalid number");
+    }
+  }
+
+  if (evalStack.is_empty())
+  {
+    throw std::logic_error("no result");
+  }
+
+  if (evalStack.size() != 1)
+  {
+    throw std::logic_error("too many operands in expression");
+  }
+
+  return evalStack.drop();
+}
