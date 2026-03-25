@@ -435,10 +435,10 @@ void haliullin::BiList< T >::swap(BiList & other) noexcept
 {
   Node< T > * tmp_head = head_;
   size_t tmp_size = size_;
-  head_ = other.head;
-  size_ = other.size;
-  other.head = tmp_head;
-  other.size = tmp_size;
+  head_ = other.head_;
+  size_ = other.size_;
+  other.head_ = tmp_head;
+  other.size_ = tmp_size;
 }
 
 #endif
