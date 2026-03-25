@@ -23,7 +23,7 @@ int haliullin::get_priority(const std::string & oper)
   }
   else
   {
-    throw std::logic_error("invalid operator");
+    throw std::logic_error("Invalid operator");
   }
 }
 
@@ -55,7 +55,7 @@ long long haliullin::calculate(long long a, long long b, const std::string & ope
   }
   else
   {
-    throw std::logic_error("invalid operator");
+    throw std::logic_error("Invalid operator");
   }
 }
 
@@ -142,13 +142,13 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string & ex
           }
           if (opStack.is_empty())
           {
-            throw std::logic_error("missing '('");
+            throw std::logic_error("Missing '('");
           }
           opStack.drop();
         }
         else
         {
-          throw std::logic_error("invalid token");
+          throw std::logic_error("Invalid token");
         }
         token.clear();
       }
@@ -163,7 +163,7 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string & ex
         }
         else
         {
-          throw std::logic_error("invalid token");
+          throw std::logic_error("Invalid token");
         }
         token.clear();
       }
@@ -179,7 +179,7 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string & ex
         }
         if (opStack.is_empty())
         {
-          throw std::logic_error("missing '('");
+          throw std::logic_error("Missing '('");
         }
         opStack.drop();
       }
@@ -217,13 +217,13 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string & ex
       }
       if (opStack.is_empty())
       {
-        throw std::logic_error("missing '('");
+        throw std::logic_error("Missing '('");
       }
       opStack.drop();
     }
     else
     {
-      throw std::logic_error("invalid token");
+      throw std::logic_error("Invalid token");
     }
   }
 
@@ -232,7 +232,7 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string & ex
     std::string op = opStack.drop();
     if (op == "(" || op == ")")
     {
-      throw std::logic_error("mismatched parentheses");
+      throw std::logic_error("Mismatched parentheses");
     }
     output.push(op);
   }
@@ -252,12 +252,12 @@ long long haliullin::evaluate(haliullin::Queue< std::string > postfix)
     {
       if (evalStack.is_empty())
       {
-        throw std::logic_error("not enough operands in expression");
+        throw std::logic_error("Not enough operands in expression");
       }
       long long b = evalStack.drop();
       if (evalStack.is_empty())
       {
-        throw std::logic_error("not enough operands in expression");
+        throw std::logic_error("Not enough operands in expression");
       }
       long long a = evalStack.drop();
 
@@ -273,23 +273,23 @@ long long haliullin::evaluate(haliullin::Queue< std::string > postfix)
       }
       catch (...)
       {
-        throw std::logic_error("invalid number");
+        throw std::logic_error("Invalid number");
       }
     }
     else
     {
-      throw std::logic_error("invalid number");
+      throw std::logic_error("Invalid number");
     }
   }
 
   if (evalStack.is_empty())
   {
-    throw std::logic_error("no result");
+    throw std::logic_error("No result");
   }
 
-  if (evalStack.size() != 1)
+  if (evalStack.get_size() != 1)
   {
-    throw std::logic_error("too many operands in expression");
+    throw std::logic_error("Too many operands in expression");
   }
 
   return evalStack.drop();
