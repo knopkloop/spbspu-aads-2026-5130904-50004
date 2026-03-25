@@ -113,9 +113,9 @@ BOOST_AUTO_TEST_CASE(testCopyMove)
   lst1.push_front(5);
   lst1.push_front(6);
   BiList< int > lst2(lst1);
-  BOOST_CHECK_EQUAL(lst2.front(), 1);
+  BOOST_CHECK_EQUAL(lst2.front(), 6);
   BiList< int > list3(std::move(lst1));
-  BOOST_CHECK_EQUAL(list3.front(), 1);
+  BOOST_CHECK_EQUAL(list3.front(), 6);
   BOOST_CHECK(lst1.is_empty());
 }
 
