@@ -10,23 +10,24 @@ namespace haliullin
   template < class T > class LCIter;
 
   template< class T >
-  struct Node
+  class Node
   {
-    T val;
-    Node * prev;
-    Node * next;
-
-    Node(const T & value, Node * p = nullptr, Node * n = nullptr):
-      val(value),
-      prev(p),
-      next(n)
+  public:
+    explicit Node(const T & value, Node * prev = nullptr, Node * next = nullptr):
+      val_(value),
+      prev_(prev),
+      next_(next)
     {}
 
-    Node(T && value, Node * p = nullptr, Node * n = nullptr):
-      val(std::move(value)),
-      prev(p),
-      next(n)
+    explicit Node(T && value, Node * prev = nullptr, Node * next = nullptr):
+      val_(std::move(value)),
+      prev_(prev),
+      next_(next)
     {}
+
+    T val_;
+    Node * prev_;
+    Node * next_;
   };
 }
 

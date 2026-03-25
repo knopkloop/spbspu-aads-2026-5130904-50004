@@ -1,5 +1,4 @@
 #include "BiList.hpp"
-
 #include <iostream>
 #include <string>
 #include <utility>
@@ -47,9 +46,9 @@ int main()
     size_t maxLen = 0;
     for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
     {
-      if (it->second.getsize() > maxLen)
+      if (it->second.get_size() > maxLen)
       {
-        maxLen = it->second.getsize();
+        maxLen = it->second.get_size();
       }
     }
 
@@ -59,7 +58,7 @@ int main()
       BiList< unsigned long long > newList;
       for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
       {
-        if (i < it->second.getsize())
+        if (i < it->second.get_size())
         {
           auto elemIt = it->second.cbegin();
           for (size_t j = 0; j < i; ++j)
@@ -123,12 +122,12 @@ int main()
       }
       std::cout << "\n";
     }
-
-    return 0;
   }
   catch (const std::exception & e)
   {
     std::cerr << e.what() << "\n";
     return 1;
   }
+
+  return 0;
 }
