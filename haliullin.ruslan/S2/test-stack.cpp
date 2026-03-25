@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(Clear)
   stack.push(3);
   stack.clear();
   BOOST_CHECK(stack.is_empty());
-  BOOST_CHECK_EQUAL(stack.size(), 0);
+  BOOST_CHECK_EQUAL(stack.get_size(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

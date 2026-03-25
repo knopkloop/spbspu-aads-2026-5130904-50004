@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(Clear)
   queue.push(3);
   queue.clear();
   BOOST_CHECK(queue.is_empty());
-  BOOST_CHECK_EQUAL(queue.size(), 0);
+  BOOST_CHECK_EQUAL(queue.get_size(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
