@@ -70,7 +70,7 @@ bool haliullin::Queue< T >::is_empty() const noexcept
 template < class T >
 size_t haliullin::Queue< T >::get_size() const noexcept
 {
-  return data_.getsize();
+  return data_.get_size();
 }
 
 template < class T >
