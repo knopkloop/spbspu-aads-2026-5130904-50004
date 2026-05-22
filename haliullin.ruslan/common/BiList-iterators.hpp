@@ -7,7 +7,7 @@
 namespace haliullin
 {
   template< class T >
-  class LIter : public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, T*, T& >
+  class LIter: public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, T*, T& >
   {
   public:
     LIter();
@@ -32,7 +32,7 @@ namespace haliullin
   };
 
   template< class T >
-  class LCIter : public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, const T*, const T& >
+  class LCIter: public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, const T*, const T& >
   {
   public:
     LCIter();
