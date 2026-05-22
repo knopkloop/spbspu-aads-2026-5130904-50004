@@ -2,11 +2,12 @@
 #define BILIST_ITERATORS_HPP
 
 #include "../common/node.hpp"
+#include <iterator>
 
 namespace haliullin
 {
   template< class T >
-  class LIter
+  class LIter : public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, T*, T& >
   {
   public:
     LIter();
@@ -31,7 +32,7 @@ namespace haliullin
   };
 
   template< class T >
-  class LCIter
+  class LCIter : public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, const T*, const T& >
   {
   public:
     LCIter();
