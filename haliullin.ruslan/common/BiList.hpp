@@ -1,7 +1,7 @@
 #ifndef BILIST_HPP
 #define BILIST_HPP
 
-#include "../common/BiList-iterators.hpp"
+#include "BiList-iterators.hpp"
 #include <iostream>
 #include <utility>
 
@@ -13,7 +13,7 @@ namespace haliullin
   public:
     BiList();
     BiList(const BiList< T >& other);
-    BiList(BiList< T >&& other);
+    BiList(BiList< T >&& other) noexcept;
     ~BiList();
 
     BiList< T >& operator=(const BiList< T >& other);
@@ -89,12 +89,10 @@ haliullin::BiList< T >::BiList(const BiList< T >& other):
 }
 
 template< class T >
-haliullin::BiList< T >::BiList(BiList< T >&& other):
-  head_(other.head_),
-  size_(other.size_)
+haliullin::BiList< T >::BiList(BiList< T >&& other) noexcept:
+  BiList()
 {
-  other.head_ = nullptr;
-  other.size_ = 0;
+  swap(other);
 }
 
 template< class T >
@@ -106,7 +104,7 @@ haliullin::BiList< T >::~BiList()
 template< class T >
 haliullin::BiList< T >& haliullin::BiList< T >::operator=(const BiList< T >& other)
 {
-  if (this != &other)
+  if (this != std::addressof(other))
   {
     BiList< T > tmp(other);
     swap(tmp);
@@ -117,13 +115,10 @@ haliullin::BiList< T >& haliullin::BiList< T >::operator=(const BiList< T >& oth
 template< class T >
 haliullin::BiList< T >& haliullin::BiList< T >::operator=(BiList< T >&& other) noexcept
 {
-  if (this != &other)
+  if (this != std::addressof(other))
   {
-    clear();
-    head_ = other.head_;
-    size_ = other.size_;
-    other.head_ = nullptr;
-    other.size_ = 0;
+    BiList< T > tmp(std::move(other));
+    swap(tmp);
   }
   return *this;
 }
@@ -432,12 +427,8 @@ void haliullin::BiList< T >::clear()
 template< class T >
 void haliullin::BiList< T >::swap(BiList< T >& other) noexcept
 {
-  Node< T >* tmp_head = head_;
-  size_t tmp_size = size_;
-  head_ = other.head_;
-  size_ = other.size_;
-  other.head_ = tmp_head;
-  other.size_ = tmp_size;
+  std::swap(head_, other.head_);
+  std::swap(size_, other.size_);
 }
 
 #endif

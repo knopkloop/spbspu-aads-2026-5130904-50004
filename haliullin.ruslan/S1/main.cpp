@@ -11,12 +11,12 @@ int main()
   try
   {
     BiList< std::pair< std::string, BiList< unsigned long long > > > sequences;
+    BiList< unsigned long long > numbers;
     std::string name;
+    unsigned long long num;
 
     while (std::cin >> name)
     {
-      BiList< unsigned long long > numbers;
-      unsigned long long num;
       while (std::cin >> num)
       {
         numbers.push_back(num);
@@ -31,15 +31,12 @@ int main()
       return 0;
     }
 
-    bool first = true;
-    for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
+    auto nameIt = sequences.cbegin();
+    std::cout << nameIt->first;
+    ++nameIt;
+    for (; nameIt != sequences.cend(); ++nameIt)
     {
-      if (!first)
-      {
-        std::cout << " ";
-      }
-      std::cout << it->first;
-      first = false;
+      std::cout << " " << nameIt->first;
     }
     std::cout << "\n";
 
@@ -76,15 +73,12 @@ int main()
 
     for (auto it = transp.cbegin(); it != transp.cend(); ++it)
     {
-      bool firstInRow = true;
-      for (auto elemIt = it->cbegin(); elemIt != it->cend(); ++elemIt)
+      auto elemIt = it->cbegin();
+      std::cout << *elemIt;
+      ++elemIt;
+      for (; elemIt != it->cend(); ++elemIt)
       {
-        if (!firstInRow)
-        {
-          std::cout << " ";
-        }
-        std::cout << *elemIt;
-        firstInRow = false;
+        std::cout << " " << *elemIt;
       }
       std::cout << "\n";
     }
@@ -110,15 +104,12 @@ int main()
     }
     else
     {
-      first = true;
-      for (auto it = sums.cbegin(); it != sums.cend(); ++it)
+      auto sumIt = sums.cbegin();
+      std::cout << *sumIt;
+      ++sumIt;
+      for (; sumIt != sums.cend(); ++sumIt)
       {
-        if (!first)
-        {
-          std::cout << " ";
-        }
-        std::cout << *it;
-        first = false;
+        std::cout << " " << *sumIt;
       }
       std::cout << "\n";
     }

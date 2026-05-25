@@ -1,7 +1,7 @@
 #ifndef BILIST_ITERATORS_HPP
 #define BILIST_ITERATORS_HPP
 
-#include "../common/node.hpp"
+#include "node.hpp"
 #include <iterator>
 
 namespace haliullin
@@ -91,19 +91,16 @@ T& haliullin::LIter< T >::operator*() const noexcept
 template< class T >
 T* haliullin::LIter< T >::operator->() const noexcept
 {
-  return &(cur_->val_);
+  return std::addressof(cur_->val_);
 }
 
 template< class T >
 haliullin::LIter< T >& haliullin::LIter< T >::operator++() noexcept
 {
-  if (cur_)
+  cur_ = cur_->next_;
+  if (cur_ == head_)
   {
-    cur_ = cur_->next_;
-    if (cur_ == head_)
-    {
-      cur_ = nullptr;
-    }
+    cur_ = nullptr;
   }
   return *this;
 }
@@ -119,11 +116,15 @@ haliullin::LIter< T > haliullin::LIter< T >::operator++(int) noexcept
 template< class T >
 haliullin::LIter< T >& haliullin::LIter< T >::operator--() noexcept
 {
-  if (cur_ == head_)
+  if (cur_ == nullptr)
+  {
+    cur_ = head_->prev_;
+  }
+  else if (cur_ == head_)
   {
     cur_ = nullptr;
   }
-  else if (cur_)
+  else
   {
     cur_ = cur_->prev_;
   }
@@ -177,19 +178,16 @@ const T& haliullin::LCIter< T >::operator*() const noexcept
 template< class T >
 const T* haliullin::LCIter< T >::operator->() const noexcept
 {
-  return &(cur_->val_);
+  return std::addressof(cur_->val_);
 }
 
 template< class T >
 haliullin::LCIter< T >& haliullin::LCIter< T >::operator++() noexcept
 {
-  if (cur_)
+  cur_ = cur_->next_;
+  if (cur_ == head_)
   {
-    cur_ = cur_->next_;
-    if (cur_ == head_)
-    {
-      cur_ = nullptr;
-    }
+    cur_ = nullptr;
   }
   return *this;
 }
@@ -205,11 +203,15 @@ haliullin::LCIter< T > haliullin::LCIter< T >::operator++(int) noexcept
 template< class T >
 haliullin::LCIter< T >& haliullin::LCIter< T >::operator--() noexcept
 {
-  if (cur_ == head_)
+  if (cur_ == nullptr)
+  {
+    cur_ = head_->prev_;
+  }
+  else if (cur_ == head_)
   {
     cur_ = nullptr;
   }
-  else if (cur_)
+  else
   {
     cur_ = cur_->prev_;
   }

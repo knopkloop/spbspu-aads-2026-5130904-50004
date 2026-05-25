@@ -18,14 +18,9 @@ namespace haliullin
   class Node
   {
   public:
-    explicit Node(const T& value, Node< T >* prev = nullptr, Node< T >* next = nullptr):
-      val_(value),
-      prev_(prev),
-      next_(next)
-    {}
-
-    explicit Node(T&& value, Node< T >* prev = nullptr, Node< T >* next = nullptr):
-      val_(std::move(value)),
+    template< class U >
+    explicit Node(U&& value, Node< T >* prev = nullptr, Node< T >* next = nullptr):
+      val_(std::forward< U >(value)),
       prev_(prev),
       next_(next)
     {}

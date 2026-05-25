@@ -5,6 +5,19 @@ using namespace haliullin;
 
 BOOST_AUTO_TEST_SUITE(BiListTests)
 
+BOOST_AUTO_TEST_CASE(Copy_Move)
+{
+  BiList< int > lst1;
+  lst1.push_front(4);
+  lst1.push_front(5);
+  lst1.push_front(6);
+  BiList< int > lst2(lst1);
+  BOOST_CHECK_EQUAL(lst2.front(), 6);
+  BiList< int > list3(std::move(lst1));
+  BOOST_CHECK_EQUAL(list3.front(), 6);
+  BOOST_CHECK(lst1.is_empty());
+}
+
 BOOST_AUTO_TEST_CASE(is_empty)
 {
   BiList< int > lst;
@@ -104,19 +117,6 @@ BOOST_AUTO_TEST_CASE(erase)
   BOOST_CHECK_EQUAL(lst.get_size(), 2);
   BOOST_CHECK_EQUAL(lst.front(), 1);
   BOOST_CHECK_EQUAL(lst.back(), 3);
-}
-
-BOOST_AUTO_TEST_CASE(testCopyMove)
-{
-  BiList< int > lst1;
-  lst1.push_front(4);
-  lst1.push_front(5);
-  lst1.push_front(6);
-  BiList< int > lst2(lst1);
-  BOOST_CHECK_EQUAL(lst2.front(), 6);
-  BiList< int > list3(std::move(lst1));
-  BOOST_CHECK_EQUAL(list3.front(), 6);
-  BOOST_CHECK(lst1.is_empty());
 }
 
 BOOST_AUTO_TEST_CASE(clear)
