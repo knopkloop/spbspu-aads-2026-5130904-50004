@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
-#include "stack.hpp"
 #include <stdexcept>
+#include "stack.hpp"
 
 BOOST_AUTO_TEST_SUITE(StackTests)
 
@@ -30,7 +30,6 @@ BOOST_AUTO_TEST_CASE(Exceptions)
   haliullin::Stack< int > stack;
   BOOST_CHECK_THROW(stack.drop(), std::runtime_error);
   BOOST_CHECK_THROW(stack.top(), std::runtime_error);
-
 }
 
 BOOST_AUTO_TEST_CASE(Clear)

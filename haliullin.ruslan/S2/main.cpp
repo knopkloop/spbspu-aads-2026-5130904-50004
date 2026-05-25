@@ -1,13 +1,12 @@
-#include "stack.hpp"
-#include "evaluate.hpp"
-
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "stack.hpp"
+#include "evaluate.hpp"
 
-using namespace haliullin;
 int main(int argc, char * argv[])
 {
+  using namespace haliullin;
   std::istream * input = &std::cin;
   std::ifstream file;
 

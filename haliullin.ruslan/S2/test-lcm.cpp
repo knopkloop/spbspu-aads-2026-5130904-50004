@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
+#include <stdexcept>
 #include "evaluate.hpp"
 #include "math_op.hpp"
-#include <stdexcept>
 
 BOOST_AUTO_TEST_SUITE(LcmTests)
 

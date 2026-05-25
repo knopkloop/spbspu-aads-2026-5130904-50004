@@ -1,11 +1,10 @@
+#include <string>
+#include <cctype>
+#include <stdexcept>
 #include "evaluate.hpp"
 #include "queue.hpp"
 #include "stack.hpp"
 #include "math_op.hpp"
-
-#include <string>
-#include <cctype>
-#include <stdexcept>
 
 int haliullin::get_priority(const std::string& oper)
 {
@@ -59,14 +58,13 @@ long long haliullin::calculate(long long a, long long b, const std::string& oper
   }
 }
 
-bool haliullin::isOperator(const std::string& token)
+bool haliullin::isOperator(const std::string& tok)
 {
-  if (token.length() == 1)
+  if (tok.length() == 1)
   {
-    return token[0] == '+' || token[0] == '-' || token[0] == '*' ||
-           token[0] == '/' || token[0] == '%';
+    return tok[0] == '+' || tok[0] == '-' || tok[0] == '*' || tok[0] == '/' || tok[0] == '%';
   }
-  else if (token == "lcm")
+  else if (tok == "lcm")
   {
     return true;
   }
@@ -102,8 +100,8 @@ bool haliullin::isNumber(const std::string& token)
 
 haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& expression)
 {
-  haliullin::Queue< std::string > output;
-  haliullin::Stack< std::string > opStack;
+  Queue< std::string > output;
+  Stack< std::string > opStack;
   std::string token;
 
   for (size_t i = 0; i < expression.length(); ++i)
@@ -114,14 +112,13 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& exp
     {
       if (!token.empty())
       {
-        if (haliullin::isNumber(token))
+        if (isNumber(token))
         {
           output.push(token);
         }
-        else if (haliullin::isOperator(token))
+        else if (isOperator(token))
         {
-          while (!opStack.is_empty() && opStack.top() != "(" &&
-                haliullin::get_priority(opStack.top()) >= haliullin::get_priority(token))
+          while (!opStack.is_empty() && opStack.top() != "(" && get_priority(opStack.top()) >= get_priority(token))
           {
             output.push(opStack.drop());
           }
@@ -154,7 +151,7 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& exp
     {
       if (!token.empty())
       {
-        if (haliullin::isNumber(token))
+        if (isNumber(token))
         {
           output.push(token);
         }
@@ -189,14 +186,13 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& exp
 
   if (!token.empty())
   {
-    if (haliullin::isNumber(token))
+    if (isNumber(token))
     {
       output.push(token);
     }
-    else if (haliullin::isOperator(token))
+    else if (isOperator(token))
     {
-      while (!opStack.is_empty() && opStack.top() != "(" &&
-            haliullin::get_priority(opStack.top()) >= haliullin::get_priority(token))
+      while (!opStack.is_empty() && opStack.top() != "(" && get_priority(opStack.top()) >= get_priority(token))
       {
         output.push(opStack.drop());
       }
@@ -239,13 +235,13 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& exp
 
 long long haliullin::evaluate(haliullin::Queue< std::string > postfix)
 {
-  haliullin::Stack< long long > evalStack;
+  Stack< long long > evalStack;
 
   while (!postfix.is_empty())
   {
     std::string token = postfix.drop();
 
-    if (haliullin::isOperator(token))
+    if (isOperator(token))
     {
       if (evalStack.is_empty())
       {
@@ -258,20 +254,13 @@ long long haliullin::evaluate(haliullin::Queue< std::string > postfix)
       }
       long long a = evalStack.drop();
 
-      long long res = haliullin::calculate(a, b, token);
+      long long res = calculate(a, b, token);
       evalStack.push(res);
     }
-    else if (haliullin::isNumber(token))
+    else if (isNumber(token))
     {
-      try
-      {
-        long long num = std::stoll(token);
-        evalStack.push(num);
-      }
-      catch (...)
-      {
-        throw std::logic_error("Invalid number");
-      }
+      long long num = std::stoll(token);
+      evalStack.push(num);
     }
     else
     {

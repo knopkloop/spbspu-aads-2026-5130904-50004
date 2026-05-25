@@ -1,8 +1,8 @@
 #ifndef STACK_HPP
 #define STACK_HPP
 
-#include "../common/BiList.hpp"
 #include <stdexcept>
+#include <BiList.hpp>
 
 namespace haliullin
 {
@@ -26,7 +26,7 @@ namespace haliullin
 template< class T >
 void haliullin::Stack< T >::push(const T& rhs)
 {
-  data_.push_back(rhs);
+  data_.emplace_back(rhs);
 }
 
 template< class T >
