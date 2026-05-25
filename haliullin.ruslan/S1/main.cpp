@@ -1,28 +1,26 @@
-#include "../common/BiList.hpp"
 #include <iostream>
 #include <string>
 #include <utility>
 #include <limits>
-
-using namespace haliullin;
+#include <BiList.hpp>
 
 int main()
 {
   try
   {
-    BiList< std::pair< std::string, BiList< unsigned long long > > > sequences;
+    haliullin::BiList< std::pair< std::string, haliullin::BiList< unsigned long long > > > sequences;
+    haliullin::BiList< unsigned long long > numbers;
     std::string name;
+    unsigned long long num;
 
     while (std::cin >> name)
     {
-      BiList< unsigned long long > numbers;
-      unsigned long long num;
       while (std::cin >> num)
       {
-        numbers.push_back(num);
+        numbers.emplace_back(num);
       }
       std::cin.clear();
-      sequences.push_back(std::make_pair(name, std::move(numbers)));
+      sequences.emplace_back(std::make_pair(name, std::move(numbers)));
     }
 
     if (sequences.is_empty())
@@ -31,15 +29,12 @@ int main()
       return 0;
     }
 
-    bool first = true;
-    for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
+    auto nameIt = sequences.cbegin();
+    std::cout << nameIt->first;
+    ++nameIt;
+    for (; nameIt != sequences.cend(); ++nameIt)
     {
-      if (!first)
-      {
-        std::cout << " ";
-      }
-      std::cout << it->first;
-      first = false;
+      std::cout << " " << nameIt->first;
     }
     std::cout << "\n";
 
@@ -52,10 +47,10 @@ int main()
       }
     }
 
-    BiList< BiList< unsigned long long > > transp;
+    haliullin::BiList< haliullin::BiList< unsigned long long > > transp;
     for (size_t i = 0; i < maxLen; ++i)
     {
-      BiList< unsigned long long > newList;
+      haliullin::BiList< unsigned long long > newList;
       for (auto it = sequences.cbegin(); it != sequences.cend(); ++it)
       {
         if (i < it->second.get_size())
@@ -65,31 +60,28 @@ int main()
           {
             ++elemIt;
           }
-          newList.push_back(*elemIt);
+          newList.emplace_back(*elemIt);
         }
       }
       if (!newList.is_empty())
       {
-        transp.push_back(std::move(newList));
+        transp.emplace_back(std::move(newList));
       }
     }
 
     for (auto it = transp.cbegin(); it != transp.cend(); ++it)
     {
-      bool firstInRow = true;
-      for (auto elemIt = it->cbegin(); elemIt != it->cend(); ++elemIt)
+      auto elemIt = it->cbegin();
+      std::cout << *elemIt;
+      ++elemIt;
+      for (; elemIt != it->cend(); ++elemIt)
       {
-        if (!firstInRow)
-        {
-          std::cout << " ";
-        }
-        std::cout << *elemIt;
-        firstInRow = false;
+        std::cout << " " << *elemIt;
       }
       std::cout << "\n";
     }
 
-    BiList< unsigned long long > sums;
+    haliullin::BiList< unsigned long long > sums;
     for (auto it = transp.cbegin(); it != transp.cend(); ++it)
     {
       unsigned long long total = 0;
@@ -101,7 +93,7 @@ int main()
         }
         total += *elemIt;
       }
-      sums.push_back(total);
+      sums.emplace_back(total);
     }
 
     if (sums.is_empty())
@@ -110,15 +102,12 @@ int main()
     }
     else
     {
-      first = true;
-      for (auto it = sums.cbegin(); it != sums.cend(); ++it)
+      auto sumIt = sums.cbegin();
+      std::cout << *sumIt;
+      ++sumIt;
+      for (; sumIt != sums.cend(); ++sumIt)
       {
-        if (!first)
-        {
-          std::cout << " ";
-        }
-        std::cout << *it;
-        first = false;
+        std::cout << " " << *sumIt;
       }
       std::cout << "\n";
     }
