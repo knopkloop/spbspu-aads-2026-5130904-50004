@@ -18,8 +18,8 @@ namespace haliullin
   class Node
   {
   public:
-    template< class ... Args >
-    explicit Node(Node< T >* prev, Node< T >* next, Args&& ... args):
+    template< class... Args >
+    explicit Node(Node< T >* prev, Node< T >* next, Args&&... args):
       prev_(prev),
       next_(next),
       val_(std::forward< Args >(args)...)

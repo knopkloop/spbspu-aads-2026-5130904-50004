@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 #include "BiList-iterators.hpp"
 
 namespace haliullin
@@ -32,13 +33,9 @@ namespace haliullin
     LIter< T > end();
     LCIter< T > cend() const;
 
-    void push_front(const T& value);
-    void push_front(T&& value);
-    void push_back(const T& value);
-    void push_back(T&& value);
-
-    LIter< T > insert(LIter< T > pos, const T& value);
-    LIter< T > insert(LIter< T > pos, T&& value);
+    template< class... Args > void emplace_front(Args&&... args);
+    template< class... Args > void emplace_back(Args&&... args);
+    template< class... Args > LIter< T > emplace(LIter< T > pos, Args&&... args);
 
     void pop_front();
     void pop_back();
@@ -70,14 +67,14 @@ haliullin::BiList< T >::BiList(const BiList< T >& other):
     return;
   }
   Node< T >* cur = other.head_;
-  Node< T >* first = new Node< T >(cur->val_);
+  Node< T >* first = new Node< T >(nullptr, nullptr, cur->val_);
   head_ = first;
   size_ = 1;
   cur = cur->next_;
   Node< T >* prev = first;
   while (cur != other.head_)
   {
-    Node< T >* newNode = new Node< T >(cur->val_);
+    Node< T >* newNode = new Node< T >(nullptr, nullptr, cur->val_);
     prev->next_ = newNode;
     newNode->prev_ = prev;
     prev = newNode;
@@ -200,15 +197,11 @@ haliullin::LCIter< T > haliullin::BiList< T >::cend() const
 }
 
 template< class T >
-void haliullin::BiList< T >::push_front(const T& value)
+template< class... Args >
+void haliullin::BiList< T >::emplace_front(Args&&... args)
 {
-  push_front(T(value));
-}
+  Node< T >* newNode = new Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
 
-template< class T >
-void haliullin::BiList< T >::push_front(T&& value)
-{
-  Node< T >* newNode = new Node< T >(std::move(value));
   if (is_empty())
   {
     head_ = newNode;
@@ -227,56 +220,52 @@ void haliullin::BiList< T >::push_front(T&& value)
 }
 
 template< class T >
-void haliullin::BiList< T >::push_back(const T& value)
-{
-  push_back(T(value));
-}
-
-template< class T >
-void haliullin::BiList< T >::push_back(T&& value)
+template< class... Args >
+void haliullin::BiList< T >::emplace_back(Args&&... args)
 {
   if (is_empty())
   {
-    push_front(std::move(value));
+    emplace_front(std::forward< Args >(args)...);
+    return;
   }
-  else
-  {
-    Node< T >* newNode = new Node< T >(std::move(value));
-    Node< T >* last = head_->prev_;
-    newNode->next_ = head_;
-    newNode->prev_ = last;
-    last->next_ = newNode;
-    head_->prev_ = newNode;
-    ++size_;
-  }
+
+  Node< T >* newNode = new Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
+  Node< T >* last = head_->prev_;
+  newNode->next_ = head_;
+  newNode->prev_ = last;
+  last->next_ = newNode;
+  head_->prev_ = newNode;
+  ++size_;
 }
 
 template< class T >
-haliullin::LIter< T > haliullin::BiList< T >::insert(LIter< T > pos, const T& value)
-{
-  return insert(pos, T(value));
-}
-
-template< class T >
-haliullin::LIter< T > haliullin::BiList< T >::insert(LIter< T > pos, T&& value)
+template< class... Args >
+haliullin::LIter< T > haliullin::BiList< T >::emplace(LIter< T > pos, Args&&... args)
 {
   if (is_empty())
   {
-    push_front(std::move(value));
+    emplace_front(std::forward< Args >(args)...);
     return begin();
   }
+
+  if (pos.cur_ == head_)
+  {
+    emplace_front(std::forward< Args >(args)...);
+    return begin();
+  }
+
   if (pos.cur_ == nullptr)
   {
-    push_front(std::move(value));
-    return begin();
+    emplace_back(std::forward< Args >(args)...);
+    return LIter< T >(head_->prev_, head_);
   }
-  Node< T >* newNode = new Node< T >(std::move(value), pos.cur_, pos.cur_->next_);
-  pos.cur_->next_->prev_ = newNode;
-  pos.cur_->next_ = newNode;
-  if (pos.cur_ == head_->prev_)
-  {
-    head_->prev_ = newNode;
-  }
+
+  Node< T >* prevNode = pos.cur_->prev_;
+  Node< T >* newNode = new Node< T >(prevNode, pos.cur_, std::forward< Args >(args)...);
+
+  prevNode->next_ = newNode;
+  pos.cur_->prev_ = newNode;
+
   ++size_;
   return LIter< T >(newNode, head_);
 }
