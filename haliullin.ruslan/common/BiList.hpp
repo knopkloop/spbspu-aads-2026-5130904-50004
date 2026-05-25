@@ -1,9 +1,9 @@
 #ifndef BILIST_HPP
 #define BILIST_HPP
 
-#include "BiList-iterators.hpp"
 #include <iostream>
 #include <utility>
+#include "BiList-iterators.hpp"
 
 namespace haliullin
 {
