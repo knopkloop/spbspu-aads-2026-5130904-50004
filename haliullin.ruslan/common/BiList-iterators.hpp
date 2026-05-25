@@ -1,8 +1,8 @@
 #ifndef BILIST_ITERATORS_HPP
 #define BILIST_ITERATORS_HPP
 
-#include "node.hpp"
 #include <iterator>
+#include "node.hpp"
 
 namespace haliullin
 {

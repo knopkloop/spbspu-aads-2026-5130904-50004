@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "../common/BiList.hpp"
+#include <BiList.hpp>
 
 using namespace haliullin;
 

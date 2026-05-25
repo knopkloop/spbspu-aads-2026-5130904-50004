@@ -1,13 +1,12 @@
-#include "../common/BiList.hpp"
 #include <iostream>
 #include <string>
 #include <utility>
 #include <limits>
-
-using namespace haliullin;
+#include <BiList.hpp>
 
 int main()
 {
+  using namespace haliullin;
   try
   {
     BiList< std::pair< std::string, BiList< unsigned long long > > > sequences;

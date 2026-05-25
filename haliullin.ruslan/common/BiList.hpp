@@ -202,22 +202,7 @@ haliullin::LCIter< T > haliullin::BiList< T >::cend() const
 template< class T >
 void haliullin::BiList< T >::push_front(const T& value)
 {
-  Node< T >* newNode = new Node< T >(value);
-  if (is_empty())
-  {
-    head_ = newNode;
-    head_->next_ = head_;
-    head_->prev_ = head_;
-  }
-  else
-  {
-    newNode->next_ = head_;
-    newNode->prev_ = head_->prev_;
-    head_->prev_->next_ = newNode;
-    head_->prev_ = newNode;
-    head_ = newNode;
-  }
-  ++size_;
+  push_front(T(value));
 }
 
 template< class T >
@@ -244,20 +229,7 @@ void haliullin::BiList< T >::push_front(T&& value)
 template< class T >
 void haliullin::BiList< T >::push_back(const T& value)
 {
-  if (is_empty())
-  {
-    push_front(value);
-  }
-  else
-  {
-    Node< T >* newNode = new Node< T >(value);
-    Node< T >* last = head_->prev_;
-    newNode->next_ = head_;
-    newNode->prev_ = last;
-    last->next_ = newNode;
-    head_->prev_ = newNode;
-    ++size_;
-  }
+  push_back(T(value));
 }
 
 template< class T >
@@ -282,25 +254,7 @@ void haliullin::BiList< T >::push_back(T&& value)
 template< class T >
 haliullin::LIter< T > haliullin::BiList< T >::insert(LIter< T > pos, const T& value)
 {
-  if (is_empty())
-  {
-    push_front(value);
-    return begin();
-  }
-  if (pos.cur_ == nullptr)
-  {
-    push_front(value);
-    return begin();
-  }
-  Node< T >* newNode = new Node< T >(value, pos.cur_, pos.cur_->next_);
-  pos.cur_->next_->prev_ = newNode;
-  pos.cur_->next_ = newNode;
-  if (pos.cur_ == head_->prev_)
-  {
-    head_->prev_ = newNode;
-  }
-  ++size_;
-  return LIter< T >(newNode, head_);
+  return insert(pos, T(value));
 }
 
 template< class T >
