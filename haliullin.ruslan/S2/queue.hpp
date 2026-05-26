@@ -32,7 +32,7 @@ void haliullin::Queue< T >::push(const T& rhs)
 template< class T >
 void haliullin::Queue< T >::pop()
 {
-  if (data.is_empty())
+  if (data_.is_empty())
   {
     throw std::runtime_error("Queue is empty");
   }

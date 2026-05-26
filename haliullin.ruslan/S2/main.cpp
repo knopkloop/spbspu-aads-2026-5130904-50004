@@ -37,7 +37,6 @@ int main(int argc, char * argv[])
       {
         res.push(evaluate(infixToPostfix(line)));
       }
-
     }
   }
   catch(const std::exception & e)
@@ -49,11 +48,11 @@ int main(int argc, char * argv[])
   if (!res.is_empty())
   {
     std::cout << res.top();
-    res.drop();
+    res.pop();
     while(!res.is_empty())
     {
       std::cout << " " << res.top();
-      res.drop();
+      res.pop();
     }
   }
   std::cout << "\n";
