@@ -11,7 +11,7 @@ namespace haliullin
   {
   public:
     void push(const T& rhs);
-    T drop();
+    void pop();
     T& top();
     const T& top() const;
     bool is_empty() const noexcept;
@@ -30,15 +30,13 @@ void haliullin::Stack< T >::push(const T& rhs)
 }
 
 template< class T >
-T haliullin::Stack< T >::drop()
+void haliullin::Stack< T >::pop()
 {
   if (data_.is_empty())
   {
     throw std::runtime_error("Stack is empty");
   }
-  T val = data_.back();
   data_.pop_back();
-  return val;
 }
 
 template< class T >

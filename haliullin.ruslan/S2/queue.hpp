@@ -11,7 +11,7 @@ namespace haliullin
   {
   public:
     void push(const T& rhs);
-    T drop();
+    void pop();
     T& front();
     const T& front() const;
     bool is_empty() const noexcept;
@@ -30,15 +30,13 @@ void haliullin::Queue< T >::push(const T& rhs)
 }
 
 template< class T >
-T haliullin::Queue< T >::drop()
+void haliullin::Queue< T >::pop()
 {
-  if (data_.is_empty())
+  if (data.is_empty())
   {
     throw std::runtime_error("Queue is empty");
   }
-  T val = data_.front();
   data_.pop_front();
-  return val;
 }
 
 template< class T >
