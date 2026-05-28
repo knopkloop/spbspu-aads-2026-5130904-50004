@@ -1,10 +1,10 @@
 #ifndef HASHTABLE_ITERATORS_HPP
 #define HASHTABLE_ITERATORS_HPP
 
-#include "vector.hpp"
-#include "slot.hpp"
 #include <cstddef>
 #include <utility>
+#include "vector.hpp"
+#include "slot.hpp"
 
 namespace haliullin
 {
@@ -87,7 +87,7 @@ template< class Key, class Value, class Hash, class Equal >
 haliullin::HtIter< Key, Value, Hash, Equal >& haliullin::HtIter< Key, Value, Hash, Equal >::operator++() noexcept
 {
   ++idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     ++idx_;
   }
@@ -110,7 +110,7 @@ haliullin::HtIter< Key, Value, Hash, Equal >& haliullin::HtIter< Key, Value, Has
     return *this;
   }
   --idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     --idx_;
   }
@@ -136,7 +136,6 @@ bool haliullin::HtIter< Key, Value, Hash, Equal >::operator!=(const HtIter& othe
 {
   return !(*this == other);
 }
-
 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HtCIter< Key, Value, Hash, Equal >::HtCIter() noexcept:
@@ -166,7 +165,7 @@ template< class Key, class Value, class Hash, class Equal >
 haliullin::HtCIter< Key, Value, Hash, Equal >& haliullin::HtCIter< Key, Value, Hash, Equal >::operator++() noexcept
 {
   ++idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     ++idx_;
   }
@@ -189,7 +188,7 @@ haliullin::HtCIter< Key, Value, Hash, Equal >& haliullin::HtCIter< Key, Value, H
     return *this;
   }
   --idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     --idx_;
   }

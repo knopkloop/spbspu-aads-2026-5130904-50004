@@ -102,7 +102,7 @@ bool haliullin::Graph::cutEdge(const std::string& fromVert, const std::string& t
       w.erase(i);
       if (w.isEmpty())
       {
-        edges_.drop(key);
+        edges_.erase(key);
       }
       return true;
     }
@@ -110,7 +110,7 @@ bool haliullin::Graph::cutEdge(const std::string& fromVert, const std::string& t
   return false;
 }
 
-haliullin::Vector< std::string > haliullin::Graph::getVertexes() const noexcept
+haliullin::Vector< std::string > haliullin::Graph::getVertexes() const
 {
   return vertexes_;
 }

@@ -2,6 +2,7 @@
 #define VECTOR_HPP
 
 #include <stdexcept>
+#include <memory>
 
 namespace haliullin
 {

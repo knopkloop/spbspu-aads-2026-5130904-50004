@@ -30,7 +30,7 @@ namespace haliullin
     void addEdge(const std::string& fromVert, const std::string& toVert, unsigned long long weight);
     bool cutEdge(const std::string& fromVert, const std::string& toVert, unsigned long long weight);
 
-    Vector< std::string > getVertexes() const noexcept;
+    Vector< std::string > getVertexes() const;
 
     Vector< std::pair< std::string, Vector< unsigned long long > > >
     getOutbound(const std::string& fromVert) const;

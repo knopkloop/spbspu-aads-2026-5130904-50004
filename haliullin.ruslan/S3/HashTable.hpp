@@ -1,12 +1,13 @@
 #ifndef HASHTABLE_HPP
 #define HASHTABLE_HPP
 
-#include "vector.hpp"
-#include "slot.hpp"
-#include "HashTable-iterators.hpp"
 #include <cstddef>
 #include <stdexcept>
 #include <utility>
+#include <memory>
+#include "vector.hpp"
+#include "slot.hpp"
+#include "HashTable-iterators.hpp"
 
 namespace haliullin
 {
@@ -26,10 +27,12 @@ namespace haliullin
     void swap(HashTable& other) noexcept;
 
     void add(const Key& k, const Value& v);
-    Value drop(const Key& k);
     bool has(const Key& k) const noexcept;
     Value& get(const Key& k);
     const Value& get(const Key& k) const;
+    HtIter< Key, Value, Hash, Equal > find(const Key& k) noexcept;
+    HtCIter< Key, Value, Hash, Equal > find(const Key& k) const noexcept;
+    void erase(const Key& k);
     void rehash(size_t newSize);
 
     bool isEmpty() const noexcept;
@@ -117,20 +120,15 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
   for (size_t i = 0; i < slots_.getSize(); ++i)
   {
     size_t idx = probe(hash, i);
-    char state = slots_[idx].info_;
+    SlotState state = slots_[idx].info_;
 
-    if (state == 'o' && equal_(slots_[idx].key_, k))
+    if (state == SlotState::OCCUPIED && equal_(slots_[idx].key_, k))
     {
       throw std::invalid_argument("Key already exists");
     }
-
-    if (state != 'o' && insertIdx == slots_.getSize())
+    if (state != SlotState::OCCUPIED && insertIdx == slots_.getSize())
     {
       insertIdx = idx;
-    }
-
-    if (state == 'e')
-    {
       break;
     }
   }
@@ -144,22 +142,8 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
   Value valCp(v);
   slots_[insertIdx].key_ = std::move(keyCp);
   slots_[insertIdx].value_ = std::move(valCp);
-  slots_[insertIdx].info_ = 'o';
+  slots_[insertIdx].info_ = SlotState::OCCUPIED;
   ++size_;
-}
-
-template< class Key, class Value, class Hash, class Equal >
-Value haliullin::HashTable< Key, Value, Hash, Equal >::drop(const Key& k)
-{
-  size_t idx = findIdx(k);
-  if (idx == slots_.getSize())
-  {
-    throw std::out_of_range("Key not found");
-  }
-  Value result = slots_[idx].value_;
-  slots_[idx].info_ = 't';
-  --size_;
-  return result;
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -191,6 +175,40 @@ const Value& haliullin::HashTable< Key, Value, Hash, Equal >::get(const Key& k) 
 }
 
 template< class Key, class Value, class Hash, class Equal >
+haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::find(const Key& k) noexcept
+{
+  size_t idx = findIdx(k);
+  if (idx == slots_.getSize())
+  {
+    return end();
+  }
+  return HtIter< Key, Value, Hash, Equal >(&slots_, idx);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::find(const Key& k) const noexcept
+{
+  size_t idx = findIdx(k);
+  if (idx == slots_.getSize())
+  {
+    return end();
+  }
+  return HtCIter< Key, Value, Hash, Equal >(&slots_, idx);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::HashTable< Key, Value, Hash, Equal >::erase(const Key& k)
+{
+  size_t idx = findIdx(k);
+  if (idx == slots_.getSize())
+  {
+    throw std::out_of_range("Key not found");
+  }
+  slots_[idx].info_ = SlotState::TOMBSTONE;
+  --size_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
 void haliullin::HashTable< Key, Value, Hash, Equal >::rehash(size_t newSlots)
 {
   if (newSlots < size_)
@@ -200,7 +218,7 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::rehash(size_t newSlots)
   HashTable tmp(newSlots);
   for (size_t i = 0; i < slots_.getSize(); ++i)
   {
-    if (slots_[i].info_ == 'o')
+    if (slots_[i].info_ == SlotState::OCCUPIED)
     {
       tmp.add(slots_[i].key_, slots_[i].value_);
     }
@@ -233,13 +251,13 @@ size_t haliullin::HashTable< Key, Value, Hash, Equal >::findIdx(const Key& k) co
   for (size_t i = 0; i < slots_.getSize(); ++i)
   {
     size_t idx = probe(hash, i);
-    char state = slots_[idx].info_;
+    SlotState state = slots_[idx].info_;
 
-    if (state == 'e')
+    if (state == SlotState::EMPTY)
     {
       return slots_.getSize();
     }
-    else if (state == 'o' && equal_(slots_[idx].key_, k))
+    else if (state == SlotState::OCCUPIED && equal_(slots_[idx].key_, k))
     {
       return idx;
     }
@@ -258,7 +276,7 @@ haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, H
 {
   for (size_t i = 0; i < slots_.getSize(); ++i)
   {
-    if (slots_[i].info_ == 'o')
+    if (slots_[i].info_ == SlotState::OCCUPIED)
     {
       return HtIter< Key, Value, Hash, Equal >(&slots_, i);
     }
@@ -271,7 +289,7 @@ haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, 
 {
   for (size_t i = 0; i < slots_.getSize(); ++i)
   {
-    if (slots_[i].info_ == 'o')
+    if (slots_[i].info_ == SlotState::OCCUPIED)
     {
       return HtCIter< Key, Value, Hash, Equal >(&slots_, i);
     }

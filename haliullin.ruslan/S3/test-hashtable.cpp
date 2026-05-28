@@ -1,9 +1,9 @@
 #include <boost/test/unit_test.hpp>
+#include <string>
+#include <stdexcept>
 #include "HashTable.hpp"
 #include "SipHash.hpp"
 #include "Equal.hpp"
-#include <string>
-#include <stdexcept>
 
 BOOST_AUTO_TEST_SUITE(HashTableTests)
 
@@ -60,14 +60,13 @@ BOOST_AUTO_TEST_CASE(test_get)
   BOOST_CHECK_EQUAL(ht.get("f"), 99);
 }
 
-BOOST_AUTO_TEST_CASE(test_drop)
+BOOST_AUTO_TEST_CASE(test_erase)
 {
   Table ht(73);
   ht.add("first", 111);
   ht.add("second", 222);
 
-  int val = ht.drop("first");
-  BOOST_CHECK_EQUAL(val, 111);
+  ht.erase("first");
   BOOST_CHECK_EQUAL(ht.getSize(), 1);
   BOOST_CHECK(!ht.has("first"));
   BOOST_CHECK(ht.has("second"));

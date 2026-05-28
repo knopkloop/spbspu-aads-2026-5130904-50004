@@ -1,12 +1,12 @@
 #ifndef COMMANDS_HPP
 #define COMMANDS_HPP
 
+#include <iostream>
+#include <string>
 #include "HashTable.hpp"
 #include "graph.hpp"
 #include "SipHash.hpp"
 #include "Equal.hpp"
-#include <iostream>
-#include <string>
 
 namespace haliullin
 {
