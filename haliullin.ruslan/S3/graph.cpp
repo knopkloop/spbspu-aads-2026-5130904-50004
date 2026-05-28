@@ -52,11 +52,22 @@ void haliullin::Graph::addVertex(const std::string& vert)
   vertexes_.insSort();
 }
 
-bool haliullin::Graph::hasVertex(const std::string& vert) const noexcept
+bool haliullin::Graph::hasVertex(const std::string& vert) const
 {
-  for (size_t i = 0; i < vertexes_.getSize(); ++i)
+  size_t low = 0;
+  size_t high = vertexes_.getSize();
+  while (low < high)
   {
-    if (vertexes_[i] == vert)
+    size_t mid = low + (high - low) / 2;
+    if (vertexes_[mid] < vert)
+    {
+      low = mid + 1;
+    }
+    else if (vertexes_[mid] > vert)
+    {
+      high = mid;
+    }
+    else
     {
       return true;
     }
@@ -66,19 +77,20 @@ bool haliullin::Graph::hasVertex(const std::string& vert) const noexcept
 
 void haliullin::Graph::addEdge(const std::string& fromVert, const std::string& toVert, unsigned long long weight)
 {
-  addVertex(fromVert);
-  addVertex(toVert);
+  Graph temp(*this);
+  temp.addVertex(fromVert);
+  temp.addVertex(toVert);
 
   std::pair< std::string, std::string > key{fromVert, toVert};
-  if (!edges_.has(key))
+  if (!temp.edges_.has(key))
   {
     Vector< unsigned long long > w;
     w.pushBack(weight);
-    edges_.add(key, w);
+    temp.edges_.add(key, w);
   }
   else
   {
-    Vector< unsigned long long >& w = edges_.get(key);
+    Vector< unsigned long long >& w = temp.edges_.get(key);
     size_t pos = 0;
     while (pos < w.getSize() && w[pos] < weight)
     {
@@ -86,26 +98,37 @@ void haliullin::Graph::addEdge(const std::string& fromVert, const std::string& t
     }
     w.insert(pos, weight);
   }
+  swap(temp);
 }
 
 bool haliullin::Graph::cutEdge(const std::string& fromVert, const std::string& toVert, unsigned long long weight)
 {
+  Graph temp(*this);
   std::pair< std::string, std::string > key{fromVert, toVert};
-  if (!edges_.has(key))
+  if (!temp.edges_.has(key))
+  {
     return false;
+  }
 
-  Vector< unsigned long long >& w = edges_.get(key);
+  Vector< unsigned long long >& w = temp.edges_.get(key);
+  bool found = false;
   for (size_t i = 0; i < w.getSize(); ++i)
   {
     if (w[i] == weight)
     {
       w.erase(i);
-      if (w.isEmpty())
-      {
-        edges_.erase(key);
-      }
-      return true;
+      found = true;
+      break;
     }
+  }
+  if (found)
+  {
+    if (w.isEmpty())
+    {
+      temp.edges_.erase(key);
+    }
+    swap(temp);
+    return true;
   }
   return false;
 }
@@ -266,6 +289,5 @@ haliullin::Graph haliullin::Graph::extract(const Vector< std::string >& verts) c
       }
     }
   }
-
   return result;
 }
