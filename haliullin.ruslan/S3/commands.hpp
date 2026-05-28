@@ -31,11 +31,11 @@ namespace haliullin
     void cmdVertexes(std::istream& in, std::ostream& out);
     void cmdOutbound(std::istream& in, std::ostream& out);
     void cmdInbound(std::istream& in, std::ostream& out);
-    void cmdBind(std::istream& in, std::ostream& out);
-    void cmdCut(std::istream& in, std::ostream& out);
-    void cmdCreate(std::istream& in, std::ostream& out);
-    void cmdMerge(std::istream& in, std::ostream& out);
-    void cmdExtract(std::istream& in, std::ostream& out);
+    void cmdBind(std::istream& in, std::ostream&);
+    void cmdCut(std::istream& in, std::ostream&);
+    void cmdCreate(std::istream& in, std::ostream&);
+    void cmdMerge(std::istream& in, std::ostream&);
+    void cmdExtract(std::istream& in, std::ostream&);
   };
 }
 

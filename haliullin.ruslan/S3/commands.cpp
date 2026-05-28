@@ -155,7 +155,7 @@ void haliullin::Cmd::cmdInbound(std::istream& in, std::ostream& out)
   }
 }
 
-void haliullin::Cmd::cmdBind(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdBind(std::istream& in, std::ostream&)
 {
   std::string gname, a, b;
   unsigned long long w;
@@ -168,7 +168,7 @@ void haliullin::Cmd::cmdBind(std::istream& in, std::ostream& out)
   graphs_.get(gname).swap(g);
 }
 
-void haliullin::Cmd::cmdCut(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdCut(std::istream& in, std::ostream&)
 {
   std::string gname, a, b;
   unsigned long long w;
@@ -181,7 +181,7 @@ void haliullin::Cmd::cmdCut(std::istream& in, std::ostream& out)
   graphs_.get(gname).swap(g);
 }
 
-void haliullin::Cmd::cmdCreate(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdCreate(std::istream& in, std::ostream&)
 {
   std::string gname;
   in >> gname;
@@ -203,7 +203,7 @@ void haliullin::Cmd::cmdCreate(std::istream& in, std::ostream& out)
   graphs_.add(gname, g);
 }
 
-void haliullin::Cmd::cmdMerge(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdMerge(std::istream& in, std::ostream&)
 {
   std::string newname, old1, old2;
   in >> newname >> old1 >> old2;
@@ -213,7 +213,7 @@ void haliullin::Cmd::cmdMerge(std::istream& in, std::ostream& out)
   graphs_.add(newname, graphs_.get(old1).merge(graphs_.get(old2)));
 }
 
-void haliullin::Cmd::cmdExtract(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdExtract(std::istream& in, std::ostream&)
 {
   std::string newname, oldname;
   in >> newname >> oldname;
