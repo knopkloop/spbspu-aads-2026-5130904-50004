@@ -24,6 +24,9 @@ namespace haliullin
     HashTable< std::string, Graph, SipHash, Equal > graphs_;
     HashTable< std::string, func_t, SipHash, Equal > commands_;
 
+    void require(bool condition) const;
+    void require(std::istream& in) const;
+
     void cmdGraphs(std::istream& in, std::ostream& out);
     void cmdVertexes(std::istream& in, std::ostream& out);
     void cmdOutbound(std::istream& in, std::ostream& out);

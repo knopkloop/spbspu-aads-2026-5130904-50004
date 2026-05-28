@@ -222,22 +222,7 @@ haliullin::Graph::getInbound(const std::string& toVert) const
 
 haliullin::Graph haliullin::Graph::merge(const Graph& other) const
 {
-  Graph result;
-
-  for (size_t i = 0; i < vertexes_.getSize(); ++i)
-  {
-    result.addVertex(vertexes_[i]);
-  }
-  for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
-  {
-    const auto& key = (*it).first;
-    const auto& weights = (*it).second;
-    for (size_t j = 0; j < weights.getSize(); ++j)
-    {
-      result.addEdge(key.first, key.second, weights[j]);
-    }
-  }
-
+  Graph result(*this);
   for (size_t i = 0; i < other.vertexes_.getSize(); ++i)
   {
     result.addVertex(other.vertexes_[i]);
@@ -251,7 +236,6 @@ haliullin::Graph haliullin::Graph::merge(const Graph& other) const
       result.addEdge(key.first, key.second, weights[j]);
     }
   }
-
   return result;
 }
 
