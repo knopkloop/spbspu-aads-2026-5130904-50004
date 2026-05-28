@@ -1,8 +1,8 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
-#include "../common/BiList.hpp"
 #include <stdexcept>
+#include <BiList.hpp>
 
 namespace haliullin
 {
@@ -11,7 +11,7 @@ namespace haliullin
   {
   public:
     void push(const T& rhs);
-    T drop();
+    void pop();
     T& front();
     const T& front() const;
     bool is_empty() const noexcept;
@@ -26,19 +26,17 @@ namespace haliullin
 template< class T >
 void haliullin::Queue< T >::push(const T& rhs)
 {
-  data_.push_back(rhs);
+  data_.emplace_back(rhs);
 }
 
 template< class T >
-T haliullin::Queue< T >::drop()
+void haliullin::Queue< T >::pop()
 {
   if (data_.is_empty())
   {
     throw std::runtime_error("Queue is empty");
   }
-  T val = data_.front();
   data_.pop_front();
-  return val;
 }
 
 template< class T >

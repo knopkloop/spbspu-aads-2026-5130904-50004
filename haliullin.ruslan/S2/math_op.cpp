@@ -1,7 +1,6 @@
-#include "math_op.hpp"
-
 #include <stdexcept>
 #include <cmath>
+#include "math_op.hpp"
 
 long long haliullin::sum(long long a, long long b)
 {

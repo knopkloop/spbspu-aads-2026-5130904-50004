@@ -1,30 +1,29 @@
+#include <string>
+#include <stdexcept>
 #include "evaluate.hpp"
 #include "queue.hpp"
 #include "stack.hpp"
 #include "math_op.hpp"
 
-#include <string>
-#include <cctype>
-#include <stdexcept>
-
-int haliullin::get_priority(const std::string& oper)
+bool haliullin::comparePriority(const std::string& cur_op, const std::string& stack_top_op)
 {
-  if (oper == "lcm")
+  auto get_p = [](const std::string& op) -> int
   {
-    return 3;
-  }
-  else if (oper == "*" || oper == "/" || oper == "%")
-  {
-    return 2;
-  }
-  else if (oper == "+" || oper == "-")
-  {
-    return 1;
-  }
-  else
-  {
-    throw std::logic_error("Invalid operator");
-  }
+    if (op == "lcm")
+    {
+      return 3;
+    }
+    if (op == "*" || op == "/" || op == "%")
+    {
+      return 2;
+    }
+    if (op == "+" || op == "-")
+    {
+      return 1;
+    }
+    return 0;
+  };
+  return get_p(stack_top_op) >= get_p(cur_op);
 }
 
 long long haliullin::calculate(long long a, long long b, const std::string& oper)
@@ -59,111 +58,68 @@ long long haliullin::calculate(long long a, long long b, const std::string& oper
   }
 }
 
-bool haliullin::isOperator(const std::string& token)
+bool haliullin::isOperator(const std::string& tok)
 {
-  if (token.length() == 1)
+  if (tok.length() == 1)
   {
-    return token[0] == '+' || token[0] == '-' || token[0] == '*' ||
-           token[0] == '/' || token[0] == '%';
+    return tok[0] == '+' || tok[0] == '-' || tok[0] == '*' || tok[0] == '/' || tok[0] == '%';
   }
-  else if (token == "lcm")
-  {
-    return true;
-  }
-  return false;
+  return tok == "lcm";
 }
 
-bool haliullin::isNumber(const std::string& token)
+void haliullin::processToken(const std::string& token, Queue< std::string >& output, Stack< std::string >& opStack)
 {
   if (token.empty())
   {
-    return false;
+    return;
   }
-
-  size_t st = 0;
-  if (token[0] == '-')
+  size_t pos = 0;
+  try
   {
-    if (token.length() == 1)
+    std::stoll(token, &pos);
+    if (pos != token.length())
     {
-      return false;
+      throw std::invalid_argument("Partial number");
     }
-    ++st;
+    output.push(token);
+    return;
   }
-
-  for (size_t i = st; i < token.length(); ++i)
+  catch (const std::invalid_argument&)
   {
-    if (!std::isdigit(static_cast< unsigned char >(token[i])))
+    if (isOperator(token))
     {
-      return false;
+      while (!opStack.is_empty() && opStack.top() != "(" && comparePriority(token, opStack.top()))
+      {
+        output.push(opStack.top());
+        opStack.pop();
+      }
+      opStack.push(token);
+    }
+    else
+    {
+      throw std::logic_error("Invalid token: " + token);
     }
   }
-  return true;
 }
 
 haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& expression)
 {
-  haliullin::Queue< std::string > output;
-  haliullin::Stack< std::string > opStack;
+  Queue< std::string > output;
+  Stack< std::string > opStack;
   std::string token;
 
   for (size_t i = 0; i < expression.length(); ++i)
   {
     char c = expression[i];
-
     if (c == ' ')
     {
-      if (!token.empty())
-      {
-        if (haliullin::isNumber(token))
-        {
-          output.push(token);
-        }
-        else if (haliullin::isOperator(token))
-        {
-          while (!opStack.is_empty() && opStack.top() != "(" &&
-                haliullin::get_priority(opStack.top()) >= haliullin::get_priority(token))
-          {
-            output.push(opStack.drop());
-          }
-          opStack.push(token);
-        }
-        else if (token == "(")
-        {
-          opStack.push(token);
-        }
-        else if (token == ")")
-        {
-          while (!opStack.is_empty() && opStack.top() != "(")
-          {
-            output.push(opStack.drop());
-          }
-          if (opStack.is_empty())
-          {
-            throw std::logic_error("Missing '('");
-          }
-          opStack.drop();
-        }
-        else
-        {
-          throw std::logic_error("Invalid token");
-        }
-        token.clear();
-      }
+      processToken(token, output, opStack);
+      token.clear();
     }
     else if (c == '(' || c == ')')
     {
-      if (!token.empty())
-      {
-        if (haliullin::isNumber(token))
-        {
-          output.push(token);
-        }
-        else
-        {
-          throw std::logic_error("Invalid token");
-        }
-        token.clear();
-      }
+      processToken(token, output, opStack);
+      token.clear();
       if (c == '(')
       {
         opStack.push("(");
@@ -172,13 +128,14 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& exp
       {
         while (!opStack.is_empty() && opStack.top() != "(")
         {
-          output.push(opStack.drop());
+          output.push(opStack.top());
+          opStack.pop();
         }
         if (opStack.is_empty())
         {
           throw std::logic_error("Missing '('");
         }
-        opStack.drop();
+        opStack.pop();
       }
     }
     else
@@ -186,47 +143,12 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& exp
       token += c;
     }
   }
-
-  if (!token.empty())
-  {
-    if (haliullin::isNumber(token))
-    {
-      output.push(token);
-    }
-    else if (haliullin::isOperator(token))
-    {
-      while (!opStack.is_empty() && opStack.top() != "(" &&
-            haliullin::get_priority(opStack.top()) >= haliullin::get_priority(token))
-      {
-        output.push(opStack.drop());
-      }
-      opStack.push(token);
-    }
-    else if (token == "(")
-    {
-      opStack.push(token);
-    }
-    else if (token == ")")
-    {
-      while (!opStack.is_empty() && opStack.top() != "(")
-      {
-        output.push(opStack.drop());
-      }
-      if (opStack.is_empty())
-      {
-        throw std::logic_error("Missing '('");
-      }
-      opStack.drop();
-    }
-    else
-    {
-      throw std::logic_error("Invalid token");
-    }
-  }
+  processToken(token, output, opStack);
 
   while (!opStack.is_empty())
   {
-    std::string op = opStack.drop();
+    std::string op = opStack.top();
+    opStack.pop();
     if (op == "(" || op == ")")
     {
       throw std::logic_error("Mismatched parentheses");
@@ -237,45 +159,38 @@ haliullin::Queue< std::string > haliullin::infixToPostfix(const std::string& exp
   return output;
 }
 
-long long haliullin::evaluate(haliullin::Queue< std::string > postfix)
+long long haliullin::evaluate(Queue< std::string > postfix)
 {
-  haliullin::Stack< long long > evalStack;
+  Stack< long long > evalStack;
 
   while (!postfix.is_empty())
   {
-    std::string token = postfix.drop();
+    std::string token = postfix.front();
+    postfix.pop();
 
-    if (haliullin::isOperator(token))
+    if (isOperator(token))
     {
-      if (evalStack.is_empty())
+      if (evalStack.get_size() < 2)
       {
         throw std::logic_error("Not enough operands in expression");
       }
-      long long b = evalStack.drop();
-      if (evalStack.is_empty())
-      {
-        throw std::logic_error("Not enough operands in expression");
-      }
-      long long a = evalStack.drop();
+      long long b = evalStack.top();
+      evalStack.pop();
+      long long a = evalStack.top();
+      evalStack.pop();
 
-      long long res = haliullin::calculate(a, b, token);
-      evalStack.push(res);
-    }
-    else if (haliullin::isNumber(token))
-    {
-      try
-      {
-        long long num = std::stoll(token);
-        evalStack.push(num);
-      }
-      catch (...)
-      {
-        throw std::logic_error("Invalid number");
-      }
+      evalStack.push(calculate(a, b, token));
     }
     else
     {
-      throw std::logic_error("Invalid token");
+      try
+      {
+        evalStack.push(std::stoll(token));
+      }
+      catch (const std::invalid_argument&)
+      {
+        throw;
+      }
     }
   }
 
@@ -283,11 +198,10 @@ long long haliullin::evaluate(haliullin::Queue< std::string > postfix)
   {
     throw std::logic_error("No result");
   }
-
   if (evalStack.get_size() != 1)
   {
     throw std::logic_error("Too many operands in expression");
   }
 
-  return evalStack.drop();
+  return evalStack.top();
 }
