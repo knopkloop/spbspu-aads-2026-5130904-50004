@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
   if (argc != 2)
   {
-    std::cerr << "Invalid number of arguments";
+    std::cerr << "Invalid number of arguments\n";
     return 1;
   }
 
@@ -41,7 +41,14 @@ int main(int argc, char* argv[])
       std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
       continue;
     }
-    (cmd.*func)(std::cin, std::cout);
+    try
+    {
+      (cmd.*func)(std::cin, std::cout);
+    }
+    catch (const std::logic_error& e)
+    {
+      std::cout << e.what() << '\n';
+    }
     std::cin.clear();
     std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
