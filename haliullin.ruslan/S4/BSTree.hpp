@@ -165,7 +165,7 @@ void haliullin::BSTree< Key, Value, Compare >::push(const Key& k, const Value& v
     else
     {
       Value temp(v);
-      cur->data_.second.swap(temp);
+      std::swap(cur->data_.second, temp);
       return;
     }
   }

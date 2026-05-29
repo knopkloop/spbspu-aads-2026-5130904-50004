@@ -28,9 +28,9 @@ namespace haliullin
     void require(std::istream& in) const;
 
     void cmdPrint(std::istream& in, std::ostream& out);
-    void cmdComplement(std::istream& in, std::ostream& out);
-    void cmdIntersect(std::istream& in, std::ostream& out);
-    void cmdUnion(std::istream& in, std::ostream& out);
+    void cmdComplement(std::istream& in, std::ostream&);
+    void cmdIntersect(std::istream& in, std::ostream&);
+    void cmdUnion(std::istream& in, std::ostream&);
   };
 }
 

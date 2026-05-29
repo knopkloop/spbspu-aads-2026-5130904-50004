@@ -112,7 +112,7 @@ void haliullin::Cmd::cmdPrint(std::istream& in, std::ostream& out)
   out << "\n";
 }
 
-void haliullin::Cmd::cmdComplement(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdComplement(std::istream& in, std::ostream&)
 {
   std::string newName, leftName, rightName;
   in >> newName >> leftName >> rightName;
@@ -137,7 +137,7 @@ void haliullin::Cmd::cmdComplement(std::istream& in, std::ostream& out)
   datasets_.push(newName, result);
 }
 
-void haliullin::Cmd::cmdIntersect(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdIntersect(std::istream& in, std::ostream&)
 {
   std::string newName, leftName, rightName;
   in >> newName >> leftName >> rightName;
@@ -162,7 +162,7 @@ void haliullin::Cmd::cmdIntersect(std::istream& in, std::ostream& out)
   datasets_.push(newName, result);
 }
 
-void haliullin::Cmd::cmdUnion(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdUnion(std::istream& in, std::ostream&)
 {
   std::string newName, leftName, rightName;
   in >> newName >> leftName >> rightName;
