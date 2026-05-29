@@ -177,7 +177,7 @@ void haliullin::Cmd::cmdCut(std::istream& in, std::ostream&)
   require(graphs_.has(gname));
 
   Graph g = graphs_.get(gname);
-  require(g.cutEdge(a, b, w));
+  g.cutEdge(a, b, w);
   graphs_.get(gname).swap(g);
 }
 

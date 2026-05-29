@@ -75,7 +75,10 @@ haliullin::HashTable< Key, Value, Hash, Equal >::HashTable(const HashTable& othe
 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HashTable< Key, Value, Hash, Equal >::HashTable(HashTable&& other) noexcept:
-  HashTable()
+  slots_(),
+  size_(0),
+  hasher_(),
+  equal_()
 {
   swap(other);
 }
@@ -182,7 +185,7 @@ haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, H
   {
     return end();
   }
-  return HtIter< Key, Value, Hash, Equal >(&slots_, idx);
+  return HtIter< Key, Value, Hash, Equal >(std::addressof(slots_), idx);
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -193,7 +196,7 @@ haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, 
   {
     return end();
   }
-  return HtCIter< Key, Value, Hash, Equal >(&slots_, idx);
+  return HtCIter< Key, Value, Hash, Equal >(std::addressof(slots_), idx);
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -278,7 +281,7 @@ haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, H
   {
     if (slots_[i].info_ == SlotState::OCCUPIED)
     {
-      return HtIter< Key, Value, Hash, Equal >(&slots_, i);
+      return HtIter< Key, Value, Hash, Equal >(std::addressof(slots_), i);
     }
   }
   return end();
@@ -291,7 +294,7 @@ haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, 
   {
     if (slots_[i].info_ == SlotState::OCCUPIED)
     {
-      return HtCIter< Key, Value, Hash, Equal >(&slots_, i);
+      return HtCIter< Key, Value, Hash, Equal >(std::addressof(slots_), i);
     }
   }
   return end();
@@ -306,13 +309,13 @@ haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::end() noexcept
 {
-  return HtIter< Key, Value, Hash, Equal >(&slots_, slots_.getSize());
+  return HtIter< Key, Value, Hash, Equal >(std::addressof(slots_), slots_.getSize());
 }
 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::end() const noexcept
 {
-  return HtCIter< Key, Value, Hash, Equal >(&slots_, slots_.getSize());
+  return HtCIter< Key, Value, Hash, Equal >(std::addressof(slots_), slots_.getSize());
 }
 
 template< class Key, class Value, class Hash, class Equal >

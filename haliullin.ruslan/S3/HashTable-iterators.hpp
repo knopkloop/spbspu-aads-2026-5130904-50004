@@ -20,9 +20,10 @@ namespace haliullin
   public:
    ~HtIter() = default;
     HtIter() noexcept;
-    HtIter(Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
 
     std::pair< const Key, Value > operator*() const noexcept;
+    Value& value() const noexcept;
+    const Key& key() const noexcept;
 
     HtIter& operator++() noexcept;
     HtIter operator++(int) noexcept;
@@ -35,6 +36,8 @@ namespace haliullin
   private:
     Vector< Slot< Key, Value > >* slots_;
     size_t idx_;
+
+    HtIter(Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
     friend class HashTable< Key, Value, Hash, Equal >;
     friend class HtCIter< Key, Value, Hash, Equal >;
   };
@@ -45,10 +48,10 @@ namespace haliullin
   public:
     ~HtCIter() = default;
     HtCIter() noexcept;
-    HtCIter(const Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
-    HtCIter(const HtIter< Key, Value, Hash, Equal >& it) noexcept;
 
     const std::pair< const Key, Value > operator*() const noexcept;
+    const Value& value() const noexcept;
+    const Key& key() const noexcept;
 
     HtCIter& operator++() noexcept;
     HtCIter operator++(int) noexcept;
@@ -61,6 +64,9 @@ namespace haliullin
   private:
     const Vector< Slot< Key, Value > >* slots_;
     size_t idx_;
+
+    HtCIter(const Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
+    HtCIter(const HtIter< Key, Value, Hash, Equal >& it) noexcept;
     friend class HashTable< Key, Value, Hash, Equal >;
   };
 }
@@ -81,6 +87,18 @@ template< class Key, class Value, class Hash, class Equal >
 std::pair< const Key, Value > haliullin::HtIter< Key, Value, Hash, Equal >::operator*() const noexcept
 {
   return std::pair< const Key, Value >((*slots_)[idx_].key_, (*slots_)[idx_].value_);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+Value& haliullin::HtIter< Key, Value, Hash, Equal >::value() const noexcept
+{
+  return (*slots_)[idx_].value_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+const Key& haliullin::HtIter< Key, Value, Hash, Equal >::key() const noexcept
+{
+  return (*slots_)[idx_].key_;
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -159,6 +177,18 @@ template< class Key, class Value, class Hash, class Equal >
 const std::pair< const Key, Value > haliullin::HtCIter< Key, Value, Hash, Equal >::operator*() const noexcept
 {
   return std::pair< const Key, Value >((*slots_)[idx_].key_, (*slots_)[idx_].value_);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+const Value& haliullin::HtCIter< Key, Value, Hash, Equal >::value() const noexcept
+{
+  return (*slots_)[idx_].value_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+const Key& haliullin::HtCIter< Key, Value, Hash, Equal >::key() const noexcept
+{
+  return (*slots_)[idx_].key_;
 }
 
 template< class Key, class Value, class Hash, class Equal >
