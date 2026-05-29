@@ -1,10 +1,10 @@
 #ifndef COMMANDS_HPP
 #define COMMANDS_HPP
 
-#include "BSTree.hpp"
-#include <sstream>
+#include <istream>
 #include <fstream>
 #include <string>
+#include "BSTree.hpp"
 
 namespace haliullin
 {
@@ -23,6 +23,9 @@ namespace haliullin
   private:
     DatasetStorage datasets_;
     BSTree< std::string, func_t > commands_;
+
+    void require(bool condition) const;
+    void require(std::istream& in) const;
 
     void cmdPrint(std::istream& in, std::ostream& out);
     void cmdComplement(std::istream& in, std::ostream& out);

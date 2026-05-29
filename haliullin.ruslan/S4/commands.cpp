@@ -1,7 +1,7 @@
-#include "commands.hpp"
 #include <fstream>
 #include <stdexcept>
 #include <limits>
+#include "commands.hpp"
 
 haliullin::Cmd::Cmd()
 {
@@ -19,20 +19,20 @@ void haliullin::Cmd::loadFromFile(const std::string& filename)
     throw std::runtime_error("Cannot open file");
   }
 
-  std::string line;
-  while (std::getline(file, line))
+  std::string datasetName;
+  while (file >> datasetName)
   {
-    if (line.empty()) continue;
-    std::istringstream iss(line);
-    std::string datasetName;
-    if (!(iss >> datasetName)) continue;
-
     SingleDataset dataset;
     int key;
     std::string value;
-    while (iss >> key >> value)
+    while(file >> key >> value)
     {
       dataset.push(key, value);
+    }
+
+    if (file.fail())
+    {
+      file.clear();
     }
     datasets_.push(datasetName, dataset);
   }
@@ -54,7 +54,14 @@ void haliullin::Cmd::processCmd(std::istream& in, std::ostream& out)
     }
 
     func_t func = it->second;
-    (this->*func)(in, out);
+    try
+    {
+      (this->*func)(in, out);
+    }
+    catch (const std::logic_error& e)
+    {
+      out << e.what() << '\n';
+    }
     in.clear();
     in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
@@ -65,21 +72,30 @@ void haliullin::Cmd::processCmd(std::istream& in, std::ostream& out)
   }
 }
 
+void haliullin::Cmd::require(bool condition) const
+{
+  if (!condition)
+  {
+    throw std::logic_error("<INVALID COMMAND>");
+  }
+}
+
+void haliullin::Cmd::require(std::istream& in) const
+{
+  if (!in)
+  {
+    throw std::logic_error("<INVALID COMMAND>");
+  }
+}
+
 void haliullin::Cmd::cmdPrint(std::istream& in, std::ostream& out)
 {
   std::string datasetName;
-  if (!(in >> datasetName))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> datasetName;
+  require(in);
 
   auto it = datasets_.find(datasetName);
-  if (it == datasets_.end())
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  require(it != datasets_.end());
 
   const auto& dataset = it->second;
   if (dataset.isEmpty())
@@ -99,19 +115,12 @@ void haliullin::Cmd::cmdPrint(std::istream& in, std::ostream& out)
 void haliullin::Cmd::cmdComplement(std::istream& in, std::ostream& out)
 {
   std::string newName, leftName, rightName;
-  if (!(in >> newName >> leftName >> rightName))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> newName >> leftName >> rightName;
+  require(in);
 
   auto leftIt = datasets_.find(leftName);
   auto rightIt = datasets_.find(rightName);
-  if (leftIt == datasets_.end() || rightIt == datasets_.end())
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  require(leftIt != datasets_.end() && rightIt != datasets_.end());
 
   const auto& left = leftIt->second;
   const auto& right = rightIt->second;
@@ -131,19 +140,12 @@ void haliullin::Cmd::cmdComplement(std::istream& in, std::ostream& out)
 void haliullin::Cmd::cmdIntersect(std::istream& in, std::ostream& out)
 {
   std::string newName, leftName, rightName;
-  if (!(in >> newName >> leftName >> rightName))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> newName >> leftName >> rightName;
+  require(in);
 
   auto leftIt = datasets_.find(leftName);
   auto rightIt = datasets_.find(rightName);
-  if (leftIt == datasets_.end() || rightIt == datasets_.end())
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  require(leftIt != datasets_.end() && rightIt != datasets_.end());
 
   const auto& left = leftIt->second;
   const auto& right = rightIt->second;
@@ -163,19 +165,12 @@ void haliullin::Cmd::cmdIntersect(std::istream& in, std::ostream& out)
 void haliullin::Cmd::cmdUnion(std::istream& in, std::ostream& out)
 {
   std::string newName, leftName, rightName;
-  if (!(in >> newName >> leftName >> rightName))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> newName >> leftName >> rightName;
+  require(in);
 
   auto leftIt = datasets_.find(leftName);
   auto rightIt = datasets_.find(rightName);
-  if (leftIt == datasets_.end() || rightIt == datasets_.end())
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  require(leftIt != datasets_.end() && rightIt != datasets_.end());
 
   const auto& left = leftIt->second;
   const auto& right = rightIt->second;

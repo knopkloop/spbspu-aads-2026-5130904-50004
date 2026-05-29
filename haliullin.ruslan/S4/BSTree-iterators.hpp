@@ -1,6 +1,7 @@
 #ifndef BSTREE_ITERATORS_HPP
 #define BSTREE_ITERATORS_HPP
 
+#include <memory>
 #include "TreeNode.hpp"
 #include "tree-traverse.hpp"
 
@@ -69,7 +70,7 @@ namespace haliullin
 
 template< class Key, class Value >
 haliullin::BSTIterator< Key, Value >::BSTIterator(Node* node) noexcept:
-  node_(node ? node : &Node::fakeLeaf_)
+  node_(node ? node : std::addressof(Node::fakeLeaf_))
 {}
 
 template< class Key, class Value >
@@ -81,14 +82,14 @@ std::pair< const Key, Value >& haliullin::BSTIterator< Key, Value >::operator*()
 template< class Key, class Value >
 std::pair< const Key, Value >* haliullin::BSTIterator< Key, Value >::operator->() const noexcept
 {
-  return &(node_->data_);
+  return std::addressof(node_->data_);
 }
 
 template< class Key, class Value >
 haliullin::BSTIterator< Key, Value >& haliullin::BSTIterator< Key, Value >::operator++() noexcept
 {
   Node* n = next(node_);
-  node_ = (n ? n : &Node::fakeLeaf_);
+  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
   return *this;
 }
 
@@ -104,7 +105,7 @@ template< class Key, class Value >
 haliullin::BSTIterator< Key, Value >& haliullin::BSTIterator< Key, Value >::operator--() noexcept
 {
   Node* n = previous(node_);
-  node_ = (n ? n : &Node::fakeLeaf_);
+  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
   return *this;
 }
 
@@ -130,7 +131,7 @@ bool haliullin::BSTIterator< Key, Value >::operator!=(const BSTIterator& other) 
 
 template< class Key, class Value >
 haliullin::BSTConstIterator< Key, Value >::BSTConstIterator(Node* node) noexcept:
-  node_(node ? node : &Node::fakeLeaf_)
+  node_(node ? node : std::addressof(Node::fakeLeaf_))
 {}
 
 template< class Key, class Value >
@@ -147,14 +148,14 @@ const std::pair< const Key, Value >& haliullin::BSTConstIterator< Key, Value >::
 template< class Key, class Value >
 const std::pair< const Key, Value >* haliullin::BSTConstIterator< Key, Value >::operator->() const noexcept
 {
-  return &(node_->data_);
+  return std::addressof(node_->data_);
 }
 
 template< class Key, class Value >
 haliullin::BSTConstIterator< Key, Value >& haliullin::BSTConstIterator< Key, Value >::operator++() noexcept
 {
   Node* n = next(node_);
-  node_ = (n ? n : &Node::fakeLeaf_);
+  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
   return *this;
 }
 
@@ -170,7 +171,7 @@ template< class Key, class Value >
 haliullin::BSTConstIterator< Key, Value >& haliullin::BSTConstIterator< Key, Value >::operator--() noexcept
 {
   Node* n = previous(node_);
-  node_ = (n ? n : &Node::fakeLeaf_);
+  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
   return *this;
 }
 

@@ -1,9 +1,8 @@
 #include <boost/test/unit_test.hpp>
-#include "BSTree.hpp"
 #include <string>
 #include <stdexcept>
+#include "BSTree.hpp"
 
-using namespace haliullin;
 using Tree = haliullin::BSTree< int, std::string >;
 
 BOOST_AUTO_TEST_SUITE(BSTreeTests)
@@ -42,26 +41,24 @@ BOOST_AUTO_TEST_CASE(GetNonexistent)
   BOOST_CHECK_THROW(ct.get(42), std::out_of_range);
 }
 
-BOOST_AUTO_TEST_CASE(Drop)
+BOOST_AUTO_TEST_CASE(Erase)
 {
   Tree t;
   t.push(1, "one");
   t.push(2, "two");
 
-  std::string val = t.drop(1);
-  BOOST_CHECK_EQUAL(val, "one");
+  t.erase(1);
   BOOST_CHECK_EQUAL(t.getSize(), 1);
   BOOST_CHECK_THROW(t.get(1), std::out_of_range);
 
-  val = t.drop(2);
-  BOOST_CHECK_EQUAL(val, "two");
+  t.erase(2);
   BOOST_CHECK(t.isEmpty());
 }
 
-BOOST_AUTO_TEST_CASE(DropNonexistent)
+BOOST_AUTO_TEST_CASE(EraseNonexistent)
 {
   Tree t;
-  BOOST_CHECK_THROW(t.drop(10), std::out_of_range);
+  BOOST_CHECK_THROW(t.erase(10), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_CASE(Clear)

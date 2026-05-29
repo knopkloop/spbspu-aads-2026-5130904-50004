@@ -1,13 +1,13 @@
 #ifndef BSTREE_HPP
 #define BSTREE_HPP
 
-#include "TreeNode.hpp"
-#include "tree-traverse.hpp"
-#include "BSTree-iterators.hpp"
 #include <cstddef>
 #include <utility>
 #include <stdexcept>
 #include <functional>
+#include "TreeNode.hpp"
+#include "tree-traverse.hpp"
+#include "BSTree-iterators.hpp"
 
 namespace haliullin
 {
@@ -27,11 +27,18 @@ namespace haliullin
 
     BSTree& operator=(const BSTree& other);
     BSTree& operator=(BSTree&& other) noexcept;
+    void swap(BSTree& other) noexcept;
+
+    bool isEmpty() const noexcept;
+    size_t getSize() const noexcept;
 
     void push(const Key& k, const Value& v);
     Value& get(const Key& k);
     const Value& get(const Key& k) const;
-    Value drop(const Key& k);
+    iterator find(const Key& k);
+    const_iterator find(const Key& k) const;
+    void erase(const Key& k);
+    void clear();
 
     size_t height(const_iterator it) const;
     size_t height() const;
@@ -41,20 +48,12 @@ namespace haliullin
     const_iterator rotateLargeLeft(const_iterator it);
     const_iterator rotateLargeRight(const_iterator it);
 
-    iterator find(const Key& k);
-    const_iterator find(const Key& k) const;
-
     iterator begin() noexcept;
     const_iterator begin() const noexcept;
     const_iterator cbegin() const noexcept;
     iterator end() noexcept;
     const_iterator end() const noexcept;
     const_iterator cend() const noexcept;
-
-    bool isEmpty() const noexcept;
-    size_t getSize() const noexcept;
-    void swap(BSTree& other) noexcept;
-    void clear();
 
   private:
     Node* root_;
@@ -77,7 +76,7 @@ haliullin::BSTree< Key, Value, Compare >::~BSTree()
 
 template< class Key, class Value, class Compare >
 haliullin::BSTree< Key, Value, Compare >::BSTree():
-  root_(&Node::fakeLeaf_),
+  root_(std::addressof(Node::fakeLeaf_)),
   size_(0)
 {}
 
@@ -120,6 +119,26 @@ haliullin::BSTree< Key, Value, Compare >::operator=(BSTree&& other) noexcept
 }
 
 template< class Key, class Value, class Compare >
+void haliullin::BSTree< Key, Value, Compare >::swap(BSTree& other) noexcept
+{
+  std::swap(root_, other.root_);
+  std::swap(size_, other.size_);
+  std::swap(cmp_, other.cmp_);
+}
+
+template< class Key, class Value, class Compare >
+bool haliullin::BSTree< Key, Value, Compare >::isEmpty() const noexcept
+{
+  return root_->isFake();
+}
+
+template< class Key, class Value, class Compare >
+size_t haliullin::BSTree< Key, Value, Compare >::getSize() const noexcept
+{
+  return size_;
+}
+
+template< class Key, class Value, class Compare >
 void haliullin::BSTree< Key, Value, Compare >::push(const Key& k, const Value& v)
 {
   if (root_->isFake())
@@ -145,7 +164,8 @@ void haliullin::BSTree< Key, Value, Compare >::push(const Key& k, const Value& v
     }
     else
     {
-      cur->data_.second = v;
+      Value temp(v);
+      cur->data_.second.swap(temp);
       return;
     }
   }
@@ -185,17 +205,34 @@ const Value& haliullin::BSTree< Key, Value, Compare >::get(const Key& k) const
 }
 
 template< class Key, class Value, class Compare >
-Value haliullin::BSTree< Key, Value, Compare >::drop(const Key& k)
+haliullin::BSTIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::find(const Key& k)
+{
+  return iterator(findNode(k));
+}
+
+template< class Key, class Value, class Compare >
+haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::find(const Key& k) const
+{
+  return const_iterator(findNode(k));
+}
+
+template< class Key, class Value, class Compare >
+void haliullin::BSTree< Key, Value, Compare >::erase(const Key& k)
 {
   Node* node = findNode(k);
   if (node->isFake())
   {
     throw std::out_of_range("Key not found");
   }
-
-  Value dropped = node->data_.second;
   removeNode(node);
-  return dropped;
+}
+
+template< class Key, class Value, class Compare >
+void haliullin::BSTree< Key, Value, Compare >::clear()
+{
+  clearNodes(root_);
+  root_ = std::addressof(Node::fakeLeaf_);
+  size_ = 0;
 }
 
 template< class Key, class Value, class Compare >
@@ -349,25 +386,13 @@ haliullin::BSTree< Key, Value, Compare >::rotateLargeRight(const_iterator it)
 }
 
 template< class Key, class Value, class Compare >
-haliullin::BSTIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::find(const Key& k)
-{
-  return iterator(findNode(k));
-}
-
-template< class Key, class Value, class Compare >
-haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::find(const Key& k) const
-{
-  return const_iterator(findNode(k));
-}
-
-template< class Key, class Value, class Compare >
 haliullin::BSTIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::begin() noexcept
 {
   if (root_->isFake())
   {
-    return iterator(&Node::fakeLeaf_);
+    return iterator(std::addressof(Node::fakeLeaf_));
   }
-  return iterator(haliullin::fallLeft(root_));
+  return iterator(fallLeft(root_));
 }
 
 template< class Key, class Value, class Compare >
@@ -375,9 +400,9 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
 {
   if (root_->isFake())
   {
-    return const_iterator(const_cast< Node* >(&Node::fakeLeaf_));
+    return const_iterator(const_cast< Node* >(std::addressof(Node::fakeLeaf_)));
   }
-  return const_iterator(haliullin::fallLeft(const_cast< Node* >(root_)));
+  return const_iterator(fallLeft(root_));
 }
 
 template< class Key, class Value, class Compare >
@@ -389,47 +414,19 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
 template< class Key, class Value, class Compare >
 haliullin::BSTIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::end() noexcept
 {
-  return iterator(&Node::fakeLeaf_);
+  return iterator(std::addressof(Node::fakeLeaf_));
 }
 
 template< class Key, class Value, class Compare >
 haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::end() const noexcept
 {
-  return const_iterator(const_cast< Node* >(&Node::fakeLeaf_));
+  return const_iterator(std::addressof(Node::fakeLeaf_));
 }
 
 template< class Key, class Value, class Compare >
 haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare >::cend() const noexcept
 {
   return end();
-}
-
-template< class Key, class Value, class Compare >
-bool haliullin::BSTree< Key, Value, Compare >::isEmpty() const noexcept
-{
-  return root_->isFake();
-}
-
-template< class Key, class Value, class Compare >
-size_t haliullin::BSTree< Key, Value, Compare >::getSize() const noexcept
-{
-  return size_;
-}
-
-template< class Key, class Value, class Compare >
-void haliullin::BSTree< Key, Value, Compare >::swap(BSTree& other) noexcept
-{
-  std::swap(root_, other.root_);
-  std::swap(size_, other.size_);
-  std::swap(cmp_, other.cmp_);
-}
-
-template< class Key, class Value, class Compare >
-void haliullin::BSTree< Key, Value, Compare >::clear()
-{
-  clearNodes(root_);
-  root_ = &Node::fakeLeaf_;
-  size_ = 0;
 }
 
 template< class Key, class Value, class Compare >
@@ -451,7 +448,7 @@ haliullin::TreeNode< Key, Value >* haliullin::BSTree< Key, Value, Compare >::fin
       return cur;
     }
   }
-  return const_cast< Node* >(&Node::fakeLeaf_);
+  return std::addressof(Node::fakeLeaf_);
 }
 
 template< class Key, class Value, class Compare >
@@ -459,11 +456,19 @@ haliullin::TreeNode< Key, Value >* haliullin::BSTree< Key, Value, Compare >::cop
 {
   if (node->isFake())
   {
-    return &Node::fakeLeaf_;
+    return std::addressof(Node::fakeLeaf_);
   }
   Node* newNode = new Node(node->data_.first, node->data_.second, parent);
-  newNode->left_ = copyNodes(node->left_, newNode);
-  newNode->right_ = copyNodes(node->right_, newNode);
+  try
+  {
+    newNode->left_ = copyNodes(node->left_, newNode);
+    newNode->right_ = copyNodes(node->right_, newNode);
+  }
+  catch (...)
+  {
+    delete newNode;
+    throw;
+  }
   return newNode;
 }
 
@@ -488,15 +493,15 @@ void haliullin::BSTree< Key, Value, Compare >::removeNode(Node* node)
   {
     if (node == root_)
     {
-      root_ = &Node::fakeLeaf_;
+      root_ = std::addressof(Node::fakeLeaf_);
     }
     else if (node == node->parent_->left_)
     {
-      node->parent_->left_ = &Node::fakeLeaf_;
+      node->parent_->left_ = std::addressof(Node::fakeLeaf_);
     }
     else
     {
-      node->parent_->right_ = &Node::fakeLeaf_;
+      node->parent_->right_ = std::addressof(Node::fakeLeaf_);
     }
     delete node;
   }

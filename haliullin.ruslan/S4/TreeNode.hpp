@@ -35,8 +35,8 @@ template< class Key, class Value >
 haliullin::TreeNode< Key, Value >::TreeNode(const Key& key, const Value& value,
 haliullin::TreeNode< Key, Value >* parent):
   data_(key, value),
-  left_(&fakeLeaf_),
-  right_(&fakeLeaf_),
+  left_(std::addressof(fakeLeaf_)),
+  right_(std::addressof(fakeLeaf_)),
   parent_(parent)
 {}
 
@@ -46,7 +46,7 @@ haliullin::TreeNode< Key, Value > haliullin::TreeNode< Key, Value >::fakeLeaf_;
 template< class Key, class Value >
 bool haliullin::TreeNode< Key, Value >::isFake() const noexcept
 {
-  return this == &fakeLeaf_;
+  return this == std::addressof(fakeLeaf_);
 }
 
 #endif
