@@ -1,21 +1,5 @@
 #include "graph.hpp"
 
-haliullin::Graph::Graph():
-  vertexes_(),
-  edges_()
-{}
-
-haliullin::Graph::Graph(const Graph& other):
-  vertexes_(other.vertexes_),
-  edges_(other.edges_)
-{}
-
-haliullin::Graph::Graph(Graph&& other) noexcept:
-  Graph()
-{
-  swap(other);
-}
-
 haliullin::Graph& haliullin::Graph::operator=(const Graph& other)
 {
   if (this != std::addressof(other))
@@ -48,15 +32,28 @@ void haliullin::Graph::addVertex(const std::string& vert)
   {
     return;
   }
-  vertexes_.pushBack(vert);
-  vertexes_.insSort();
+  Vector< std::string > temp = vertexes_;
+  temp.pushBack(vert);
+  temp.insSort();
+  vertexes_.swap(temp);
 }
 
-bool haliullin::Graph::hasVertex(const std::string& vert) const noexcept
+bool haliullin::Graph::hasVertex(const std::string& vert) const
 {
-  for (size_t i = 0; i < vertexes_.getSize(); ++i)
+  size_t low = 0;
+  size_t high = vertexes_.getSize();
+  while (low < high)
   {
-    if (vertexes_[i] == vert)
+    size_t mid = low + (high - low) / 2;
+    if (vertexes_[mid] < vert)
+    {
+      low = mid + 1;
+    }
+    else if (vertexes_[mid] > vert)
+    {
+      high = mid;
+    }
+    else
     {
       return true;
     }
@@ -66,19 +63,21 @@ bool haliullin::Graph::hasVertex(const std::string& vert) const noexcept
 
 void haliullin::Graph::addEdge(const std::string& fromVert, const std::string& toVert, unsigned long long weight)
 {
-  addVertex(fromVert);
-  addVertex(toVert);
+  Graph temp(*this);
+  temp.addVertex(fromVert);
+  temp.addVertex(toVert);
 
   std::pair< std::string, std::string > key{fromVert, toVert};
-  if (!edges_.has(key))
+  auto edgeIt = temp.edges_.find(key);
+  if (edgeIt == temp.edges_.end())
   {
     Vector< unsigned long long > w;
     w.pushBack(weight);
-    edges_.add(key, w);
+    temp.edges_.add(key, w);
   }
   else
   {
-    Vector< unsigned long long >& w = edges_.get(key);
+    Vector< unsigned long long >& w = edgeIt.value();
     size_t pos = 0;
     while (pos < w.getSize() && w[pos] < weight)
     {
@@ -86,53 +85,64 @@ void haliullin::Graph::addEdge(const std::string& fromVert, const std::string& t
     }
     w.insert(pos, weight);
   }
+  swap(temp);
 }
 
-bool haliullin::Graph::cutEdge(const std::string& fromVert, const std::string& toVert, unsigned long long weight)
+void haliullin::Graph::cutEdge(const std::string& fromVert, const std::string& toVert, unsigned long long weight)
 {
+  Graph temp(*this);
   std::pair< std::string, std::string > key{fromVert, toVert};
-  if (!edges_.has(key))
-    return false;
+  auto edgeIt = temp.edges_.find(key);
+  if (edgeIt == temp.edges_.end())
+  {
+    throw std::logic_error("<INVALID COMMAND>");
+  }
 
-  Vector< unsigned long long >& w = edges_.get(key);
+  Vector< unsigned long long >& w = edgeIt.value();
+  bool found = false;
   for (size_t i = 0; i < w.getSize(); ++i)
   {
     if (w[i] == weight)
     {
       w.erase(i);
-      if (w.isEmpty())
-      {
-        edges_.drop(key);
-      }
-      return true;
+      found = true;
+      break;
     }
   }
-  return false;
+  if (!found)
+  {
+    throw std::logic_error("<INVALID COMMAND>");
+  }
+  if (w.isEmpty())
+  {
+    temp.edges_.erase(key);
+  }
+  swap(temp);
 }
 
-haliullin::Vector< std::string > haliullin::Graph::getVertexes() const noexcept
+haliullin::Vector< std::string > haliullin::Graph::getVertexes() const
 {
   return vertexes_;
 }
 
-haliullin::Vector< std::pair< std::string, haliullin::Vector< unsigned long long > > >
-haliullin::Graph::getOutbound(const std::string& fromVert) const
+haliullin::Graph::EdgeVec haliullin::Graph::getOutbound(const std::string& fromVert) const
 {
   HashTable< std::string, Vector< unsigned long long >, SipHash, Equal > temp;
   for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
   {
-    const auto& key = (*it).first;
+    const auto& key = it.key();
     if (key.first == fromVert)
     {
       const std::string& to = key.second;
-      const Vector< unsigned long long >& weights = (*it).second;
-      if (!temp.has(to))
+      const Vector< unsigned long long >& weights = it.value();
+      auto toIt = temp.find(to);
+      if (toIt == temp.end())
       {
         temp.add(to, weights);
       }
       else
       {
-        Vector< unsigned long long >& existing = temp.get(to);
+        Vector< unsigned long long >& existing = toIt.value();
         for (size_t i = 0; i < weights.getSize(); ++i)
         {
           unsigned long long w = weights[i];
@@ -150,30 +160,30 @@ haliullin::Graph::getOutbound(const std::string& fromVert) const
   Vector< std::pair< std::string, Vector< unsigned long long > > > result;
   for (auto it = temp.cbegin(); it != temp.cend(); ++it)
   {
-    result.pushBack(std::make_pair((*it).first, (*it).second));
+    result.pushBack(*it);
   }
   result.insSort();
   return result;
 }
 
-haliullin::Vector< std::pair< std::string, haliullin::Vector< unsigned long long > > >
-haliullin::Graph::getInbound(const std::string& toVert) const
+haliullin::Graph::EdgeVec haliullin::Graph::getInbound(const std::string& toVert) const
 {
   HashTable< std::string, Vector< unsigned long long >, SipHash, Equal > temp;
   for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
   {
-    const auto& key = (*it).first;
+    const auto& key = it.key();
     if (key.second == toVert)
     {
       const std::string& from = key.first;
-      const Vector< unsigned long long >& weights = (*it).second;
-      if (!temp.has(from))
+      const Vector< unsigned long long >& weights = it.value();
+      auto fromIt = temp.find(from);
+      if (fromIt == temp.end())
       {
         temp.add(from, weights);
       }
       else
       {
-        Vector< unsigned long long >& existing = temp.get(from);
+        Vector< unsigned long long >& existing = fromIt.value();
         for (size_t i = 0; i < weights.getSize(); ++i)
         {
           unsigned long long w = weights[i];
@@ -191,7 +201,7 @@ haliullin::Graph::getInbound(const std::string& toVert) const
   Vector< std::pair< std::string, Vector< unsigned long long > > > result;
   for (auto it = temp.cbegin(); it != temp.cend(); ++it)
   {
-    result.pushBack(std::make_pair((*it).first, (*it).second));
+    result.pushBack(*it);
   }
   result.insSort();
   return result;
@@ -199,36 +209,20 @@ haliullin::Graph::getInbound(const std::string& toVert) const
 
 haliullin::Graph haliullin::Graph::merge(const Graph& other) const
 {
-  Graph result;
-
-  for (size_t i = 0; i < vertexes_.getSize(); ++i)
-  {
-    result.addVertex(vertexes_[i]);
-  }
-  for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
-  {
-    const auto& key = (*it).first;
-    const auto& weights = (*it).second;
-    for (size_t j = 0; j < weights.getSize(); ++j)
-    {
-      result.addEdge(key.first, key.second, weights[j]);
-    }
-  }
-
+  Graph result(*this);
   for (size_t i = 0; i < other.vertexes_.getSize(); ++i)
   {
     result.addVertex(other.vertexes_[i]);
   }
   for (auto it = other.edges_.cbegin(); it != other.edges_.cend(); ++it)
   {
-    const auto& key = (*it).first;
-    const auto& weights = (*it).second;
+    const auto& key = it.key();
+    const auto& weights = it.value();
     for (size_t j = 0; j < weights.getSize(); ++j)
     {
       result.addEdge(key.first, key.second, weights[j]);
     }
   }
-
   return result;
 }
 
@@ -256,16 +250,17 @@ haliullin::Graph haliullin::Graph::extract(const Vector< std::string >& verts) c
 
   for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
   {
-    const auto& key = (*it).first;
-    if (vset.has(key.first) && vset.has(key.second))
+    const auto& key = it.key();
+    auto firstIt = vset.find(key.first);
+    auto secondIt = vset.find(key.second);
+    if (firstIt != vset.end() && secondIt != vset.end())
     {
-      const auto& weights = (*it).second;
+      const auto& weights = it.value();
       for (size_t j = 0; j < weights.getSize(); ++j)
       {
         result.addEdge(key.first, key.second, weights[j]);
       }
     }
   }
-
   return result;
 }

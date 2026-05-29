@@ -1,8 +1,8 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include "vector-iterators.hpp"
 #include <stdexcept>
+#include <memory>
 
 namespace haliullin
 {
@@ -20,57 +20,26 @@ namespace haliullin
 
     Vector< T >& operator=(const Vector< T >& rhs);
     Vector< T >& operator=(Vector< T >&& rhs) noexcept;
-
     void swap(Vector< T >& rhs) noexcept;
 
-    T& at(size_t id);
-    const T& at(size_t id) const;
     T& operator[](size_t id) noexcept;
     const T& operator[](size_t id) const noexcept;
-
-    void insSort();
 
     bool isEmpty() const noexcept;
     size_t getSize() const noexcept;
     size_t getCapacity() const noexcept;
+    void pushBack(const T& val);
+    void insert(size_t id, const T& val);
+    void erase(size_t id);
+    void insSort();
+
     bool operator==(const Vector< T >& rhs) const noexcept;
     bool operator!=(const Vector< T >& rhs) const noexcept;
     bool operator<(const Vector< T >& rhs) const noexcept;
 
-    void pushBack(const T& val);
-    void pushBackRepeat(const T& val, size_t k);
-    void pushFront(const T& val);
-    void popBack();
-
-    void insert(size_t id, const T& val);
-    void insert(size_t id, const Vector< T >& rhs, size_t begin, size_t end);
-
-    void erase(size_t id);
-    void erase(size_t begin, size_t end);
-
-    VIter< T > begin() noexcept;
-    VIter< T > end() noexcept;
-    VCIter< T > begin() const noexcept;
-    VCIter< T > end() const noexcept;
-    VIter< T > iter(size_t idx) noexcept;
-
-    VCIter< T > cbegin() const noexcept;
-    VCIter< T > cend() const noexcept;
-    VCIter< T > citer(size_t idx) const noexcept;
-
-    VIter< T > insert(VIter< T > pos, const T& val);
-    VIter< T > insert(VIter< T > pos, VCIter< T > begin, VCIter< T > end);
-    VIter< T > insert(VIter< T > pos, const T& val, size_t k);
-
-    VIter< T > erase(VIter< T > pos);
-    VIter< T > erase(VIter< T > begin, VIter< T > end);
-    VIter< T > erase(VIter< T > pos, size_t k);
-
   private:
     T* data_;
     size_t size_, capacity_;
-    friend class VIter< T >;
-    friend class VCIter< T >;
   };
 }
 
@@ -152,25 +121,6 @@ void haliullin::Vector< T >::swap(Vector< T >& rhs) noexcept
 }
 
 template< class T >
-T& haliullin::Vector< T >::at(size_t id)
-{
-  const Vector< T >* cthis = this;
-  const T& cr = cthis->at(id);
-  T& r = const_cast< T& >(cr);
-  return r;
-}
-
-template< class T >
-const T& haliullin::Vector< T >::at(size_t id) const
-{
-  if (id < getSize())
-  {
-    return (*this)[id];
-  }
-  throw std::out_of_range("id out of bound");
-}
-
-template< class T >
 T& haliullin::Vector< T >::operator[](size_t id) noexcept
 {
   return const_cast< T& >((*static_cast< const Vector< T >* >(this))[id]);
@@ -180,31 +130,6 @@ template< class T >
 const T& haliullin::Vector< T >::operator[](size_t id) const noexcept
 {
   return data_[id];
-}
-
-template< class T >
-void haliullin::Vector< T >::insSort()
-{
-  Vector< T > tmp(*this);
-  try
-  {
-    for (size_t i = 1; i < tmp.size_; ++i)
-    {
-      T key = tmp.data_[i];
-      size_t j = i;
-      while (j > 0 && tmp.data_[j - 1] > key)
-      {
-        tmp.data_[j] = tmp.data_[j - 1];
-        --j;
-      }
-      tmp.data_[j] = key;
-    }
-  }
-  catch (...)
-  {
-    throw;
-  }
-  swap(tmp);
 }
 
 template< class T >
@@ -223,37 +148,6 @@ template< class T >
 size_t haliullin::Vector< T >::getCapacity() const noexcept
 {
   return capacity_;
-}
-
-template< class T >
-bool haliullin::Vector< T >::operator==(const Vector< T >& rhs) const noexcept
-{
-  bool isEqual = (getSize() == rhs.getSize());
-  for (size_t i = 0; i < getSize() && isEqual; ++i)
-  {
-    isEqual = ((*this)[i] == rhs[i]);
-  }
-  return isEqual;
-}
-
-template< class T >
-bool haliullin::Vector< T >::operator!=(const Vector< T >& rhs) const noexcept
-{
-  return !(*this == rhs);
-}
-
-template< class T >
-bool haliullin::Vector< T >::operator<(const Vector< T >& rhs) const noexcept
-{
-  size_t minSize = getSize() < rhs.getSize() ? getSize() : rhs.getSize();
-  for (size_t i = 0; i < minSize; ++i)
-  {
-    if ((*this)[i] < rhs[i])
-      return true;
-    if (rhs[i] < (*this)[i])
-      return false;
-  }
-  return getSize() < rhs.getSize();
 }
 
 template< class T >
@@ -290,39 +184,6 @@ void haliullin::Vector< T >::pushBack(const T& val)
 }
 
 template< class T >
-void haliullin::Vector< T >::pushBackRepeat(const T& val, size_t k)
-{
-  Vector< T > cpy(*this);
-  for (size_t i = 0; i < k; ++i)
-  {
-    cpy.pushBack(val);
-  }
-  swap(cpy);
-}
-
-template< class T >
-void haliullin::Vector< T >::pushFront(const T& val)
-{
-  Vector< T > v;
-  v.pushBack(val);
-  for (size_t i = 0; i < getSize(); ++i)
-  {
-    v.pushBack((*this)[i]);
-  }
-  swap(v);
-}
-
-template< class T >
-void haliullin::Vector< T >::popBack()
-{
-  if (!size_)
-  {
-    throw std::out_of_range("Vector is empty");
-  }
-  --size_;
-}
-
-template< class T >
 void haliullin::Vector< T >::insert(size_t id, const T& val)
 {
   if (id > getSize())
@@ -335,37 +196,6 @@ void haliullin::Vector< T >::insert(size_t id, const T& val)
     v.pushBack((*this)[i]);
   }
   v.pushBack(val);
-  for(size_t i = id; i < getSize(); ++i)
-  {
-    v.pushBack((*this)[i]);
-  }
-  swap(v);
-}
-
-template< class T >
-void haliullin::Vector< T >::insert(size_t id, const Vector< T >& rhs, size_t begin, size_t end)
-{
-  if (id > getSize())
-  {
-    throw std::out_of_range("id out of bound");
-  }
-  if (begin == end)
-  {
-    return;
-  }
-  if (begin > rhs.getSize() || end > rhs.getSize() || begin > end)
-  {
-    throw std::out_of_range("range out of bound");
-  }
-  Vector< T > v;
-  for (size_t i = 0; i < id; ++i)
-  {
-    v.pushBack((*this)[i]);
-  }
-  for (size_t i = begin; i < end; ++i)
-  {
-    v.pushBack(rhs[i]);
-  }
   for(size_t i = id; i < getSize(); ++i)
   {
     v.pushBack((*this)[i]);
@@ -393,173 +223,63 @@ void haliullin::Vector< T >::erase(size_t id)
 }
 
 template< class T >
-void haliullin::Vector< T >::erase(size_t begin, size_t end)
+void haliullin::Vector< T >::insSort()
 {
-  if (begin == end)
+  Vector< T > tmp(*this);
+  try
   {
-    return;
+    for (size_t i = 1; i < tmp.size_; ++i)
+    {
+      T key = tmp.data_[i];
+      size_t j = i;
+      while (j > 0 && tmp.data_[j - 1] > key)
+      {
+        tmp.data_[j] = tmp.data_[j - 1];
+        --j;
+      }
+      tmp.data_[j] = key;
+    }
   }
-  if (begin > getSize() || end > getSize() || begin > end)
+  catch (...)
   {
-    throw std::out_of_range("range out of bound");
+    throw;
   }
-  size_t count = end - begin;
-  Vector< T > v(getSize() - count);
-  for(size_t i = 0; i < begin; ++i)
-  {
-    v[i] = (*this)[i];
-  }
-  for(size_t i = begin; i < v.getSize(); ++i)
-  {
-    v[i] = (*this)[i + count];
-  }
-  swap(v);
+  swap(tmp);
 }
 
 template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::begin() noexcept
+bool haliullin::Vector< T >::operator==(const Vector< T >& rhs) const noexcept
 {
-  return VIter< T >(*this, 0);
-}
-
-template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::end() noexcept
-{
-  return VIter< T >(*this, size_);
-}
-
-template< class T >
-haliullin::VCIter< T > haliullin::Vector< T >::begin() const noexcept
-{
-  return VCIter< T >(*this, 0);
-}
-
-template< class T >
-haliullin::VCIter< T > haliullin::Vector< T >::end() const noexcept
-{
-  return VCIter< T >(*this, size_);
-}
-
-template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::iter(size_t idx) noexcept
-{
-  return VIter< T >(*this, idx);
-}
-
-template< class T >
-haliullin::VCIter< T > haliullin::Vector< T >::cbegin() const noexcept
-{
-  return VCIter< T >(*this, 0);
-}
-
-template< class T >
-haliullin::VCIter< T > haliullin::Vector< T >::cend() const noexcept
-{
-  return VCIter< T >(*this, size_);
-}
-
-template< class T >
-haliullin::VCIter< T > haliullin::Vector< T >::citer(size_t idx) const noexcept
-{
-  return VCIter< T >(*this, idx);
-}
-
-template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::insert(VIter< T > pos, const T& val)
-{
-  size_t id = pos.getId(*this);
-  insert(id, val);
-  return iter(id);
-}
-
-template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::insert(VIter< T > pos, VCIter< T > begin, VCIter< T > end)
-{
-  size_t id = pos.getId(*this);
-  if (id > getSize())
+  bool isEqual = (getSize() == rhs.getSize());
+  for (size_t i = 0; i < getSize() && isEqual; ++i)
   {
-    throw std::out_of_range("id out of bound");
+    isEqual = ((*this)[i] == rhs[i]);
   }
-  if (begin == end)
-  {
-    return pos;
-  }
-  if (begin > end)
-  {
-    throw std::out_of_range("range out of bound");
-  }
-  Vector< T > v;
-  for (size_t i = 0; i < id; ++i)
-  {
-    v.pushBack((*this)[i]);
-  }
-  for (auto it = begin; it != end; ++it)
-  {
-    v.pushBack(*it);
-  }
-  for (size_t i = id; i < getSize(); ++i)
-  {
-    v.pushBack((*this)[i]);
-  }
-  swap(v);
-  return iter(id);
+  return isEqual;
 }
 
 template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::insert(VIter< T > pos, const T& val, size_t k)
+bool haliullin::Vector< T >::operator!=(const Vector< T >& rhs) const noexcept
 {
-  size_t id = pos.getId(*this);
-  if (id > getSize())
-  {
-    throw std::out_of_range("id out of bound");
-  }
-  if (k == 0)
-  {
-    return pos;
-  }
-  Vector< T > v;
-  for (size_t i = 0; i < id; ++i)
-  {
-    v.pushBack((*this)[i]);
-  }
-  for (size_t i = 0; i < k; ++i)
-  {
-    v.pushBack(val);
-  }
-  for (size_t i = id; i < getSize(); ++i)
-  {
-    v.pushBack((*this)[i]);
-  }
-  swap(v);
-  return iter(id);
+  return !(*this == rhs);
 }
 
 template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::erase(VIter< T > pos)
+bool haliullin::Vector< T >::operator<(const Vector< T >& rhs) const noexcept
 {
-  size_t id = pos.getId(*this);
-  erase(id);
-  return iter(id);
-}
-
-template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::erase(VIter< T > begin, VIter< T > end)
-{
-  if (begin == end)
+  size_t minSize = getSize() < rhs.getSize() ? getSize() : rhs.getSize();
+  for (size_t i = 0; i < minSize; ++i)
   {
-    return begin;
+    if ((*this)[i] < rhs[i])
+    {
+      return true;
+    }
+    if (rhs[i] < (*this)[i])
+    {
+      return false;
+    }
   }
-  size_t b = begin.getId(*this);
-  erase(b, end.getId(*this));
-  return iter(b);
-}
-
-template< class T >
-haliullin::VIter< T > haliullin::Vector< T >::erase(VIter< T > pos, size_t k)
-{
-  size_t id = pos.getId(*this);
-  erase(id, id + k);
-  return iter(id);
+  return getSize() < rhs.getSize();
 }
 
 #endif

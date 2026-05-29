@@ -1,9 +1,9 @@
 #include <boost/test/unit_test.hpp>
+#include <string>
+#include <stdexcept>
 #include "HashTable.hpp"
 #include "SipHash.hpp"
 #include "Equal.hpp"
-#include <string>
-#include <stdexcept>
 
 BOOST_AUTO_TEST_SUITE(HashTableTests)
 
@@ -60,14 +60,37 @@ BOOST_AUTO_TEST_CASE(test_get)
   BOOST_CHECK_EQUAL(ht.get("f"), 99);
 }
 
-BOOST_AUTO_TEST_CASE(test_drop)
+BOOST_AUTO_TEST_CASE(test_find)
+{
+  Table ht(83);
+  ht.add("x", 33);
+  ht.add("y", 44);
+
+  auto it = ht.find("x");
+  BOOST_CHECK(it != ht.end());
+  BOOST_CHECK_EQUAL((*it).first, "x");
+  BOOST_CHECK_EQUAL((*it).second, 33);
+
+  auto it2 = ht.find("z");
+  BOOST_CHECK(it2 == ht.end());
+
+  const Table& cht = ht;
+  auto cit = cht.find("y");
+  BOOST_CHECK(cit != cht.cend());
+  BOOST_CHECK_EQUAL((*cit).first, "y");
+  BOOST_CHECK_EQUAL((*cit).second, 44);
+
+  auto cit2 = cht.find("w");
+  BOOST_CHECK(cit2 == cht.cend());
+}
+
+BOOST_AUTO_TEST_CASE(test_erase)
 {
   Table ht(73);
   ht.add("first", 111);
   ht.add("second", 222);
 
-  int val = ht.drop("first");
-  BOOST_CHECK_EQUAL(val, 111);
+  ht.erase("first");
   BOOST_CHECK_EQUAL(ht.getSize(), 1);
   BOOST_CHECK(!ht.has("first"));
   BOOST_CHECK(ht.has("second"));

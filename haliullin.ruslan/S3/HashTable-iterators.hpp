@@ -1,10 +1,10 @@
 #ifndef HASHTABLE_ITERATORS_HPP
 #define HASHTABLE_ITERATORS_HPP
 
-#include "vector.hpp"
-#include "slot.hpp"
 #include <cstddef>
 #include <utility>
+#include "vector.hpp"
+#include "slot.hpp"
 
 namespace haliullin
 {
@@ -20,9 +20,10 @@ namespace haliullin
   public:
    ~HtIter() = default;
     HtIter() noexcept;
-    HtIter(Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
 
     std::pair< const Key, Value > operator*() const noexcept;
+    Value& value() const noexcept;
+    const Key& key() const noexcept;
 
     HtIter& operator++() noexcept;
     HtIter operator++(int) noexcept;
@@ -35,6 +36,8 @@ namespace haliullin
   private:
     Vector< Slot< Key, Value > >* slots_;
     size_t idx_;
+
+    HtIter(Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
     friend class HashTable< Key, Value, Hash, Equal >;
     friend class HtCIter< Key, Value, Hash, Equal >;
   };
@@ -45,10 +48,10 @@ namespace haliullin
   public:
     ~HtCIter() = default;
     HtCIter() noexcept;
-    HtCIter(const Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
-    HtCIter(const HtIter< Key, Value, Hash, Equal >& it) noexcept;
 
     const std::pair< const Key, Value > operator*() const noexcept;
+    const Value& value() const noexcept;
+    const Key& key() const noexcept;
 
     HtCIter& operator++() noexcept;
     HtCIter operator++(int) noexcept;
@@ -61,6 +64,9 @@ namespace haliullin
   private:
     const Vector< Slot< Key, Value > >* slots_;
     size_t idx_;
+
+    HtCIter(const Vector< Slot< Key, Value > >* slots, size_t idx) noexcept;
+    HtCIter(const HtIter< Key, Value, Hash, Equal >& it) noexcept;
     friend class HashTable< Key, Value, Hash, Equal >;
   };
 }
@@ -84,10 +90,22 @@ std::pair< const Key, Value > haliullin::HtIter< Key, Value, Hash, Equal >::oper
 }
 
 template< class Key, class Value, class Hash, class Equal >
+Value& haliullin::HtIter< Key, Value, Hash, Equal >::value() const noexcept
+{
+  return (*slots_)[idx_].value_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+const Key& haliullin::HtIter< Key, Value, Hash, Equal >::key() const noexcept
+{
+  return (*slots_)[idx_].key_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
 haliullin::HtIter< Key, Value, Hash, Equal >& haliullin::HtIter< Key, Value, Hash, Equal >::operator++() noexcept
 {
   ++idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     ++idx_;
   }
@@ -110,7 +128,7 @@ haliullin::HtIter< Key, Value, Hash, Equal >& haliullin::HtIter< Key, Value, Has
     return *this;
   }
   --idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     --idx_;
   }
@@ -137,7 +155,6 @@ bool haliullin::HtIter< Key, Value, Hash, Equal >::operator!=(const HtIter& othe
   return !(*this == other);
 }
 
-
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HtCIter< Key, Value, Hash, Equal >::HtCIter() noexcept:
   slots_(nullptr),
@@ -163,10 +180,22 @@ const std::pair< const Key, Value > haliullin::HtCIter< Key, Value, Hash, Equal 
 }
 
 template< class Key, class Value, class Hash, class Equal >
+const Value& haliullin::HtCIter< Key, Value, Hash, Equal >::value() const noexcept
+{
+  return (*slots_)[idx_].value_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+const Key& haliullin::HtCIter< Key, Value, Hash, Equal >::key() const noexcept
+{
+  return (*slots_)[idx_].key_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
 haliullin::HtCIter< Key, Value, Hash, Equal >& haliullin::HtCIter< Key, Value, Hash, Equal >::operator++() noexcept
 {
   ++idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     ++idx_;
   }
@@ -189,7 +218,7 @@ haliullin::HtCIter< Key, Value, Hash, Equal >& haliullin::HtCIter< Key, Value, H
     return *this;
   }
   --idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != 'o')
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
   {
     --idx_;
   }

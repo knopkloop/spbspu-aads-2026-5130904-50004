@@ -1,9 +1,10 @@
 #ifndef BILIST_HPP
 #define BILIST_HPP
 
-#include "../common/BiList-iterators.hpp"
 #include <iostream>
 #include <utility>
+#include <stdexcept>
+#include "BiList-iterators.hpp"
 
 namespace haliullin
 {
@@ -13,7 +14,7 @@ namespace haliullin
   public:
     BiList();
     BiList(const BiList< T >& other);
-    BiList(BiList< T >&& other);
+    BiList(BiList< T >&& other) noexcept;
     ~BiList();
 
     BiList< T >& operator=(const BiList< T >& other);
@@ -32,13 +33,9 @@ namespace haliullin
     LIter< T > end();
     LCIter< T > cend() const;
 
-    void push_front(const T& value);
-    void push_front(T&& value);
-    void push_back(const T& value);
-    void push_back(T&& value);
-
-    LIter< T > insert(LIter< T > pos, const T& value);
-    LIter< T > insert(LIter< T > pos, T&& value);
+    template< class... Args > void emplace_front(Args&&... args);
+    template< class... Args > void emplace_back(Args&&... args);
+    template< class... Args > LIter< T > emplace(LIter< T > pos, Args&&... args);
 
     void pop_front();
     void pop_back();
@@ -70,14 +67,14 @@ haliullin::BiList< T >::BiList(const BiList< T >& other):
     return;
   }
   Node< T >* cur = other.head_;
-  Node< T >* first = new Node< T >(cur->val_);
+  Node< T >* first = new Node< T >(nullptr, nullptr, cur->val_);
   head_ = first;
   size_ = 1;
   cur = cur->next_;
   Node< T >* prev = first;
   while (cur != other.head_)
   {
-    Node< T >* newNode = new Node< T >(cur->val_);
+    Node< T >* newNode = new Node< T >(nullptr, nullptr, cur->val_);
     prev->next_ = newNode;
     newNode->prev_ = prev;
     prev = newNode;
@@ -89,12 +86,10 @@ haliullin::BiList< T >::BiList(const BiList< T >& other):
 }
 
 template< class T >
-haliullin::BiList< T >::BiList(BiList< T >&& other):
-  head_(other.head_),
-  size_(other.size_)
+haliullin::BiList< T >::BiList(BiList< T >&& other) noexcept:
+  BiList()
 {
-  other.head_ = nullptr;
-  other.size_ = 0;
+  swap(other);
 }
 
 template< class T >
@@ -106,7 +101,7 @@ haliullin::BiList< T >::~BiList()
 template< class T >
 haliullin::BiList< T >& haliullin::BiList< T >::operator=(const BiList< T >& other)
 {
-  if (this != &other)
+  if (this != std::addressof(other))
   {
     BiList< T > tmp(other);
     swap(tmp);
@@ -117,13 +112,10 @@ haliullin::BiList< T >& haliullin::BiList< T >::operator=(const BiList< T >& oth
 template< class T >
 haliullin::BiList< T >& haliullin::BiList< T >::operator=(BiList< T >&& other) noexcept
 {
-  if (this != &other)
+  if (this != std::addressof(other))
   {
-    clear();
-    head_ = other.head_;
-    size_ = other.size_;
-    other.head_ = nullptr;
-    other.size_ = 0;
+    BiList< T > tmp(std::move(other));
+    swap(tmp);
   }
   return *this;
 }
@@ -205,9 +197,11 @@ haliullin::LCIter< T > haliullin::BiList< T >::cend() const
 }
 
 template< class T >
-void haliullin::BiList< T >::push_front(const T& value)
+template< class... Args >
+void haliullin::BiList< T >::emplace_front(Args&&... args)
 {
-  Node< T >* newNode = new Node< T >(value);
+  Node< T >* newNode = new Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
+
   if (is_empty())
   {
     head_ = newNode;
@@ -226,108 +220,52 @@ void haliullin::BiList< T >::push_front(const T& value)
 }
 
 template< class T >
-void haliullin::BiList< T >::push_front(T&& value)
+template< class... Args >
+void haliullin::BiList< T >::emplace_back(Args&&... args)
 {
-  Node< T >* newNode = new Node< T >(std::move(value));
   if (is_empty())
   {
-    head_ = newNode;
-    head_->next_ = head_;
-    head_->prev_ = head_;
+    emplace_front(std::forward< Args >(args)...);
+    return;
   }
-  else
-  {
-    newNode->next_ = head_;
-    newNode->prev_ = head_->prev_;
-    head_->prev_->next_ = newNode;
-    head_->prev_ = newNode;
-    head_ = newNode;
-  }
+
+  Node< T >* newNode = new Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
+  Node< T >* last = head_->prev_;
+  newNode->next_ = head_;
+  newNode->prev_ = last;
+  last->next_ = newNode;
+  head_->prev_ = newNode;
   ++size_;
 }
 
 template< class T >
-void haliullin::BiList< T >::push_back(const T& value)
+template< class... Args >
+haliullin::LIter< T > haliullin::BiList< T >::emplace(LIter< T > pos, Args&&... args)
 {
   if (is_empty())
   {
-    push_front(value);
-  }
-  else
-  {
-    Node< T >* newNode = new Node< T >(value);
-    Node< T >* last = head_->prev_;
-    newNode->next_ = head_;
-    newNode->prev_ = last;
-    last->next_ = newNode;
-    head_->prev_ = newNode;
-    ++size_;
-  }
-}
-
-template< class T >
-void haliullin::BiList< T >::push_back(T&& value)
-{
-  if (is_empty())
-  {
-    push_front(std::move(value));
-  }
-  else
-  {
-    Node< T >* newNode = new Node< T >(std::move(value));
-    Node< T >* last = head_->prev_;
-    newNode->next_ = head_;
-    newNode->prev_ = last;
-    last->next_ = newNode;
-    head_->prev_ = newNode;
-    ++size_;
-  }
-}
-
-template< class T >
-haliullin::LIter< T > haliullin::BiList< T >::insert(LIter< T > pos, const T& value)
-{
-  if (is_empty())
-  {
-    push_front(value);
+    emplace_front(std::forward< Args >(args)...);
     return begin();
   }
+
+  if (pos.cur_ == head_)
+  {
+    emplace_front(std::forward< Args >(args)...);
+    return begin();
+  }
+
   if (pos.cur_ == nullptr)
   {
-    push_front(value);
-    return begin();
+    emplace_back(std::forward< Args >(args)...);
+    return LIter< T >(head_->prev_, head_);
   }
-  Node< T >* newNode = new Node< T >(value, pos.cur_, pos.cur_->next_);
-  pos.cur_->next_->prev_ = newNode;
-  pos.cur_->next_ = newNode;
-  if (pos.cur_ == head_->prev_)
-  {
-    head_->prev_ = newNode;
-  }
-  ++size_;
-  return LIter< T >(newNode, head_);
-}
 
-template< class T >
-haliullin::LIter< T > haliullin::BiList< T >::insert(LIter< T > pos, T&& value)
-{
-  if (is_empty())
-  {
-    push_front(std::move(value));
-    return begin();
-  }
-  if (pos.cur_ == nullptr)
-  {
-    push_front(std::move(value));
-    return begin();
-  }
-  Node< T >* newNode = new Node< T >(std::move(value), pos.cur_, pos.cur_->next_);
-  pos.cur_->next_->prev_ = newNode;
-  pos.cur_->next_ = newNode;
-  if (pos.cur_ == head_->prev_)
-  {
-    head_->prev_ = newNode;
-  }
+  Node< T >* prevNode = pos.cur_->prev_;
+  Node< T >* newNode = new Node< T >(prevNode, pos.cur_, std::forward< Args >(args)...);
+
+  prevNode->next_ = newNode;
+  pos.cur_->prev_ = newNode;
+
   ++size_;
   return LIter< T >(newNode, head_);
 }
@@ -432,12 +370,8 @@ void haliullin::BiList< T >::clear()
 template< class T >
 void haliullin::BiList< T >::swap(BiList< T >& other) noexcept
 {
-  Node< T >* tmp_head = head_;
-  size_t tmp_size = size_;
-  head_ = other.head_;
-  size_ = other.size_;
-  other.head_ = tmp_head;
-  other.size_ = tmp_size;
+  std::swap(head_, other.head_);
+  std::swap(size_, other.size_);
 }
 
 #endif

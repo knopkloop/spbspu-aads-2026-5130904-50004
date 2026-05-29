@@ -1,15 +1,21 @@
-#include "stack.hpp"
-#include "evaluate.hpp"
-
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "stack.hpp"
+#include "evaluate.hpp"
 
-using namespace haliullin;
 int main(int argc, char * argv[])
 {
-  std::istream * input = &std::cin;
+  using namespace haliullin;
+
+  if (argc > 2)
+  {
+    std::cerr << "Too many arguments\n";
+    return 1;
+  }
+
   std::ifstream file;
+  std::istream& input = (argc == 2) ? file : std::cin;
 
   if (argc == 2)
   {
@@ -19,29 +25,22 @@ int main(int argc, char * argv[])
       std::cerr << "Cannot open file" << "\n";
       return 1;
     }
-    input = &file;
-  }
-  else if (argc > 2)
-  {
-    std::cerr << "Too many arguments" << "\n";
-    return 1;
   }
 
-  haliullin::Stack< long long > res;
+  Stack< long long > res;
   std::string line = "";
 
   try
   {
-    while (std::getline(*input, line))
+    while (std::getline(input, line))
     {
       if (!line.empty())
       {
         res.push(evaluate(infixToPostfix(line)));
       }
-
     }
   }
-  catch(const std::exception & e)
+  catch (const std::exception& e)
   {
     std::cerr << e.what() << "\n";
     return 1;
@@ -50,11 +49,11 @@ int main(int argc, char * argv[])
   if (!res.is_empty())
   {
     std::cout << res.top();
-    res.drop();
+    res.pop();
     while(!res.is_empty())
     {
       std::cout << " " << res.top();
-      res.drop();
+      res.pop();
     }
   }
   std::cout << "\n";

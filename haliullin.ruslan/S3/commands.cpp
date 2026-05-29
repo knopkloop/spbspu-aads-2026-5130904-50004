@@ -1,8 +1,8 @@
-#include "commands.hpp"
-#include "vector.hpp"
 #include <stdexcept>
 #include <limits>
 #include <utility>
+#include "commands.hpp"
+#include "vector.hpp"
 
 haliullin::Cmd::Cmd()
 {
@@ -45,6 +45,22 @@ bool haliullin::Cmd::getCommand(const std::string& name, func_t& out) const
   return true;
 }
 
+void haliullin::Cmd::require(bool condition) const
+{
+  if (!condition)
+  {
+    throw std::logic_error("<INVALID COMMAND>");
+  }
+}
+
+void haliullin::Cmd::require(std::istream& in) const
+{
+  if (!in)
+  {
+    throw std::logic_error("<INVALID COMMAND>");
+  }
+}
+
 void haliullin::Cmd::cmdGraphs(std::istream&, std::ostream& out)
 {
   Vector< std::string > names;
@@ -66,16 +82,10 @@ void haliullin::Cmd::cmdGraphs(std::istream&, std::ostream& out)
 void haliullin::Cmd::cmdVertexes(std::istream& in, std::ostream& out)
 {
   std::string gname;
-  if (!(in >> gname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (!graphs_.has(gname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> gname;
+  require(in);
+  require(graphs_.has(gname));
+
   const Graph& g = graphs_.get(gname);
   Vector< std::string > verts = g.getVertexes();
   for (size_t i = 0; i < verts.getSize(); ++i)
@@ -91,22 +101,13 @@ void haliullin::Cmd::cmdVertexes(std::istream& in, std::ostream& out)
 void haliullin::Cmd::cmdOutbound(std::istream& in, std::ostream& out)
 {
   std::string gname, v;
-  if (!(in >> gname >> v))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (!graphs_.has(gname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> gname >> v;
+  require(in);
+  require(graphs_.has(gname));
+
   const Graph& g = graphs_.get(gname);
-  if (!g.hasVertex(v))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  require(g.hasVertex(v));
+
   auto res = g.getOutbound(v);
   if (res.getSize() == 0)
   {
@@ -129,22 +130,12 @@ void haliullin::Cmd::cmdOutbound(std::istream& in, std::ostream& out)
 void haliullin::Cmd::cmdInbound(std::istream& in, std::ostream& out)
 {
   std::string gname, v;
-  if (!(in >> gname >> v))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (!graphs_.has(gname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> gname >> v;
+  require(in);
+  require(graphs_.has(gname));
+
   const Graph& g = graphs_.get(gname);
-  if (!g.hasVertex(v))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  require(g.hasVertex(v));
   auto res = g.getInbound(v);
   if (res.getSize() == 0)
   {
@@ -164,145 +155,88 @@ void haliullin::Cmd::cmdInbound(std::istream& in, std::ostream& out)
   }
 }
 
-void haliullin::Cmd::cmdBind(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdBind(std::istream& in, std::ostream&)
 {
   std::string gname, a, b;
   unsigned long long w;
-  if (!(in >> gname >> a >> b >> w))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (!graphs_.has(gname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> gname >> a >> b >> w;
+  require(in);
+  require(graphs_.has(gname));
+
   Graph g = graphs_.get(gname);
   g.addEdge(a, b, w);
   graphs_.get(gname).swap(g);
 }
 
-void haliullin::Cmd::cmdCut(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdCut(std::istream& in, std::ostream&)
 {
   std::string gname, a, b;
   unsigned long long w;
-  if (!(in >> gname >> a >> b >> w))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (!graphs_.has(gname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> gname >> a >> b >> w;
+  require(in);
+  require(graphs_.has(gname));
+
   Graph g = graphs_.get(gname);
-  if (!g.cutEdge(a, b, w))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  g.cutEdge(a, b, w);
   graphs_.get(gname).swap(g);
 }
 
-void haliullin::Cmd::cmdCreate(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdCreate(std::istream& in, std::ostream&)
 {
-  std::string name;
-  if (!(in >> name))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (graphs_.has(name))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  std::string gname;
+  in >> gname;
+  require(in);
+  require(!graphs_.has(gname));
+
   size_t k;
-  if (!(in >> k))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> k;
+  require(in);
+
   Graph g;
   for (size_t i = 0; i < k; ++i)
   {
     std::string v;
-    if (!(in >> v))
-    {
-      out << "<INVALID COMMAND>\n";
-      return;
-    }
+    in >> v;
+    require(in);
     g.addVertex(v);
   }
-  graphs_.add(name, g);
+  graphs_.add(gname, g);
 }
 
-void haliullin::Cmd::cmdMerge(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdMerge(std::istream& in, std::ostream&)
 {
   std::string newname, old1, old2;
-  if (!(in >> newname >> old1 >> old2))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (graphs_.has(newname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (!graphs_.has(old1) || !graphs_.has(old2))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> newname >> old1 >> old2;
+  require(in);
+  require(!graphs_.has(newname));
+  require(graphs_.has(old1) && graphs_.has(old2));
   graphs_.add(newname, graphs_.get(old1).merge(graphs_.get(old2)));
 }
 
-void haliullin::Cmd::cmdExtract(std::istream& in, std::ostream& out)
+void haliullin::Cmd::cmdExtract(std::istream& in, std::ostream&)
 {
   std::string newname, oldname;
-  if (!(in >> newname >> oldname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (graphs_.has(newname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
-  if (!graphs_.has(oldname))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> newname >> oldname;
+  require(in);
+  require(!graphs_.has(newname));
+  require(graphs_.has(oldname));
+
   size_t k;
-  if (!(in >> k))
-  {
-    out << "<INVALID COMMAND>\n";
-    return;
-  }
+  in >> k;
+  require(in);
+
   Vector< std::string > verts;
   for (size_t i = 0; i < k; ++i)
   {
     std::string v;
-    if (!(in >> v))
-    {
-      out << "<INVALID COMMAND>\n";
-      return;
-    }
+    in >> v;
+    require(in);
     verts.pushBack(v);
   }
   const Graph& old = graphs_.get(oldname);
   for (size_t i = 0; i < verts.getSize(); ++i)
   {
-    if (!old.hasVertex(verts[i]))
-    {
-      out << "<INVALID COMMAND>\n";
-      return;
-    }
+    require(old.hasVertex(verts[i]));
   }
   graphs_.add(newname, old.extract(verts));
 }
