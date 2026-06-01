@@ -3,29 +3,29 @@
 
 namespace haliullin
 {
-  enum class SlotState: char
+  namespace detail
   {
-    EMPTY = 'e',
-    OCCUPIED = 'o',
-    TOMBSTONE = 't'
-  };
+    enum class SlotState: char
+    {
+      EMPTY = 'e',
+      OCCUPIED = 'o',
+      TOMBSTONE = 't'
+    };
 
-  template< class Key, class Value >
-  struct Slot
-  {
-    Slot() noexcept;
+    template< class Key, class Value >
+    struct Slot
+    {
+      Slot() noexcept:
+        key_(),
+        value_(),
+        info_(SlotState::EMPTY)
+      {}
 
-    Key key_;
-    Value value_;
-    SlotState info_;
-  };
+      Key key_;
+      Value value_;
+      SlotState info_;
+    };
+  }
 }
-
-template< class Key, class Value >
-haliullin::Slot< Key, Value >::Slot() noexcept:
-  key_(),
-  value_(),
-  info_(SlotState::EMPTY)
-{}
 
 #endif

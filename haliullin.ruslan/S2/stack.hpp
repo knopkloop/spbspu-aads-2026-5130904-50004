@@ -10,12 +10,12 @@ namespace haliullin
   class Stack
   {
   public:
-    void push(const T& rhs);
-    void pop();
-    T& top();
-    const T& top() const;
     bool is_empty() const noexcept;
     size_t get_size() const noexcept;
+    void push(const T& rhs);
+    T& top();
+    const T& top() const;
+    void pop();
     void clear();
 
   private:
@@ -24,19 +24,21 @@ namespace haliullin
 }
 
 template< class T >
-void haliullin::Stack< T >::push(const T& rhs)
+bool haliullin::Stack< T >::is_empty() const noexcept
 {
-  data_.emplace_back(rhs);
+  return data_.is_empty();
 }
 
 template< class T >
-void haliullin::Stack< T >::pop()
+size_t haliullin::Stack< T >::get_size() const noexcept
 {
-  if (data_.is_empty())
-  {
-    throw std::runtime_error("Stack is empty");
-  }
-  data_.pop_back();
+  return data_.get_size();
+}
+
+template< class T >
+void haliullin::Stack< T >::push(const T& rhs)
+{
+  data_.emplace_back(rhs);
 }
 
 template< class T >
@@ -60,15 +62,13 @@ const T& haliullin::Stack< T >::top() const
 }
 
 template< class T >
-bool haliullin::Stack< T >::is_empty() const noexcept
+void haliullin::Stack< T >::pop()
 {
-  return data_.is_empty();
-}
-
-template< class T >
-size_t haliullin::Stack< T >::get_size() const noexcept
-{
-  return data_.get_size();
+  if (data_.is_empty())
+  {
+    throw std::runtime_error("Stack is empty");
+  }
+  data_.pop_back();
 }
 
 template< class T >

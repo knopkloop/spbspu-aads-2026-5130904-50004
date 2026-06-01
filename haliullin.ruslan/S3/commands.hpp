@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <string>
+#include <functional>
 #include "HashTable.hpp"
 #include "graph.hpp"
 #include "SipHash.hpp"
-#include "Equal.hpp"
 
 namespace haliullin
 {
@@ -21,8 +21,8 @@ namespace haliullin
     bool getCommand(const std::string& name, func_t& out) const;
 
   private:
-    HashTable< std::string, Graph, SipHash, Equal > graphs_;
-    HashTable< std::string, func_t, SipHash, Equal > commands_;
+    HashTable< std::string, Graph, detail::SipHash, std::equal_to< std::string > > graphs_;
+    HashTable< std::string, func_t, detail::SipHash, std::equal_to< std::string > > commands_;
 
     void require(bool condition) const;
     void require(std::istream& in) const;

@@ -10,12 +10,12 @@ namespace haliullin
   class Queue
   {
   public:
-    void push(const T& rhs);
-    void pop();
-    T& front();
-    const T& front() const;
     bool is_empty() const noexcept;
     size_t get_size() const noexcept;
+    void push(const T& rhs);
+    T& front();
+    const T& front() const;
+    void pop();
     void clear();
 
   private:
@@ -24,19 +24,21 @@ namespace haliullin
 }
 
 template< class T >
-void haliullin::Queue< T >::push(const T& rhs)
+bool haliullin::Queue< T >::is_empty() const noexcept
 {
-  data_.emplace_back(rhs);
+  return data_.is_empty();
 }
 
 template< class T >
-void haliullin::Queue< T >::pop()
+size_t haliullin::Queue< T >::get_size() const noexcept
 {
-  if (data_.is_empty())
-  {
-    throw std::runtime_error("Queue is empty");
-  }
-  data_.pop_front();
+  return data_.get_size();
+}
+
+template< class T >
+void haliullin::Queue< T >::push(const T& rhs)
+{
+  data_.emplace_back(rhs);
 }
 
 template< class T >
@@ -60,15 +62,13 @@ const T& haliullin::Queue< T >::front() const
 }
 
 template< class T >
-bool haliullin::Queue< T >::is_empty() const noexcept
+void haliullin::Queue< T >::pop()
 {
-  return data_.is_empty();
-}
-
-template< class T >
-size_t haliullin::Queue< T >::get_size() const noexcept
-{
-  return data_.get_size();
+  if (data_.is_empty())
+  {
+    throw std::runtime_error("Queue is empty");
+  }
+  data_.pop_front();
 }
 
 template< class T >

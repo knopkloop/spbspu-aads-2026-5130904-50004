@@ -1,13 +1,13 @@
 #include <boost/test/unit_test.hpp>
 #include <string>
+#include <functional>
 #include <stdexcept>
 #include "HashTable.hpp"
 #include "SipHash.hpp"
-#include "Equal.hpp"
 
-BOOST_AUTO_TEST_SUITE(HashTableTests)
+BOOST_AUTO_TEST_SUITE(HashTable_tests)
 
-using Table = haliullin::HashTable< std::string, int, haliullin::SipHash, haliullin::Equal >;
+using Table = haliullin::HashTable< std::string, int, haliullin::detail::SipHash, std::equal_to< std::string > >;
 
 BOOST_AUTO_TEST_CASE(test_default_constructor)
 {
