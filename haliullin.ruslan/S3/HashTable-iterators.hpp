@@ -129,7 +129,7 @@ haliullin::HtIter< Key, Value, Hash, Equal >& haliullin::HtIter< Key, Value, Has
     return *this;
   }
   --idx_;
-  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != SlotState::OCCUPIED)
+  while (idx_ < slots_->getSize() && (*slots_)[idx_].info_ != detail::SlotState::OCCUPIED)
   {
     --idx_;
   }
