@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "stack.hpp"
 
-BOOST_AUTO_TEST_SUITE(StackTests)
+BOOST_AUTO_TEST_SUITE(Stack_tests)
 
 BOOST_AUTO_TEST_CASE(push)
 {

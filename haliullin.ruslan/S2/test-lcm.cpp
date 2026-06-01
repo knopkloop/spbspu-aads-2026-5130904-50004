@@ -4,7 +4,7 @@
 #include "evaluate.hpp"
 #include "math_op.hpp"
 
-BOOST_AUTO_TEST_SUITE(lcmTests)
+BOOST_AUTO_TEST_SUITE(lcm_tests)
 
 BOOST_AUTO_TEST_CASE(basic)
 {
@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(basic)
   BOOST_CHECK_EQUAL(haliullin::lcm(10, 15), 30);
 }
 
-BOOST_AUTO_TEST_CASE(inExpression)
+BOOST_AUTO_TEST_CASE(in_expression)
 {
   BOOST_CHECK_EQUAL(haliullin::evaluate(haliullin::infixToPostfix("4 lcm 6")), 12);
   BOOST_CHECK_EQUAL(haliullin::evaluate(haliullin::infixToPostfix("7 lcm 12 - 24")), 60);
