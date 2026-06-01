@@ -122,7 +122,7 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
   for (size_t i = 0; i < slots_.getSize(); ++i)
   {
     size_t idx = probe(hash, i);
-    SlotState state = slots_[idx].info_;
+    detail::SlotState state = slots_[idx].info_;
 
     if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].key_, k))
     {
