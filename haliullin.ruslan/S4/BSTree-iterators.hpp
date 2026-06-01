@@ -1,27 +1,29 @@
 #ifndef BSTREE_ITERATORS_HPP
 #define BSTREE_ITERATORS_HPP
 
+#include <iterator>
 #include <memory>
 #include "TreeNode.hpp"
 #include "tree-traverse.hpp"
 
 namespace haliullin
 {
+  template< class Key, class Value, class Compare >
+  class BSTree;
 
   template< class Key, class Value >
   class BSTConstIterator;
 
   template< class Key, class Value >
-  class BSTIterator
+  class BSTIterator: public std::iterator< std::bidirectional_iterator_tag, std::pair< const Key, Value >, std::ptrdiff_t,
+  std::pair< const Key, Value >*, std::pair< const Key, Value >& >
   {
   public:
-    using Node = TreeNode< Key, Value >;
+    using Node = detail::TreeNode< Key, Value >;
+    using pair_t = std::pair< const Key, Value >;
 
-    ~BSTIterator() = default;
-    BSTIterator(Node* node = nullptr) noexcept;
-
-    std::pair< const Key, Value >& operator*() const noexcept;
-    std::pair< const Key, Value >* operator->() const noexcept;
+    pair_t& operator*() const noexcept;
+    pair_t* operator->() const noexcept;
 
     BSTIterator& operator++() noexcept;
     BSTIterator operator++(int) noexcept;
@@ -34,23 +36,24 @@ namespace haliullin
   private:
     Node* node_;
 
-    template< class K, class V, class C >
-    friend class BSTree;
+    BSTIterator(Node* node = nullptr) noexcept;
     friend class BSTConstIterator< Key, Value >;
+    template< class K, class V, class C >
+    friend class BSTree< K, V, C >;
   };
 
   template< class Key, class Value >
-  class BSTConstIterator
+  class BSTConstIterator: public std::iterator< std::bidirectional_iterator_tag, std::pair< const Key, Value >, std::ptrdiff_t,
+  const std::pair< const Key, Value >*, const std::pair< const Key, Value >& >
   {
   public:
-    using Node = TreeNode< Key, Value >;
+    using Node = detail::TreeNode< Key, Value >;
+    using c_pair_t = const std::pair< const Key, Value >;
 
-    ~BSTConstIterator() = default;
-    BSTConstIterator(Node* node = nullptr) noexcept;
     BSTConstIterator(const BSTIterator< Key, Value >& it) noexcept;
 
-    const std::pair< const Key, Value >& operator*() const noexcept;
-    const std::pair< const Key, Value >* operator->() const noexcept;
+    c_pair_t& operator*() const noexcept;
+    c_pair_t* operator->() const noexcept;
 
     BSTConstIterator& operator++() noexcept;
     BSTConstIterator operator++(int) noexcept;
@@ -63,8 +66,9 @@ namespace haliullin
   private:
     Node* node_;
 
+    BSTConstIterator(Node* node = nullptr) noexcept;
     template <class K, class V, class C >
-    friend class BSTree;
+    friend class BSTree< K, V, C >;
   };
 }
 
@@ -88,8 +92,7 @@ std::pair< const Key, Value >* haliullin::BSTIterator< Key, Value >::operator->(
 template< class Key, class Value >
 haliullin::BSTIterator< Key, Value >& haliullin::BSTIterator< Key, Value >::operator++() noexcept
 {
-  Node* n = next(node_);
-  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
+  node_ = next(node_);
   return *this;
 }
 
@@ -104,8 +107,7 @@ haliullin::BSTIterator< Key, Value > haliullin::BSTIterator< Key, Value >::opera
 template< class Key, class Value >
 haliullin::BSTIterator< Key, Value >& haliullin::BSTIterator< Key, Value >::operator--() noexcept
 {
-  Node* n = previous(node_);
-  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
+  node_ = previous(node_);
   return *this;
 }
 
@@ -154,8 +156,7 @@ const std::pair< const Key, Value >* haliullin::BSTConstIterator< Key, Value >::
 template< class Key, class Value >
 haliullin::BSTConstIterator< Key, Value >& haliullin::BSTConstIterator< Key, Value >::operator++() noexcept
 {
-  Node* n = next(node_);
-  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
+  node_ = next(node_);
   return *this;
 }
 
@@ -170,8 +171,7 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTConstIterator< Key, Valu
 template< class Key, class Value >
 haliullin::BSTConstIterator< Key, Value >& haliullin::BSTConstIterator< Key, Value >::operator--() noexcept
 {
-  Node* n = previous(node_);
-  node_ = (n ? n : std::addressof(Node::fakeLeaf_));
+  node_ = previous(node_);
   return *this;
 }
 

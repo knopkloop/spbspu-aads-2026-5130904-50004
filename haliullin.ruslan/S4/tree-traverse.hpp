@@ -1,25 +1,26 @@
 #ifndef TREE_TRAVERSE_HPP
 #define TREE_TRAVERSE_HPP
 
+#include <memory>
 #include "TreeNode.hpp"
 
 namespace haliullin
 {
   template< class Key, class Value >
-  TreeNode< Key, Value >* fallLeft(TreeNode< Key, Value >* node) noexcept;
+  detail::TreeNode< Key, Value >* fallLeft(detail::TreeNode< Key, Value >* node) noexcept;
 
   template< class Key, class Value >
-  TreeNode< Key, Value >* fallRight(TreeNode< Key, Value >* node) noexcept;
+  detail::TreeNode< Key, Value >* fallRight(detail::TreeNode< Key, Value >* node) noexcept;
 
   template< class Key, class Value >
-  TreeNode< Key, Value >* next(TreeNode< Key, Value >* node) noexcept;
+  detail::TreeNode< Key, Value >* next(detail::TreeNode< Key, Value >* node) noexcept;
 
   template< class Key, class Value >
-  TreeNode< Key, Value >* previous(TreeNode< Key, Value >* node) noexcept;
+  detail::TreeNode< Key, Value >* previous(detail::TreeNode< Key, Value >* node) noexcept;
 }
 
 template< class Key, class Value >
-haliullin::TreeNode< Key, Value >* haliullin::fallLeft(TreeNode< Key, Value >* node) noexcept
+haliullin::detail::TreeNode< Key, Value >* haliullin::fallLeft(detail::TreeNode< Key, Value >* node) noexcept
 {
   while (!node->left_->isFake())
   {
@@ -29,7 +30,7 @@ haliullin::TreeNode< Key, Value >* haliullin::fallLeft(TreeNode< Key, Value >* n
 }
 
 template< class Key, class Value >
-haliullin::TreeNode< Key, Value >* haliullin::fallRight(TreeNode< Key, Value >* node) noexcept
+haliullin::detail::TreeNode< Key, Value >* haliullin::fallRight(detail::TreeNode< Key, Value >* node) noexcept
 {
   while (!node->right_->isFake())
   {
@@ -39,37 +40,37 @@ haliullin::TreeNode< Key, Value >* haliullin::fallRight(TreeNode< Key, Value >* 
 }
 
 template< class Key, class Value >
-haliullin::TreeNode< Key, Value >* haliullin::next(TreeNode< Key, Value >* node) noexcept
+haliullin::detail::TreeNode< Key, Value >* haliullin::next(detail::TreeNode< Key, Value >* node) noexcept
 {
   if (!node->right_->isFake())
   {
     return fallLeft(node->right_);
   }
 
-  TreeNode< Key, Value >* parent = node->parent_;
+  detail::TreeNode< Key, Value >* parent = node->parent_;
   while (parent && (parent->right_ == node))
   {
     node = parent;
     parent = parent->parent_;
   }
-  return parent;
+  return parent ? parent : std::addressof(detail::TreeNode< Key, Value >::fakeLeaf_);
 }
 
 template< class Key, class Value >
-haliullin::TreeNode< Key, Value >* haliullin::previous(TreeNode< Key, Value >* node) noexcept
+haliullin::detail::TreeNode< Key, Value >* haliullin::previous(detail::TreeNode< Key, Value >* node) noexcept
 {
   if (!node->left_->isFake())
   {
     return fallRight(node->left_);
   }
 
-  TreeNode< Key, Value >* parent = node->parent_;
+  detail::TreeNode< Key, Value >* parent = node->parent_;
   while (parent && (parent->left_ == node))
   {
     node = parent;
     parent = parent->parent_;
   }
-  return parent;
+  return parent ? parent : std::addressof(detail::TreeNode< Key, Value >::fakeLeaf_);
 }
 
 #endif

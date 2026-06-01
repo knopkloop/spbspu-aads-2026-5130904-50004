@@ -15,7 +15,7 @@ namespace haliullin
   class BSTree
   {
   public:
-    using Node = TreeNode< Key, Value >;
+    using Node = detail::TreeNode< Key, Value >;
     using iterator = BSTIterator< Key, Value >;
     using const_iterator = BSTConstIterator< Key, Value >;
 
@@ -400,7 +400,7 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
 {
   if (root_->isFake())
   {
-    return const_iterator(const_cast< Node* >(std::addressof(Node::fakeLeaf_)));
+    return const_iterator(std::addressof(Node::fakeLeaf_));
   }
   return const_iterator(fallLeft(root_));
 }
@@ -430,7 +430,7 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
 }
 
 template< class Key, class Value, class Compare >
-haliullin::TreeNode< Key, Value >* haliullin::BSTree< Key, Value, Compare >::findNode(const Key& k) const
+haliullin::detail::TreeNode< Key, Value >* haliullin::BSTree< Key, Value, Compare >::findNode(const Key& k) const
 {
   Node* cur = root_;
   while (!cur->isFake())
@@ -452,7 +452,7 @@ haliullin::TreeNode< Key, Value >* haliullin::BSTree< Key, Value, Compare >::fin
 }
 
 template< class Key, class Value, class Compare >
-haliullin::TreeNode< Key, Value >* haliullin::BSTree< Key, Value, Compare >::copyNodes(Node* node, Node* parent)
+haliullin::detail::TreeNode< Key, Value >* haliullin::BSTree< Key, Value, Compare >::copyNodes(Node* node, Node* parent)
 {
   if (node->isFake())
   {
