@@ -7,6 +7,9 @@
 namespace haliullin
 {
   template< class T >
+  class BiList;
+
+  template< class T >
   class LIter: public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, T*, T& >
   {
   public:
@@ -51,12 +54,12 @@ namespace haliullin
     bool operator!=(const LCIter& other) const noexcept;
 
   private:
-    friend class BiList< T >;
     const detail::Node< T >* cur_;
     const detail::Node< T >* head_;
 
     explicit LCIter(const detail::Node< T >* node, const detail::Node< T >* head);
     LCIter(const LIter< T >& other);
+    friend class BiList< T >;
   };
 }
 
