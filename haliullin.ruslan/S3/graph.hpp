@@ -4,7 +4,6 @@
 #include "HashTable.hpp"
 #include "vector.hpp"
 #include "SipHash.hpp"
-#include "Equal.hpp"
 #include <utility>
 #include <string>
 
@@ -38,7 +37,8 @@ namespace haliullin
 
   private:
     Vector< std::string > vertexes_;
-    HashTable< std::pair< std::string, std::string >, Vector< unsigned long long >, SipHash, Equal > edges_;
+    HashTable< std::pair< std::string, std::string >, Vector< unsigned long long >, detail::SipHash,
+               std::equal_to< std::pair< std::string, std::string > > > edges_;
   };
 }
 
