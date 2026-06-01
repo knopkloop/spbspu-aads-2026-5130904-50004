@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "queue.hpp"
 
-BOOST_AUTO_TEST_SUITE(QueueTests)
+BOOST_AUTO_TEST_SUITE(Queue_tests)
 
 BOOST_AUTO_TEST_CASE(push)
 {

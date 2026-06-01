@@ -16,7 +16,6 @@ int main(int argc, char * argv[])
 
   std::ifstream file;
   std::istream& input = (argc == 2) ? file : std::cin;
-
   if (argc == 2)
   {
     file.open(argv[1]);
@@ -29,7 +28,6 @@ int main(int argc, char * argv[])
 
   Stack< long long > res;
   std::string line = "";
-
   try
   {
     while (std::getline(input, line))
