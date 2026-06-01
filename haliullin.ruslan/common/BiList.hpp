@@ -19,34 +19,38 @@ namespace haliullin
 
     BiList< T >& operator=(const BiList< T >& other);
     BiList< T >& operator=(BiList< T >&& other) noexcept;
+    void swap(BiList< T >& other) noexcept;
 
     bool is_empty() const noexcept;
     size_t get_size() const noexcept;
-
     T& front();
     const T& front() const;
     T& back();
     const T& back() const;
 
-    LIter< T > begin();
-    LCIter< T > cbegin() const;
-    LIter< T > end();
-    LCIter< T > cend() const;
-
-    template< class... Args > void emplace_front(Args&&... args);
-    template< class... Args > void emplace_back(Args&&... args);
-    template< class... Args > LIter< T > emplace(LIter< T > pos, Args&&... args);
-
     void pop_front();
     void pop_back();
-
     LIter< T > erase(LIter< T > pos);
-
     void clear();
-    void swap(BiList< T >& other) noexcept;
+
+    template< class... Args >
+    void emplace_front(Args&&... args);
+
+    template< class... Args >
+    void emplace_back(Args&&... args);
+
+    template< class... Args >
+    LIter< T > emplace(LIter< T > pos, Args&&... args);
+
+    LIter< T > begin() noexcept;
+    LCIter< T > begin() const noexcept;
+    LCIter< T > cbegin() const noexcept;
+    LIter< T > end() noexcept;
+    LCIter< T > end() const noexcept;
+    LCIter< T > cend() const noexcept;
 
   private:
-    Node< T >* head_;
+    detail::Node< T >* head_;
     size_t size_;
   };
 }
@@ -66,15 +70,15 @@ haliullin::BiList< T >::BiList(const BiList< T >& other):
   {
     return;
   }
-  Node< T >* cur = other.head_;
-  Node< T >* first = new Node< T >(nullptr, nullptr, cur->val_);
+  detail::Node< T >* cur = other.head_;
+  detail::Node< T >* first = new detail::Node< T >(nullptr, nullptr, cur->val_);
   head_ = first;
   size_ = 1;
   cur = cur->next_;
-  Node< T >* prev = first;
+  detail::Node< T >* prev = first;
   while (cur != other.head_)
   {
-    Node< T >* newNode = new Node< T >(nullptr, nullptr, cur->val_);
+    detail::Node< T >* newNode = new detail::Node< T >(nullptr, nullptr, cur->val_);
     prev->next_ = newNode;
     newNode->prev_ = prev;
     prev = newNode;
@@ -118,6 +122,13 @@ haliullin::BiList< T >& haliullin::BiList< T >::operator=(BiList< T >&& other) n
     swap(tmp);
   }
   return *this;
+}
+
+template< class T >
+void haliullin::BiList< T >::swap(BiList< T >& other) noexcept
+{
+  std::swap(head_, other.head_);
+  std::swap(size_, other.size_);
 }
 
 template< class T >
@@ -173,104 +184,6 @@ const T& haliullin::BiList< T >::back() const
 }
 
 template< class T >
-haliullin::LIter< T > haliullin::BiList< T >::begin()
-{
-  return LIter< T >(head_, head_);
-}
-
-template< class T >
-haliullin::LCIter< T > haliullin::BiList< T >::cbegin() const
-{
-  return LCIter< T >(head_, head_);
-}
-
-template< class T >
-haliullin::LIter< T > haliullin::BiList< T >::end()
-{
-  return LIter< T >(nullptr, head_);
-}
-
-template< class T >
-haliullin::LCIter< T > haliullin::BiList< T >::cend() const
-{
-  return LCIter< T >(nullptr, head_);
-}
-
-template< class T >
-template< class... Args >
-void haliullin::BiList< T >::emplace_front(Args&&... args)
-{
-  Node< T >* newNode = new Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
-
-  if (is_empty())
-  {
-    head_ = newNode;
-    head_->next_ = head_;
-    head_->prev_ = head_;
-  }
-  else
-  {
-    newNode->next_ = head_;
-    newNode->prev_ = head_->prev_;
-    head_->prev_->next_ = newNode;
-    head_->prev_ = newNode;
-    head_ = newNode;
-  }
-  ++size_;
-}
-
-template< class T >
-template< class... Args >
-void haliullin::BiList< T >::emplace_back(Args&&... args)
-{
-  if (is_empty())
-  {
-    emplace_front(std::forward< Args >(args)...);
-    return;
-  }
-
-  Node< T >* newNode = new Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
-  Node< T >* last = head_->prev_;
-  newNode->next_ = head_;
-  newNode->prev_ = last;
-  last->next_ = newNode;
-  head_->prev_ = newNode;
-  ++size_;
-}
-
-template< class T >
-template< class... Args >
-haliullin::LIter< T > haliullin::BiList< T >::emplace(LIter< T > pos, Args&&... args)
-{
-  if (is_empty())
-  {
-    emplace_front(std::forward< Args >(args)...);
-    return begin();
-  }
-
-  if (pos.cur_ == head_)
-  {
-    emplace_front(std::forward< Args >(args)...);
-    return begin();
-  }
-
-  if (pos.cur_ == nullptr)
-  {
-    emplace_back(std::forward< Args >(args)...);
-    return LIter< T >(head_->prev_, head_);
-  }
-
-  Node< T >* prevNode = pos.cur_->prev_;
-  Node< T >* newNode = new Node< T >(prevNode, pos.cur_, std::forward< Args >(args)...);
-
-  prevNode->next_ = newNode;
-  pos.cur_->prev_ = newNode;
-
-  ++size_;
-  return LIter< T >(newNode, head_);
-}
-
-template< class T >
 void haliullin::BiList< T >::pop_front()
 {
   if (is_empty())
@@ -285,7 +198,7 @@ void haliullin::BiList< T >::pop_front()
   }
   else
   {
-    Node< T >* first = head_;
+    detail::Node< T >* first = head_;
     head_->prev_->next_ = head_->next_;
     head_->next_->prev_ = head_->prev_;
     head_ = head_->next_;
@@ -309,7 +222,7 @@ void haliullin::BiList< T >::pop_back()
   }
   else
   {
-    Node< T >* last = head_->prev_;
+    detail::Node< T >* last = head_->prev_;
     last->prev_->next_ = head_;
     head_->prev_ = last->prev_;
     delete last;
@@ -336,8 +249,8 @@ haliullin::LIter< T > haliullin::BiList< T >::erase(LIter< T > pos)
     return end();
   }
 
-  Node< T >* toDelete = pos.cur_;
-  Node< T >* nextNode = toDelete->next_;
+  detail::Node< T >* toDelete = pos.cur_;
+  detail::Node< T >* nextNode = toDelete->next_;
   if (toDelete == head_)
   {
     pop_front();
@@ -368,10 +281,113 @@ void haliullin::BiList< T >::clear()
 }
 
 template< class T >
-void haliullin::BiList< T >::swap(BiList< T >& other) noexcept
+template< class... Args >
+void haliullin::BiList< T >::emplace_front(Args&&... args)
 {
-  std::swap(head_, other.head_);
-  std::swap(size_, other.size_);
+  detail::Node< T >* newNode = new detail::Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
+
+  if (is_empty())
+  {
+    head_ = newNode;
+    head_->next_ = head_;
+    head_->prev_ = head_;
+  }
+  else
+  {
+    newNode->next_ = head_;
+    newNode->prev_ = head_->prev_;
+    head_->prev_->next_ = newNode;
+    head_->prev_ = newNode;
+    head_ = newNode;
+  }
+  ++size_;
+}
+
+template< class T >
+template< class... Args >
+void haliullin::BiList< T >::emplace_back(Args&&... args)
+{
+  if (is_empty())
+  {
+    emplace_front(std::forward< Args >(args)...);
+    return;
+  }
+
+  detail::Node< T >* newNode = new detail::Node< T >(nullptr, nullptr, std::forward< Args >(args)...);
+  detail::Node< T >* last = head_->prev_;
+  newNode->next_ = head_;
+  newNode->prev_ = last;
+  last->next_ = newNode;
+  head_->prev_ = newNode;
+  ++size_;
+}
+
+template< class T >
+template< class... Args >
+haliullin::LIter< T > haliullin::BiList< T >::emplace(LIter< T > pos, Args&&... args)
+{
+  if (is_empty())
+  {
+    emplace_front(std::forward< Args >(args)...);
+    return begin();
+  }
+
+  if (pos.cur_ == head_)
+  {
+    emplace_front(std::forward< Args >(args)...);
+    return begin();
+  }
+
+  if (pos.cur_ == nullptr)
+  {
+    emplace_back(std::forward< Args >(args)...);
+    return LIter< T >(head_->prev_, head_);
+  }
+
+  detail::Node< T >* prevNode = pos.cur_->prev_;
+  detail::Node< T >* newNode = new detail::Node< T >(prevNode, pos.cur_, std::forward< Args >(args)...);
+
+  prevNode->next_ = newNode;
+  pos.cur_->prev_ = newNode;
+
+  ++size_;
+  return LIter< T >(newNode, head_);
+}
+
+template< class T >
+haliullin::LIter< T > haliullin::BiList< T >::begin() noexcept
+{
+  return LIter< T >(head_, head_);
+}
+
+template< class T >
+haliullin::LCIter< T > haliullin::BiList< T >::begin() const noexcept
+{
+  return LCIter< T >(head_, head_);
+}
+
+template< class T >
+haliullin::LCIter< T > haliullin::BiList< T >::cbegin() const noexcept
+{
+  return begin();
+}
+
+template< class T >
+haliullin::LIter< T > haliullin::BiList< T >::end() noexcept
+{
+  return LIter< T >(nullptr, head_);
+}
+
+template< class T >
+haliullin::LCIter< T > haliullin::BiList< T >::end() const noexcept
+{
+  return LCIter< T >(nullptr, head_);
+}
+
+template< class T >
+haliullin::LCIter< T > haliullin::BiList< T >::cend() const noexcept
+{
+  return end();
 }
 
 #endif
