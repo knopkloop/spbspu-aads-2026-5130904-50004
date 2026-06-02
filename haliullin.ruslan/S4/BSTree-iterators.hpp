@@ -39,7 +39,7 @@ namespace haliullin
     BSTIterator(Node* node = nullptr) noexcept;
     friend class BSTConstIterator< Key, Value >;
     template< class K, class V, class C >
-    friend class BSTree< K, V, C >;
+    friend class BSTree;
   };
 
   template< class Key, class Value >
@@ -68,7 +68,7 @@ namespace haliullin
 
     BSTConstIterator(Node* node = nullptr) noexcept;
     template <class K, class V, class C >
-    friend class BSTree< K, V, C >;
+    friend class BSTree;
   };
 }
 
