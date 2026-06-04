@@ -140,7 +140,10 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
     throw std::runtime_error("Need to rehash hashtable");
   }
 
-  new (slots_[insertIdx].kv_) std::pair< const Key, Value >(k, v);
+  Key keyCp(k);
+  Value valCp(v);
+  slots_[insertIdx].kv_.first = std::move(keyCp);
+  slots_[insertIdx].kv_.second = std::move(valCp)
   slots_[insertIdx].info_ = detail::SlotState::OCCUPIED;
   ++size_;
 }
@@ -203,7 +206,6 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::erase(const Key& k)
   {
     throw std::out_of_range("Key not found");
   }
-  slots_[idx].kv_.~pair();
   slots_[idx].info_ = detail::SlotState::TOMBSTONE;
   --size_;
 }
