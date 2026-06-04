@@ -143,7 +143,7 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
   Key keyCp(k);
   Value valCp(v);
   slots_[insertIdx].kv_.first = std::move(keyCp);
-  slots_[insertIdx].kv_.second = std::move(valCp)
+  slots_[insertIdx].kv_.second = std::move(valCp);
   slots_[insertIdx].info_ = detail::SlotState::OCCUPIED;
   ++size_;
 }

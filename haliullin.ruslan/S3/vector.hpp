@@ -17,12 +17,12 @@ namespace haliullin
     explicit Vector(size_t size);
     Vector(size_t size, const T& value);
 
-    Vector(const Vector< T >& rhs);
-    Vector(Vector< T >&& rhs) noexcept;
+    Vector(const Vector& rhs);
+    Vector(Vector&& rhs) noexcept;
 
-    Vector< T >& operator=(const Vector< T >& rhs);
-    Vector< T >& operator=(Vector< T >&& rhs) noexcept;
-    void swap(Vector< T >& rhs) noexcept;
+    Vector< T >& operator=(const Vector& rhs);
+    Vector< T >& operator=(Vector&& rhs) noexcept;
+    void swap(Vector& rhs) noexcept;
 
     T& operator[](size_t id) noexcept;
     const T& operator[](size_t id) const noexcept;
@@ -35,14 +35,13 @@ namespace haliullin
     void erase(size_t id);
     void insSort();
 
-    bool operator==(const Vector< T >& rhs) const noexcept;
-    bool operator!=(const Vector< T >& rhs) const noexcept;
-    bool operator<(const Vector< T >& rhs) const noexcept;
+    bool operator==(const Vector& rhs) const noexcept;
+    bool operator!=(const Vector& rhs) const noexcept;
+    bool operator<(const Vector& rhs) const noexcept;
 
   private:
     T* data_;
     size_t size_, capacity_;
-
     void clear() noexcept;
   };
 }
@@ -114,7 +113,7 @@ haliullin::Vector< T >::Vector(size_t size, const T& value):
 }
 
 template< class T>
-haliullin::Vector< T >::Vector(const Vector< T >& rhs):
+haliullin::Vector< T >::Vector(const Vector& rhs):
   data_(rhs.size_ ? static_cast< T* >(::operator new(rhs.size_ * sizeof(T))) : nullptr),
   size_(0),
   capacity_(rhs.size_)
@@ -135,14 +134,14 @@ haliullin::Vector< T >::Vector(const Vector< T >& rhs):
 }
 
 template< class T >
-haliullin::Vector< T >::Vector(Vector< T >&& rhs) noexcept:
+haliullin::Vector< T >::Vector(Vector&& rhs) noexcept:
   Vector()
 {
   swap(rhs);
 }
 
 template< class T >
-haliullin::Vector< T >& haliullin::Vector<T>::operator=(const Vector< T >& rhs)
+haliullin::Vector< T >& haliullin::Vector<T>::operator=(const Vector& rhs)
 {
   if (this != std::addressof(rhs))
   {
@@ -153,7 +152,7 @@ haliullin::Vector< T >& haliullin::Vector<T>::operator=(const Vector< T >& rhs)
 }
 
 template< class T >
-haliullin::Vector< T >& haliullin::Vector< T >::operator=(Vector< T >&& rhs) noexcept
+haliullin::Vector< T >& haliullin::Vector< T >::operator=(Vector&& rhs) noexcept
 {
   if (this != std::addressof(rhs))
   {
@@ -164,7 +163,7 @@ haliullin::Vector< T >& haliullin::Vector< T >::operator=(Vector< T >&& rhs) noe
 }
 
 template< class T >
-void haliullin::Vector< T >::swap(Vector< T >& rhs) noexcept
+void haliullin::Vector< T >::swap(Vector& rhs) noexcept
 {
   std::swap(data_, rhs.data_);
   std::swap(size_, rhs.size_);
@@ -291,16 +290,18 @@ void haliullin::Vector< T >::insSort()
     size_t j = i;
     while (j > 0 && tmp.data_[j - 1] > key)
     {
-      tmp.data_[j] = std::move(tmp.data_[j - 1]);
+      tmp.data_[j].~T();
+      new (std::addressof(tmp.data_[j])) T(std::move(tmp.data_[j - 1]));
       --j;
     }
-    tmp.data_[j] = std::move(key);
+    tmp.data_[j].~T();
+    new (std::addressof(tmp.data_[j])) T(std::move(key));
   }
   swap(tmp);
 }
 
 template< class T >
-bool haliullin::Vector< T >::operator==(const Vector< T >& rhs) const noexcept
+bool haliullin::Vector< T >::operator==(const Vector& rhs) const noexcept
 {
   bool isEqual = (size_ == rhs.getSize());
   for (size_t i = 0; i < size_ && isEqual; ++i)
@@ -311,13 +312,13 @@ bool haliullin::Vector< T >::operator==(const Vector< T >& rhs) const noexcept
 }
 
 template< class T >
-bool haliullin::Vector< T >::operator!=(const Vector< T >& rhs) const noexcept
+bool haliullin::Vector< T >::operator!=(const Vector& rhs) const noexcept
 {
   return !(*this == rhs);
 }
 
 template< class T >
-bool haliullin::Vector< T >::operator<(const Vector< T >& rhs) const noexcept
+bool haliullin::Vector< T >::operator<(const Vector& rhs) const noexcept
 {
   size_t minSize = (size_ < rhs.getSize()) ? size_ : rhs.getSize();
   for (size_t i = 0; i < minSize; ++i)
