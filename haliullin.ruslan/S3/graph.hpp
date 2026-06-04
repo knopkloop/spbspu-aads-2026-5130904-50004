@@ -1,11 +1,11 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
+#include <utility>
+#include <string>
 #include "HashTable.hpp"
 #include "vector.hpp"
 #include "SipHash.hpp"
-#include <utility>
-#include <string>
 
 namespace haliullin
 {

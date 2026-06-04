@@ -20,8 +20,8 @@ namespace haliullin
     Vector(const Vector& rhs);
     Vector(Vector&& rhs) noexcept;
 
-    Vector< T >& operator=(const Vector& rhs);
-    Vector< T >& operator=(Vector&& rhs) noexcept;
+    Vector& operator=(const Vector& rhs);
+    Vector& operator=(Vector&& rhs) noexcept;
     void swap(Vector& rhs) noexcept;
 
     T& operator[](size_t id) noexcept;
@@ -249,12 +249,12 @@ void haliullin::Vector< T >::insert(size_t id, const T& val)
     throw std::out_of_range("id out of bound");
   }
   Vector< T > v;
-  for(size_t i = 0; i < id; ++i)
+  for (size_t i = 0; i < id; ++i)
   {
     v.pushBack((*this)[i]);
   }
   v.pushBack(val);
-  for(size_t i = id; i < size_; ++i)
+  for (size_t i = id; i < size_; ++i)
   {
     v.pushBack((*this)[i]);
   }
