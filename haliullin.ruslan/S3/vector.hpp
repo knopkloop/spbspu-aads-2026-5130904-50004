@@ -3,6 +3,8 @@
 
 #include <stdexcept>
 #include <memory>
+#include <new>
+#include <utility>
 
 namespace haliullin
 {
@@ -40,13 +42,26 @@ namespace haliullin
   private:
     T* data_;
     size_t size_, capacity_;
+
+    void clear() noexcept;
   };
+}
+
+template< class T >
+void haliullin::Vector< T >::clear() noexcept
+{
+  for (size_t i = 0; i < size_; ++i)
+  {
+    data_[i].~T();
+  }
+  size_ = 0;
 }
 
 template< class T >
 haliullin::Vector< T >::~Vector()
 {
-  delete[] data_;
+  clear();
+  ::operator delete(data_);
 }
 
 template< class T >
@@ -56,30 +71,66 @@ haliullin::Vector< T >::Vector():
   capacity_(0)
 {}
 
-template< class T>
+template< class T >
 haliullin::Vector< T >::Vector(size_t size):
-  data_(size ? new T[size] : nullptr),
-  size_(size),
+  data_(size ? static_cast< T* >(::operator new(size * sizeof(T))) : nullptr),
+  size_(0),
   capacity_(size)
-{}
+{
+  try
+  {
+    for (; size_ < capacity_; ++size_)
+    {
+      new (data_ + size_) T();
+    }
+  }
+  catch (...)
+  {
+    clear();
+    ::operator delete(data_);
+    throw;
+  }
+}
 
 template< class T >
 haliullin::Vector< T >::Vector(size_t size, const T& value):
-  Vector(size)
+  data_(size ? static_cast< T* >(::operator new(size * sizeof(T))) : nullptr),
+  size_(0),
+  capacity_(size)
 {
-  for (size_t i = 0; i < size; ++i)
+  try
   {
-    data_[i] = value;
+    for (; size_ < capacity_; ++size_)
+    {
+      new (data_ + size_) T(value);
+    }
+  }
+  catch (...)
+  {
+    clear();
+    ::operator delete(data_);
+    throw;
   }
 }
 
 template< class T>
 haliullin::Vector< T >::Vector(const Vector< T >& rhs):
-  Vector(rhs.getSize())
+  data_(rhs.size_ ? static_cast< T* >(::operator new(rhs.size_ * sizeof(T))) : nullptr),
+  size_(0),
+  capacity_(rhs.size_)
 {
-  for (size_t i = 0; i < rhs.getSize(); ++i)
+  try
   {
-    data_[i] = rhs.data_[i];
+    for (; size_ < capacity_; ++size_)
+    {
+      new (data_ + size_) T(rhs.data_[size_]);
+    }
+  }
+  catch (...)
+  {
+    clear();
+    ::operator delete(data_);
+    throw;
   }
 }
 
@@ -123,7 +174,7 @@ void haliullin::Vector< T >::swap(Vector< T >& rhs) noexcept
 template< class T >
 T& haliullin::Vector< T >::operator[](size_t id) noexcept
 {
-  return const_cast< T& >((*static_cast< const Vector< T >* >(this))[id]);
+  return data_[id];
 }
 
 template< class T >
@@ -156,37 +207,45 @@ void haliullin::Vector< T >::pushBack(const T& val)
   if (size_ == capacity_)
   {
     size_t new_cap = capacity_ ? capacity_ * 2 : 1;
-    T* temp_data = new T[new_cap];
+    T* temp_data = static_cast< T* >(::operator new(new_cap * sizeof(T)));
+    size_t constructed = 0;
 
     try
     {
-      for (size_t i = 0; i < size_; ++i)
+      for (; constructed < size_; ++constructed)
       {
-        temp_data[i] = data_[i];
+        new (temp_data + constructed) T(std::move(data_[constructed]));
       }
-
-      temp_data[size_++] = val;
+      new (temp_data + constructed) T(val);
+      ++constructed;
     }
     catch (...)
     {
-      delete[] temp_data;
+      for (size_t i = 0; i < constructed; ++i)
+      {
+        temp_data[i].~T();
+      }
+      ::operator delete(temp_data);
       throw;
     }
 
-    delete[] data_;
+    clear();
+    ::operator delete(data_);
     data_ = temp_data;
     capacity_ = new_cap;
+    size_ = constructed;
   }
   else
   {
-    data_[size_++] = val;
+    new (data_ + size_) T(val);
+    ++size_;
   }
 }
 
 template< class T >
 void haliullin::Vector< T >::insert(size_t id, const T& val)
 {
-  if (id > getSize())
+  if (id > size_)
   {
     throw std::out_of_range("id out of bound");
   }
@@ -196,7 +255,7 @@ void haliullin::Vector< T >::insert(size_t id, const T& val)
     v.pushBack((*this)[i]);
   }
   v.pushBack(val);
-  for(size_t i = id; i < getSize(); ++i)
+  for(size_t i = id; i < size_; ++i)
   {
     v.pushBack((*this)[i]);
   }
@@ -206,18 +265,18 @@ void haliullin::Vector< T >::insert(size_t id, const T& val)
 template< class T >
 void haliullin::Vector< T >::erase(size_t id)
 {
-  if (id >= getSize())
+  if (id >= size_)
   {
     throw std::out_of_range("id out of bound");
   }
-  Vector< T > v(getSize() - 1);
+  Vector< T > v;
   for (size_t i = 0; i < id; ++i)
   {
-    v[i] = (*this)[i];
+    v.pushBack((*this)[i]);
   }
-  for (size_t i = id; i < v.getSize(); ++i)
+  for (size_t i = id + 1; i < size_; ++i)
   {
-    v[i] = (*this)[i + 1];
+    v.pushBack((*this)[i]);
   }
   swap(v);
 }
@@ -226,23 +285,16 @@ template< class T >
 void haliullin::Vector< T >::insSort()
 {
   Vector< T > tmp(*this);
-  try
+  for (size_t i = 1; i < tmp.size_; ++i)
   {
-    for (size_t i = 1; i < tmp.size_; ++i)
+    T key = std::move(tmp.data_[i]);
+    size_t j = i;
+    while (j > 0 && tmp.data_[j - 1] > key)
     {
-      T key = tmp.data_[i];
-      size_t j = i;
-      while (j > 0 && tmp.data_[j - 1] > key)
-      {
-        tmp.data_[j] = tmp.data_[j - 1];
-        --j;
-      }
-      tmp.data_[j] = key;
+      tmp.data_[j] = std::move(tmp.data_[j - 1]);
+      --j;
     }
-  }
-  catch (...)
-  {
-    throw;
+    tmp.data_[j] = std::move(key);
   }
   swap(tmp);
 }
@@ -250,8 +302,8 @@ void haliullin::Vector< T >::insSort()
 template< class T >
 bool haliullin::Vector< T >::operator==(const Vector< T >& rhs) const noexcept
 {
-  bool isEqual = (getSize() == rhs.getSize());
-  for (size_t i = 0; i < getSize() && isEqual; ++i)
+  bool isEqual = (size_ == rhs.getSize());
+  for (size_t i = 0; i < size_ && isEqual; ++i)
   {
     isEqual = ((*this)[i] == rhs[i]);
   }
@@ -267,7 +319,7 @@ bool haliullin::Vector< T >::operator!=(const Vector< T >& rhs) const noexcept
 template< class T >
 bool haliullin::Vector< T >::operator<(const Vector< T >& rhs) const noexcept
 {
-  size_t minSize = getSize() < rhs.getSize() ? getSize() : rhs.getSize();
+  size_t minSize = (size_ < rhs.getSize()) ? size_ : rhs.getSize();
   for (size_t i = 0; i < minSize; ++i)
   {
     if ((*this)[i] < rhs[i])
@@ -279,7 +331,7 @@ bool haliullin::Vector< T >::operator<(const Vector< T >& rhs) const noexcept
       return false;
     }
   }
-  return getSize() < rhs.getSize();
+  return size_ < rhs.getSize();
 }
 
 #endif
