@@ -124,7 +124,7 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
     size_t idx = probe(hash, i);
     detail::SlotState state = slots_[idx].info_;
 
-    if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].key_, k))
+    if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].kv_.first, k))
     {
       throw std::invalid_argument("Key already exists");
     }
@@ -140,10 +140,7 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
     throw std::runtime_error("Need to rehash hashtable");
   }
 
-  Key keyCp(k);
-  Value valCp(v);
-  slots_[insertIdx].key_ = std::move(keyCp);
-  slots_[insertIdx].value_ = std::move(valCp);
+  new (slots_[insertIdx].kv_) std::pair< const Key, Value >(k, v);
   slots_[insertIdx].info_ = detail::SlotState::OCCUPIED;
   ++size_;
 }
@@ -162,7 +159,7 @@ Value& haliullin::HashTable< Key, Value, Hash, Equal >::get(const Key& k)
   {
     throw std::out_of_range("Key not found");
   }
-  return slots_[idx].value_;
+  return slots_[idx].kv_.second;
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -173,7 +170,7 @@ const Value& haliullin::HashTable< Key, Value, Hash, Equal >::get(const Key& k) 
   {
     throw std::out_of_range("Key not found");
   }
-  return slots_[idx].value_;
+  return slots_[idx].kv_.second;
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -206,6 +203,7 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::erase(const Key& k)
   {
     throw std::out_of_range("Key not found");
   }
+  slots_[idx].kv_.~pair();
   slots_[idx].info_ = detail::SlotState::TOMBSTONE;
   --size_;
 }
@@ -222,7 +220,7 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::rehash(size_t newSlots)
   {
     if (slots_[i].info_ == detail::SlotState::OCCUPIED)
     {
-      tmp.add(slots_[i].key_, slots_[i].value_);
+      tmp.add(slots_[i].kv_.first, slots_[i].kv_.second);
     }
   }
   swap(tmp);
@@ -259,7 +257,7 @@ size_t haliullin::HashTable< Key, Value, Hash, Equal >::findIdx(const Key& k) co
     {
       return slots_.getSize();
     }
-    else if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].key_, k))
+    else if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].kv_.first, k))
     {
       return idx;
     }

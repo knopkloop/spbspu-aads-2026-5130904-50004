@@ -1,8 +1,20 @@
 #ifndef SLOT_HPP
 #define SLOT_HPP
 
+#include <utility>
+#include <new>
+
 namespace haliullin
 {
+  template< class Key, class Value, class Hash, class Equal >
+  class HashTable;
+
+  template< class Key, class Value, class Hash, class Equal >
+  class HtIter;
+
+  template< class Key, class Value, class Hash, class Equal >
+  class HtCIter;
+
   namespace detail
   {
     enum class SlotState: char
@@ -16,14 +28,22 @@ namespace haliullin
     struct Slot
     {
       Slot() noexcept:
-        key_(),
-        value_(),
+        kv_(),
         info_(SlotState::EMPTY)
       {}
 
-      Key key_;
-      Value value_;
+    private:
+      std::pair< Key, Value > kv_;
       SlotState info_;
+
+      template< class K, class V, class H, class E >
+      friend class haliullin::HashTable;
+
+      template< class K, class V, class H, class E >
+      friend class haliullin::HtIter;
+
+      template< class K, class V, class H, class E >
+      friend class haliullin::HtCIter;
     };
   }
 }
