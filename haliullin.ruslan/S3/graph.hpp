@@ -1,11 +1,11 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
+#include <utility>
+#include <string>
 #include "HashTable.hpp"
 #include "vector.hpp"
 #include "SipHash.hpp"
-#include <utility>
-#include <string>
 
 namespace haliullin
 {
@@ -13,6 +13,7 @@ namespace haliullin
   {
   public:
     using EdgeVec = Vector< std::pair< std::string, Vector< unsigned long long > > >;
+    using pair_str = std::pair< std::string, std::string >;
 
     ~Graph() = default;
     Graph() = default;
@@ -37,8 +38,7 @@ namespace haliullin
 
   private:
     Vector< std::string > vertexes_;
-    HashTable< std::pair< std::string, std::string >, Vector< unsigned long long >, detail::SipHash,
-               std::equal_to< std::pair< std::string, std::string > > > edges_;
+    HashTable< pair_str, Vector< unsigned long long >, detail::SipHash, std::equal_to< pair_str > > edges_;
   };
 }
 
