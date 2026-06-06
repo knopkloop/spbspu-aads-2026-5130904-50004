@@ -1,7 +1,7 @@
+#include "commands.hpp"
 #include <stdexcept>
 #include <limits>
 #include <utility>
-#include "commands.hpp"
 #include "vector.hpp"
 
 haliullin::Cmd::Cmd()
