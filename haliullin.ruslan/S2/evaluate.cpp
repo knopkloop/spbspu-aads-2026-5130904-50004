@@ -1,6 +1,6 @@
+#include "evaluate.hpp"
 #include <string>
 #include <stdexcept>
-#include "evaluate.hpp"
 #include "queue.hpp"
 #include "stack.hpp"
 #include "math_op.hpp"
