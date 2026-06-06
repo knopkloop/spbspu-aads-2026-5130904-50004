@@ -1,7 +1,7 @@
+#include "commands.hpp"
 #include <fstream>
 #include <stdexcept>
 #include <limits>
-#include "commands.hpp"
 
 haliullin::Cmd::Cmd()
 {
@@ -133,7 +133,6 @@ void haliullin::Cmd::cmdComplement(std::istream& in, std::ostream&)
       result.push(cit->first, cit->second);
     }
   }
-
   datasets_.push(newName, result);
 }
 
@@ -158,7 +157,6 @@ void haliullin::Cmd::cmdIntersect(std::istream& in, std::ostream&)
       result.push(cit->first, cit->second);
     }
   }
-
   datasets_.push(newName, result);
 }
 
@@ -187,6 +185,5 @@ void haliullin::Cmd::cmdUnion(std::istream& in, std::ostream&)
       result.push(cit->first, cit->second);
     }
   }
-
   datasets_.push(newName, result);
 }

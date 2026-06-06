@@ -2,7 +2,6 @@
 #define SLOT_HPP
 
 #include <utility>
-#include <new>
 
 namespace haliullin
 {

@@ -286,7 +286,6 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
   {
     leftChild->parent_ = parent;
   }
-
   return const_iterator(leftChild);
 }
 
@@ -307,7 +306,7 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
   Node* rightChild = cur->right_;
   Node* grand = parent->parent_;
 
-  if (grand == nullptr)
+  if (!grand)
   {
     root_ = cur;
   }
@@ -329,7 +328,6 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
   {
     rightChild->parent_ = parent;
   }
-
   return const_iterator(rightChild);
 }
 
@@ -552,7 +550,10 @@ void haliullin::BSTree< Key, Value, Compare >::removeNode(Node* node)
 template< class Key, class Value, class Compare >
 void haliullin::BSTree< Key, Value, Compare >::clearNodes(Node* node)
 {
-  if (node->isFake()) return;
+  if (node->isFake())
+  {
+    return;
+  }
   clearNodes(node->left_);
   clearNodes(node->right_);
   delete node;

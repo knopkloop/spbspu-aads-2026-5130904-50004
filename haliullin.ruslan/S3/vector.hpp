@@ -303,7 +303,7 @@ void haliullin::Vector< T >::insSort()
 template< class T >
 bool haliullin::Vector< T >::operator==(const Vector& rhs) const noexcept
 {
-  bool isEqual = (size_ == rhs.getSize());
+  bool isEqual = (size_ == rhs.size_);
   for (size_t i = 0; i < size_ && isEqual; ++i)
   {
     isEqual = ((*this)[i] == rhs[i]);
@@ -320,7 +320,7 @@ bool haliullin::Vector< T >::operator!=(const Vector& rhs) const noexcept
 template< class T >
 bool haliullin::Vector< T >::operator<(const Vector& rhs) const noexcept
 {
-  size_t minSize = (size_ < rhs.getSize()) ? size_ : rhs.getSize();
+  size_t minSize = (size_ < rhs.size_) ? size_ : rhs.size_;
   for (size_t i = 0; i < minSize; ++i)
   {
     if ((*this)[i] < rhs[i])
@@ -332,7 +332,7 @@ bool haliullin::Vector< T >::operator<(const Vector& rhs) const noexcept
       return false;
     }
   }
-  return size_ < rhs.getSize();
+  return size_ < rhs.size_;
 }
 
 #endif
