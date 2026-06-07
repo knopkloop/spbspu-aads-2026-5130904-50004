@@ -3,26 +3,23 @@
 
 #include <utility>
 
-namespace haliullin
+namespace haliullin::detail
 {
-  namespace detail
+  template< class Key, class Value >
+  struct Slot
   {
-    template< class Key, class Value >
-    struct Slot
-    {
-      Slot() noexcept:
-        kv_(),
-        psl_(-1)
-      {}
+    Slot() noexcept:
+      kv_(),
+      psl_(-1)
+    {}
 
-    private:
-      std::pair< Key, Value > kv_;
-      int psl_;
+  private:
+    std::pair< Key, Value > kv_;
+    int psl_;
 
-      template< class K, class V, class H, class E >
-      friend class RobinHoodHashTable;
-    };
-  }
+    template< class K, class V, class H, class E >
+    friend class RobinHoodHashTable;
+  };
 }
 
 #endif
