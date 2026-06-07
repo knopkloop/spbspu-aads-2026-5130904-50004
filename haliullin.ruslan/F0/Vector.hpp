@@ -5,6 +5,7 @@
 #include <memory>
 #include <new>
 #include <utility>
+#include <cassert>
 #include "Vector-iterators.hpp"
 
 namespace haliullin
