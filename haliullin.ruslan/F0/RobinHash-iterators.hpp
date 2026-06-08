@@ -2,6 +2,7 @@
 #define ROBINHASH_ITERATORS_HPP
 
 #include <utility>
+#include <memory>
 #include "Vector-iterators.hpp"
 #include "Slot.hpp"
 
@@ -55,7 +56,7 @@ namespace haliullin
     RHTableConstIterator operator++(int) noexcept;
 
     bool operator==(const RHTableConstIterator& other) const noexcept;
-    bool operator!=(const RHTableConstIterastor& other) const noexcept;
+    bool operator!=(const RHTableConstIterator& other) const noexcept;
 
   private:
     VCIter< slot_t > cur_;
@@ -67,6 +68,61 @@ namespace haliullin
     template< class K, class V, class H, class E >
     friend class RobinHashTable;
   };
+}
+
+template< class Key, class Value >
+haliullin::RHTableIterator< Key, Value >::RHTableIterator() noexcept:
+  cur_(),
+  end_()
+{}
+
+template< class Key, class Value >
+haliullin::RHTableIterator< Key, Value >::RHTableIterator(VIter< slot_t > cur, VIter< slot_t > end) noexcept:
+  cur_(cur),
+  end_(end)
+{}
+
+template< class Key, class Value >
+std::pair< Key, Value >& haliullin::RHTableIterator< Key, Value >::operator*() const noexcept
+{
+  return cur_->kv_;
+}
+
+template< class Key, class Value >
+std::pair< Key, Value >* haliullin::RHTableIterator< Key, Value >::operator->() const noexcept
+{
+  return std::addressof(cur_->kv_);
+}
+
+template< class Key, class Value >
+haliullin::RHTableIterator< Key, Value >& haliullin::RHTableIterator< Key, Value >::operator++() noexcept
+{
+  ++cur_;
+  while ((cur_ != end_) && (cur_->psl_ == -1))
+  {
+    ++cur_;
+  }
+  return *this;
+}
+
+template< class Key, class Value >
+haliullin::RHTableIterator< Key, Value > haliullin::RHTableIterator< Key, Value >::operator++(int) noexcept
+{
+  RHTableIterator tmp = *this;
+  ++(*this);
+  return tmp;
+}
+
+template< class Key, class Value >
+bool haliullin::RHTableIterator< Key, Value >::operator==(const RHTableIterator& other) const noexcept
+{
+  return cur_ == other.cur_;
+}
+
+template< class Key, class Value >
+bool haliullin::RHTableIterator< Key, Value >::operator!=(const RHTableIterator& other) const noexcept
+{
+  return !(*this == other);
 }
 
 #endif
