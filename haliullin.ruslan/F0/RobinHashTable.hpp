@@ -81,7 +81,8 @@ haliullin::RobinHashTable< Key, Value, Hash, Equal >::RobinHashTable(RobinHashTa
 }
 
 template< class Key, class Value, class Hash, class Equal >
-haliullin::RobinHashTable< Key, Value, Hash, Equal >& haliullin::RobinHashTable< Key, Value, Hash, Equal >::operator=(const RobinHashTable& other)
+haliullin::RobinHashTable< Key, Value, Hash, Equal >&
+haliullin::RobinHashTable< Key, Value, Hash, Equal >::operator=(const RobinHashTable& other)
 {
   if (this != std::addressof(other))
   {
@@ -92,7 +93,8 @@ haliullin::RobinHashTable< Key, Value, Hash, Equal >& haliullin::RobinHashTable<
 }
 
 template< class Key, class Value, class Hash, class Equal >
-haliullin::RobinHashTable< Key, Value, Hash, Equal >& haliullin::RobinHashTable< Key, Value, Hash, Equal >::operator=(RobinHashTable&& other) noexcept
+haliullin::RobinHashTable< Key, Value, Hash, Equal >&
+haliullin::RobinHashTable< Key, Value, Hash, Equal >::operator=(RobinHashTable&& other) noexcept
 {
   if (this != std::addressof(other))
   {
