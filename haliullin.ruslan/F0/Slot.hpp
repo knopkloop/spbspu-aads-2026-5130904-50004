@@ -3,6 +3,18 @@
 
 #include <utility>
 
+namespace haliullin
+{
+  template< class Key, class Value, class Hash, class Equal >
+  class RobinHashTable;
+
+  template< class Key, class Value >
+  class RHTableIterator;
+
+  template< class Key, class Value >
+  class RHTableConstIterator;
+}
+
 namespace haliullin::detail
 {
   template< class Key, class Value >
@@ -15,12 +27,16 @@ namespace haliullin::detail
   private:
     std::pair< Key, Value > kv_;
     int psl_;
-
     void swap(Slot& other) noexcept;
+
     template< class K, class V, class H, class E >
-    friend class haliullin::RobinHashTable;
-    friend class haliullin::RHTableIterator< Key, Value >;
-    friend class haliullin::RHTableConstIterator< Key, Value >;
+    friend class RobinHashTable;
+
+    template< class K, class V >
+    friend class RHTableIterator;
+
+    template< class K, class V >
+    friend class RHTableConstIterator;
   };
 }
 

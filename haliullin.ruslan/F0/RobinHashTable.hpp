@@ -7,7 +7,7 @@
 #include <memory>
 #include "Vector.hpp"
 #include "Slot.hpp"
-#include "Vector-iterators.hpp"
+#include "RobinHash-iterators.hpp"
 
 namespace haliullin
 {
@@ -16,6 +16,8 @@ namespace haliullin
   {
   public:
     using slot_t = detail::Slot< Key, Value >;
+    using iterator = RHTableIterator< Key, Value >;
+    using const_iterator = RHTableConstIterator< Key, Value >;
 
     ~RobinHashTable() = default;
     RobinHashTable(size_t capacity = 16, double maxLoadFactor = 0.9);
@@ -32,10 +34,19 @@ namespace haliullin
     bool has(const Key& k) const noexcept;
     Value& get(const Key& k);
     const Value& get(const Key& k) const;
+    iterator find(const Key& k) noexcept;
+    const_iterator find(const Key& k) const noexcept;
 
     bool isEmpty() const noexcept;
     size_t getSize() const noexcept;
     size_t getCapacity() const noexcept;
+
+    iterator begin() noexcept;
+    const_iterator begin() const noexcept;
+    const_iterator cbegin() const noexcept;
+    iterator end() noexcept;
+    const_iterator end() const noexcept;
+    const_iterator cend() const noexcept;
 
   private:
     Vector< slot_t > slots_;
@@ -164,6 +175,12 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::erase(const Key& k)
 }
 
 template< class Key, class Value, class Hash, class Equal >
+bool haliullin::RobinHashTable< Key, Value, Hash, Equal >::has(const Key& k) const noexcept
+{
+  return findSlot(k) != getCapacity();
+}
+
+template< class Key, class Value, class Hash, class Equal >
 Value& haliullin::RobinHashTable< Key, Value, Hash, Equal >::get(const Key& k)
 {
   size_t idx = findSlot(k);
@@ -186,9 +203,27 @@ const Value& haliullin::RobinHashTable< Key, Value, Hash, Equal >::get(const Key
 }
 
 template< class Key, class Value, class Hash, class Equal >
-bool haliullin::RobinHashTable< Key, Value, Hash, Equal >::has(const Key& k) const noexcept
+haliullin::RHTableIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::find(const Key& k) noexcept
 {
-  return findSlot(k) != getCapacity();
+  size_t idx = findSlot(k);
+  if (idx == getCapacity())
+  {
+    return end();
+  }
+  VIter< slot_t > cur(std::addressof(slots_[idx]));
+  return iterator(cur, slots_.end());
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::RHTableConstIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::find(const Key& k) const noexcept
+{
+  size_t idx = findSlot(k);
+  if (idx == getCapacity())
+  {
+    return cend();
+  }
+  VCIter< slot_t > cur(std::addressof(slots_[idx]));
+  return const_iterator(cur, slots_.cend());
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -289,6 +324,54 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::rehash(size_t newCap)
     }
   }
   swap(tmp);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::RHTableIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::begin() noexcept
+{
+  auto first = slots_.begin();
+  auto last = slots_.end();
+  while ((first != last) && (first->psl_ == -1))
+  {
+    ++first;
+  }
+  return iterator(first, last);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::RHTableConstIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::begin() const noexcept
+{
+  auto first = slots_.cbegin();
+  auto last = slots_.cend();
+  while ((first != last) && (first->psl_ == -1))
+  {
+    ++first;
+  }
+  return const_iterator(first, last);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::RHTableConstIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::cbegin() const noexcept
+{
+  return begin();
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::RHTableIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::end() noexcept
+{
+  return iterator(slots_.end(), slots_.end());
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::RHTableConstIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::end() const noexcept
+{
+  return const_iterator(slots_.cend(), slots_.cend());
+}
+
+template< class Key, class Value, class Hash, class Equal >
+haliullin::RHTableConstIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::cend() const noexcept
+{
+  return end();
 }
 
 #endif

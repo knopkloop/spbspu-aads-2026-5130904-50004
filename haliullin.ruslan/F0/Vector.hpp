@@ -55,6 +55,7 @@ namespace haliullin
   private:
     T* data_;
     size_t size_, capacity_;
+
     void clear() noexcept;
     void reallocate(size_t newCap);
   };
