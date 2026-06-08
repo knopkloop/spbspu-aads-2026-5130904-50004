@@ -114,6 +114,56 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::swap(RobinHashTable& 
 }
 
 template< class Key, class Value, class Hash, class Equal >
+void haliullin::RobinHashTable< Key, Value, Hash, Equal >::add(const Key& k, const Value& v)
+{
+  RobinHashTable tmp(*this);
+  if (tmp.findSlot(k) != tmp.getCapacity())
+  {
+    size_t idx = tmp.findSlot(k);
+    tmp.slots_[idx].kv_.second = v;
+  }
+  else
+  {
+    tmp.insertInternal(k, v);
+  }
+  swap(tmp);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::RobinHashTable< Key, Value, Hash, Equal >::erase(const Key& k)
+{
+  RobinHashTable tmp(*this);
+  size_t idx = tmp.findSlot(k);
+  if (idx == tmp.getCapacity())
+  {
+    throw std::out_of_range("Key not found");
+  }
+  tmp.slots_[idx].kv_.first = Key();
+  tmp.slots_[idx].kv_.second = Value();
+  tmp.slots_[idx].psl_ = -1;
+  --tmp.size_;
+
+  size_t next = (idx + 1) % tmp.getCapacity();
+  while (tmp.slots_[next].psl_ > 0)
+  {
+    slot_t& from = tmp.slots_[next];
+    slot_t& to = tmp.slots_[idx];
+
+    to.kv_.first = std::move(from.kv_.first);
+    to.kv_.second = std::move(from.kv_.second);
+    to.psl_ = from.psl_ - 1;
+
+    from.kv_.first = Key();
+    from.kv_.second = Value();
+    from.psl_ = -1;
+
+    idx = next;
+    next = (next + 1) % tmp.getCapacity();
+  }
+  swap(tmp);
+}
+
+template< class Key, class Value, class Hash, class Equal >
 bool haliullin::RobinHashTable< Key, Value, Hash, Equal >::isEmpty() const noexcept
 {
   return !size_;
