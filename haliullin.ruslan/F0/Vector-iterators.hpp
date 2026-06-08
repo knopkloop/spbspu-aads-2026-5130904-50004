@@ -16,6 +16,8 @@ namespace haliullin
   class VIter
   {
   public:
+    VIter() noexcept;
+
     T& operator*() const noexcept;
     T* operator->() const noexcept;
 
@@ -37,6 +39,8 @@ namespace haliullin
   class VCIter
   {
   public:
+    VCIter() noexcept;
+
     const T& operator*() const noexcept;
     const T* operator->() const noexcept;
 
@@ -54,6 +58,11 @@ namespace haliullin
     friend class Vector< T >;
   };
 }
+
+template< class T >
+haliullin::VIter< T >::VIter() noexcept:
+  ptr_(nullptr)
+{}
 
 template< class T >
 haliullin::VIter< T >::VIter(T* ptr) noexcept:
@@ -103,6 +112,11 @@ bool haliullin::VIter< T >::operator!=(const VIter& other) const noexcept
 {
   return !(*this == other);
 }
+
+template< class T >
+haliullin::VCIter< T >::VCIter() noexcept:
+  ptr_(nullptr)
+{}
 
 template< class T >
 haliullin::VCIter< T >::VCIter(const T* ptr) noexcept:

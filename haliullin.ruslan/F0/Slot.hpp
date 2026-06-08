@@ -18,7 +18,9 @@ namespace haliullin::detail
 
     void swap(Slot& other) noexcept;
     template< class K, class V, class H, class E >
-    friend class RobinHoodHashTable;
+    friend class haliullin::RobinHashTable;
+    friend class haliullin::RHTableIterator< Key, Value >;
+    friend class haliullin::RHTableConstIterator< Key, Value >;
   };
 }
 
