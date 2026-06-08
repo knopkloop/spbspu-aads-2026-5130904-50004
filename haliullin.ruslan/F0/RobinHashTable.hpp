@@ -164,6 +164,34 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::erase(const Key& k)
 }
 
 template< class Key, class Value, class Hash, class Equal >
+Value& haliullin::RobinHashTable< Key, Value, Hash, Equal >::get(const Key& k)
+{
+  size_t idx = findSlot(k);
+  if (idx == getCapacity())
+  {
+    throw std::out_of_range("Key not found");
+  }
+  return slots_[idx].kv_.second;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+const Value& haliullin::RobinHashTable< Key, Value, Hash, Equal >::get(const Key& k) const
+{
+  size_t idx = findSlot(k);
+  if (idx == getCapacity())
+  {
+    throw std::out_of_range("Key not found");
+  }
+  return slots_[idx].kv_.second;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+bool haliullin::RobinHashTable< Key, Value, Hash, Equal >::has(const Key& k) const noexcept
+{
+  return findSlot(k) != getCapacity();
+}
+
+template< class Key, class Value, class Hash, class Equal >
 bool haliullin::RobinHashTable< Key, Value, Hash, Equal >::isEmpty() const noexcept
 {
   return !size_;
