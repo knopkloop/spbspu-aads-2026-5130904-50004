@@ -125,4 +125,65 @@ bool haliullin::RHTableIterator< Key, Value >::operator!=(const RHTableIterator&
   return !(*this == other);
 }
 
+template< class Key, class Value >
+haliullin::RHTableConstIterator< Key, Value >::RHTableConstIterator() noexcept:
+  cur_(),
+  end_()
+{}
+
+template< class Key, class Value >
+haliullin::RHTableConstIterator< Key, Value >::RHTableConstIterator(VCIter< slot_t > cur, VCIter< slot_t > end) noexcept:
+  cur_(cur),
+  end_(end)
+{}
+
+template< class Key, class Value >
+haliullin::RHTableConstIterator< Key, Value >::RHTableConstIterator(const RHTableIterator< Key, Value >& it) noexcept:
+  cur_(it.cur_),
+  end_(it.end_)
+{}
+
+template< class Key, class Value >
+const std::pair< Key, Value >& haliullin::RHTableConstIterator< Key, Value >::operator*() const noexcept
+{
+  return cur_->kv_;
+}
+
+template< class Key, class Value >
+const std::pair< Key, Value >* haliullin::RHTableConstIterator< Key, Value >::operator->() const noexcept
+{
+  return std::addressof(cur_->kv_);
+}
+
+template< class Key, class Value >
+haliullin::RHTableConstIterator< Key, Value >& haliullin::RHTableConstIterator< Key, Value >::operator++() noexcept
+{
+  ++cur_;
+  while ((cur_ != end_) && (cur_->psl_ == -1))
+  {
+    ++cur_;
+  }
+  return *this;
+}
+
+template< class Key, class Value >
+haliullin::RHTableConstIterator< Key, Value > haliullin::RHTableConstIterator< Key, Value >::operator++(int) noexcept
+{
+  RHTableConstIterator tmp = *this;
+  ++(*this);
+  return tmp;
+}
+
+template< class Key, class Value >
+bool haliullin::RHTableConstIterator< Key, Value >::operator==(const RHTableConstIterator& other) const noexcept
+{
+  return cur_ == other.cur_;
+}
+
+template< class Key, class Value >
+bool haliullin::RHTableConstIterator< Key, Value >::operator!=(const RHTableConstIterator& other) const noexcept
+{
+  return !(*this == other);
+}
+
 #endif
