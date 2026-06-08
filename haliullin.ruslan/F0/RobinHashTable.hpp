@@ -27,7 +27,7 @@ namespace haliullin
     RobinHashTable& operator=(RobinHashTable&& other) noexcept;
     void swap(RobinHashTable& other) noexcept;
 
-    void insert(const Key& k, const Value& v);
+    void add(const Key& k, const Value& v);
     void erase(const Key& k);
     bool has(const Key& k) const noexcept;
     Value& get(const Key& k);
@@ -47,7 +47,6 @@ namespace haliullin
     size_t findSlot(const Key& k) const noexcept;
     void rehash(size_t newCap);
     void insertInternal(const Key& k, const Value& v);
-    void eraseInternal(const Key& k);
   };
 }
 
@@ -112,6 +111,85 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::swap(RobinHashTable& 
   std::swap(hasher_, other.hasher_);
   std::swap(equal_, other.equal_);
   std::swap(maxLoadFactor_, other.maxLoadFactor_);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+bool haliullin::RobinHashTable< Key, Value, Hash, Equal >::isEmpty() const noexcept
+{
+  return !size_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::getSize() const noexcept
+{
+  return size_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::getCapacity() const noexcept
+{
+  return slots_.getSize();
+}
+
+template< class Key, class Value, class Hash, class Equal >
+size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::findSlot(const Key& k) const noexcept
+{
+  size_t hash = hasher_(k);
+  for (size_t i = 0; i < getCapacity(); ++i)
+  {
+    size_t idx = (hash + i) % getCapacity();
+    const slot_t& slot = slots_[idx];
+    if (slot.psl_ == -1)
+    {
+      return getCapacity();
+    }
+    if (slot.psl_ >= static_cast< int >(i) && equal_(slot.kv_.first, k))
+    {
+      return idx;
+    }
+  }
+  return getCapacity();
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::RobinHashTable< Key, Value, Hash, Equal >::insertInternal(const Key& k, const Value& v)
+{
+  if (findSlot(k) != getCapacity())
+  {
+    throw std::invalid_argument("Key already exists");
+  }
+
+  if (size_ + 1 > static_cast< size_t >(maxLoadFactor_ * getCapacity()))
+  {
+    size_t newCap = getCapacity() * 2;
+    newCap = newCap < 16 ? 16 : newCap;
+    rehash(newCap);
+  }
+
+  size_t hash = hasher_(k);
+  slot_t curSlot(k, v);
+
+  for (size_t i = 0; i < getCapacity(); ++i)
+  {
+    size_t idx = (hash + curSlot.psl_) % getCapacity();
+    slot_t& slot = slots_[idx];
+
+    if (slot.psl_ == -1)
+    {
+      slot.kv_.first = std::move(curSlot.kv_.first);
+      slot.kv_.second = std::move(curSlot.kv_.second);
+      slot.psl_ = curSlot.psl_;
+      ++size_;
+      return;
+    }
+
+    if (curSlot.psl_ > slot.psl_)
+    {
+      slot.swap(curSlot);
+    }
+    ++curSlot.psl_;
+  }
+  throw std::runtime_error("Unexpected full table");
 }
 
 #endif

@@ -9,6 +9,8 @@ namespace haliullin::detail
   struct Slot
   {
     Slot() noexcept;
+    Slot(const Key& k, const Value& v);
+    Slot(Key&& k, Value&& v);
 
   private:
     std::pair< Key, Value > kv_;
@@ -24,6 +26,18 @@ template< class Key, class Value >
 haliullin::detail::Slot< Key, Value >::Slot() noexcept:
   kv_(),
   psl_(-1)
+{}
+
+template< class Key, class Value >
+haliullin::detail::Slot< Key, Value >::Slot(const Key& k, const Value& v):
+  kv_(k, v),
+  psl_(0)
+{}
+
+template< class Key, class Value >
+haliullin::detail::Slot< Key, Value >::Slot(Key&& k, Value&& v):
+  kv_(std::move(k), std::move(v)),
+  psl_(0)
 {}
 
 template< class Key, class Value >
