@@ -20,7 +20,7 @@ namespace haliullin::detail
 
       while (len >= 4)
       {
-        std::size_t k = *reinterpret_cast< const std::size_t* >(data);
+        size_t k = *reinterpret_cast< const size_t* >(data);
         k *= m;
         k ^= k >> r;
         k *= m;
@@ -34,12 +34,12 @@ namespace haliullin::detail
       {
         case 3:
         {
-          h ^= static_cast< std::size_t >(data[2]) << 16;
+          h ^= static_cast< size_t >(data[2]) << 16;
           [[fallthrough]];
         }
         case 2:
         {
-          h ^= static_cast< std::size_t >(data[1]) << 8;
+          h ^= static_cast< size_t >(data[1]) << 8;
           [[fallthrough]];
         }
         case 1:
