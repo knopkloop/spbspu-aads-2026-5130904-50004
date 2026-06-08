@@ -236,7 +236,6 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::insertInternal(const 
   {
     throw std::invalid_argument("Key already exists");
   }
-
   if (size_ + 1 > static_cast< size_t >(maxLoadFactor_ * getCapacity()))
   {
     size_t newCap = getCapacity() * 2;
@@ -260,7 +259,6 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::insertInternal(const 
       ++size_;
       return;
     }
-
     if (curSlot.psl_ > slot.psl_)
     {
       slot.swap(curSlot);
@@ -268,6 +266,29 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::insertInternal(const 
     ++curSlot.psl_;
   }
   throw std::runtime_error("Unexpected full table");
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::RobinHashTable< Key, Value, Hash, Equal >::rehash(size_t newCap)
+{
+  if (newCap < size_)
+  {
+    throw std::invalid_argument("New capacity too small");
+  }
+
+  RobinHashTable tmp(newCap, maxLoadFactor_);
+  tmp.hasher_ = hasher_;
+  tmp.equal_ = equal_;
+
+  for (size_t i = 0; i < getCapacity(); ++i)
+  {
+    if (slots_[i].psl_ != -1)
+    {
+      const std::pair< Key, Value >& kv = slots_[i].kv_;
+      tmp.insertInternal(kv.first, kv.second);
+    }
+  }
+  swap(tmp);
 }
 
 #endif
