@@ -101,3 +101,49 @@ void haliullin::AppCore::mergeBooks(const std::string& newName, const std::strin
   books_.add(newName, merged);
 }
 
+void haliullin::AppCore::addContact(const std::string& book, const std::string& number, const std::string& name)
+{
+  if (book == "global")
+  {
+    throw std::logic_error("Cannot add contacts to global phonebook");
+  }
+  PhoneBook& pb = getBook(book);
+  if (pb.has(number))
+  {
+    throw std::logic_error("Number already exists in this phonebook");
+  }
+  pb.add(number, name);
+}
+
+void haliullin::AppCore::removeContact(const std::string& book, const std::string& number)
+{
+  if (book == "global")
+  {
+    throw std::logic_error("Cannot remove contacts from global phonebook");
+  }
+  PhoneBook& pb = getBook(book);
+  if (!pb.has(number))
+  {
+    throw std::logic_error("Number not found in phonebook");
+  }
+  pb.erase(number);
+}
+
+void haliullin::AppCore::copyContact(const std::string& fromBook, const std::string& toBook, const std::string& number)
+{
+  if (fromBook == "global" || toBook == "global")
+  {
+    throw std::logic_error("Cannot copy to/from global phonebook");
+  }
+  PhoneBook& src = getBook(fromBook);
+  PhoneBook& dst = getBook(toBook);
+  if (!src.has(number))
+  {
+    throw std::logic_error("Number not found in source phonebook");
+  }
+  if (dst.has(number))
+  {
+    throw std::logic_error("Number already exists in target phonebook");
+  }
+  dst.add(number, src.get(number));
+}
