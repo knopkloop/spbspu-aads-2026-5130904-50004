@@ -30,13 +30,13 @@ namespace haliullin::detail
     void swap(Slot& other) noexcept;
 
     template< class K, class V, class H, class E >
-    friend class RobinHashTable;
+    friend class haliullin::RobinHashTable;
 
     template< class K, class V >
-    friend class RHTableIterator;
+    friend class haliullin::RHTableIterator;
 
     template< class K, class V >
-    friend class RHTableConstIterator;
+    friend class haliullin::RHTableConstIterator;
   };
 }
 

@@ -118,3 +118,41 @@ haliullin::Vector< std::string > haliullin::SocialGraph::getVertexes() const
   }
   return unique;
 }
+
+haliullin::SocialGraph::RatingVector haliullin::SocialGraph::getOutbound(const std::string& vert) const
+{
+  RatingVector result;
+  for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
+  {
+    const EdgeKey& key = (*it).first;
+    if (key.first == vert)
+    {
+      double avg = getAverageWeight(key.first, key.second);
+      result.pushBack(std::make_pair(key.second, avg));
+    }
+  }
+  if (!result.isEmpty())
+  {
+    result.insSort();
+  }
+  return result;
+}
+
+haliullin::SocialGraph::RatingVector haliullin::SocialGraph::getInbound(const std::string& vert) const
+{
+  RatingVector result;
+  for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
+  {
+    const EdgeKey& key = (*it).first;
+    if (key.second == vert)
+    {
+      double avg = getAverageWeight(key.first, key.second);
+      result.pushBack(std::make_pair(key.first, avg));
+    }
+  }
+  if (!result.isEmpty())
+  {
+    result.insSort();
+  }
+  return result;
+}
