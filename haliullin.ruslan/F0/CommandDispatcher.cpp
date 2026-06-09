@@ -154,3 +154,59 @@ void haliullin::CommandDispatcher::cmdShow(std::istream& in, std::ostream& out)
     core_.showContact(book, nextToken, out);
   }
 }
+
+void haliullin::CommandDispatcher::cmdMerge(std::istream& in, std::ostream& out)
+{
+  std::string newBook, book1, book2;
+  in >> newBook >> book1 >> book2;
+  require(in);
+
+  core_.mergeBooks(newBook, book1, book2);
+  out << "merged <" << book1 << "> and <" << book2 << "> into <" << newBook << ">\n";
+}
+
+void haliullin::CommandDispatcher::cmdCopyContact(std::istream& in, std::ostream& out)
+{
+  std::string fromBook, toBook, number;
+  in >> fromBook >> toBook >> number;
+  require(in);
+  require(isNumberValid(number));
+
+  core_.copyContact(fromBook, toBook, number);
+  out << "contact " << number << " has been copied to <" << toBook << "> from <" << fromBook << ">\n";
+}
+
+void haliullin::CommandDispatcher::cmdRenameBook(std::istream& in, std::ostream& out)
+{
+  std::string oldName, newName;
+  in >> oldName >> newName;
+  require(in);
+  require(oldName != "global");
+
+  core_.renameBook(oldName, newName);
+  out << "renamed phonebook <" << oldName << "> into <" << newName << ">\n";
+}
+
+void haliullin::CommandDispatcher::cmdReportSpam(std::istream& in, std::ostream& out)
+{
+  std::string number;
+  in >> number;
+  require(in);
+  require(isNumberValid(number));
+
+  core_.reportSpam(number);
+  out << "Spam report recorded for " << number << "\n";
+}
+
+void haliullin::CommandDispatcher::cmdGrade(std::istream& in, std::ostream& out)
+{
+  std::string from, to;
+  double value = 0.0;
+  in >> from >> to >> value;
+  require(in);
+  require(isNumberValid(from) && isNumberValid(to));
+  require(value >= 0.0 && value <= 5.0);
+
+  core_.grade(from, to, value);
+  out << "Rating from " << from << " to " << to << " added (" << value << ")\n";
+}
