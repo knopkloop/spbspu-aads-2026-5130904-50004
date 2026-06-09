@@ -12,7 +12,7 @@ haliullin::CommandDispatcher::CommandDispatcher():
   commands_.add("remove-phonebook", &CommandDispatcher::cmdRemovePhonebook);
   commands_.add("add-contact", &CommandDispatcher::cmdAddContact);
   commands_.add("remove-contact", &CommandDispatcher::cmdRemoveContact);
-  commands_.add("show", &CommandDispatcher::cmdShowBook);
+  commands_.add("show", &CommandDispatcher::cmdShow);
   commands_.add("merge", &CommandDispatcher::cmdMerge);
   commands_.add("copy-contact", &CommandDispatcher::cmdCopyContact);
   commands_.add("rename-book", &CommandDispatcher::cmdRenameBook);
@@ -88,4 +88,69 @@ bool haliullin::CommandDispatcher::isNumberValid(const std::string& number) cons
     }
   }
   return number.size() == 12;
+}
+
+void haliullin::CommandDispatcher::cmdCreatePhonebook(std::istream& in, std::ostream& out)
+{
+  std::string name;
+  in >> name;
+  require(in);
+  require(name != "global");
+
+  core_.createPhonebook(name);
+  out << "phonebook <" << name << "> created\n";
+}
+
+void haliullin::CommandDispatcher::cmdRemovePhonebook(std::istream& in, std::ostream& out)
+{
+  std::string name;
+  in >> name;
+  require(in);
+  require(name != "global");
+
+  core_.removePhonebook(name);
+  out << "phonebook <" << name << "> removed\n";
+}
+
+void haliullin::CommandDispatcher::cmdAddContact(std::istream& in, std::ostream& out)
+{
+  std::string book, number, name;
+  in >> book >> number;
+  require(in);
+  std::getline(in >> std::ws, name);
+  require(!name.empty());
+  require(isNumberValid(number));
+
+  core_.addContact(book, number, name);
+  out << "contact " << number << " added to <" << book << ">\n";
+}
+
+void haliullin::CommandDispatcher::cmdRemoveContact(std::istream& in, std::ostream& out)
+{
+  std::string book, number;
+  in >> book >> number;
+  require(in);
+  require(isNumberValid(number));
+
+  core_.removeContact(book, number);
+  out << "contact " << number << " removed from <" << book << ">\n";
+}
+
+void haliullin::CommandDispatcher::cmdShow(std::istream& in, std::ostream& out)
+{
+  std::string book;
+  in >> book;
+  require(in);
+
+  std::string nextToken;
+  in >> nextToken;
+  if (!in || nextToken.empty())
+  {
+    core_.showBook(book, out);
+  }
+  else
+  {
+    require(isNumberValid(nextToken));
+    core_.showContact(book, nextToken, out);
+  }
 }

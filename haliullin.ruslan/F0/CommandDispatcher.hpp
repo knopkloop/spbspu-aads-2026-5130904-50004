@@ -24,8 +24,7 @@ namespace haliullin
     void cmdRemovePhonebook(std::istream& in, std::ostream& out);
     void cmdAddContact(std::istream& in, std::ostream& out);
     void cmdRemoveContact(std::istream& in, std::ostream& out);
-    void cmdShowBook(std::istream& in, std::ostream& out);
-    void cmdShowContact(std::istream& in, std::ostream& out);
+    void cmdShow(std::istream& in, std::ostream& out);
     void cmdMerge(std::istream& in, std::ostream& out);
     void cmdCopyContact(std::istream& in, std::ostream& out);
     void cmdRenameBook(std::istream& in, std::ostream& out);
