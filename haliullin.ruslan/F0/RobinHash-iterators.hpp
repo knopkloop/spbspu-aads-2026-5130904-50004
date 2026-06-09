@@ -44,8 +44,8 @@ namespace haliullin
   class RHTableConstIterator
   {
   public:
-    using slot_t = detail::Slot<Key, Value>;
-    using cpair_t = const std::pair<Key, Value>;
+    using slot_t = detail::Slot< Key, Value >;
+    using cpair_t = const std::pair< Key, Value >;
 
     RHTableConstIterator() noexcept;
 
@@ -62,7 +62,7 @@ namespace haliullin
     VCIter< slot_t > cur_;
     VCIter< slot_t > end_;
 
-    RHTableConstIterator(VCIter<slot_t> cur, VCIter< slot_t > end) noexcept;
+    RHTableConstIterator(VCIter< slot_t > cur, VCIter< slot_t > end) noexcept;
     explicit RHTableConstIterator(const RHTableIterator< Key, Value >& it) noexcept;
 
     template< class K, class V, class H, class E >

@@ -165,13 +165,13 @@ haliullin::VCIter< T > haliullin::VCIter< T >::operator++(int) noexcept
 }
 
 template< class T >
-bool haliullin::VCIter< T >::operator==(const VCIter< T >& other) const noexcept
+bool haliullin::VCIter< T >::operator==(const VCIter& other) const noexcept
 {
   return cptr_ == other.cptr_;
 }
 
 template< class T >
-bool haliullin::VCIter< T >::operator!=(const VCIter< T >& other) const noexcept
+bool haliullin::VCIter< T >::operator!=(const VCIter& other) const noexcept
 {
   return !(*this == other);
 }
