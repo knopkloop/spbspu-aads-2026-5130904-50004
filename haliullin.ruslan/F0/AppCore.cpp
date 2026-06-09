@@ -147,3 +147,49 @@ void haliullin::AppCore::copyContact(const std::string& fromBook, const std::str
   }
   dst.add(number, src.get(number));
 }
+
+void haliullin::AppCore::showBook(const std::string& book, std::ostream& out) const
+{
+  const PhoneBook& pb = getBook(book);
+  out << "Book <" << book << ">: " << pb.getSize() << " contacts\n";
+
+  Vector< std::pair< std::string, std::string > > contacts;
+  for (auto it = pb.cbegin(); it != pb.cend(); ++it)
+  {
+    contacts.pushBack(*it);
+  }
+  contacts.insSort();
+
+  for (size_t i = 0; i < contacts.getSize(); ++i)
+  {
+    const auto& c = contacts[i];
+    out << c.first << " " << c.second;
+    int spamCount = spam_.has(c.first) ? spam_.get(c.first) : 0;
+    out << " [spam: " << spamCount << "]\n";
+  }
+}
+
+void haliullin::AppCore::showContact(const std::string& book, const std::string& number, std::ostream& out) const
+{
+  const PhoneBook& pb = getBook(book);
+  if (!pb.has(number))
+  {
+    throw std::logic_error("Number not found in phonebook");
+  }
+
+  out << "Number: " << number << "\n";
+  out << "Name: " << pb.get(number) << "\n";
+  int spamCount = spam_.has(number) ? spam_.get(number) : 0;
+  out << "Spam reports: " << spamCount << "\n";
+
+  auto outbound = graph_.getOutbound(number);
+  if (!outbound.isEmpty())
+  {
+    out << "Rated contacts:";
+    for (size_t i = 0; i < outbound.getSize(); ++i)
+    {
+      out << " " << outbound[i].first << " (" << outbound[i].second << ")";
+    }
+    out << "\n";
+  }
+}
