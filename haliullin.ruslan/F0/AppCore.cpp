@@ -219,3 +219,54 @@ void haliullin::AppCore::disconnect(const std::string& from, const std::string& 
 {
   graph_.removeEdges(from, to);
 }
+
+void haliullin::AppCore::showConnections(const std::string& number, const std::string& mode, std::ostream& out) const
+{
+  if (mode == "out" || mode == "all")
+  {
+    auto outbound = graph_.getOutbound(number);
+    out << "Outgoing ratings:\n";
+    if (outbound.isEmpty())
+    {
+      out << "  none\n";
+    }
+    else
+    {
+      for (size_t i = 0; i < outbound.getSize(); ++i)
+      {
+        out << "  -> " << outbound[i].first << " : " << outbound[i].second << "\n";
+      }
+    }
+  }
+  if (mode == "in" || mode == "all")
+  {
+    auto inbound = graph_.getInbound(number);
+    out << "Incoming ratings:\n";
+    if (inbound.isEmpty())
+    {
+      out << "  none\n";
+    }
+    else
+    {
+      for (size_t i = 0; i < inbound.getSize(); ++i)
+      {
+        out << "  <- " << inbound[i].first << " : " << inbound[i].second << "\n";
+      }
+    }
+  }
+}
+
+const haliullin::AppCore::BookTable& haliullin::AppCore::getBooks() const
+{
+  return books_;
+}
+
+const haliullin::AppCore::SpamTable& haliullin::AppCore::getSpam() const
+{
+  return spam_;
+}
+
+const haliullin::SocialGraph& haliullin::AppCore::getGraph() const
+{
+  return graph_;
+}
