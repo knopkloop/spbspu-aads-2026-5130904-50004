@@ -13,7 +13,6 @@ namespace haliullin
   {
   public:
     using func_t = void (CommandDispatcher::*)(std::istream&, std::ostream&);
-
     CommandDispatcher();
     void execute(std::istream& in, std::ostream& out);
 
