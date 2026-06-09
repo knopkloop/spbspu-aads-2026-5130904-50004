@@ -210,3 +210,95 @@ void haliullin::CommandDispatcher::cmdGrade(std::istream& in, std::ostream& out)
   core_.grade(from, to, value);
   out << "Rating from " << from << " to " << to << " added (" << value << ")\n";
 }
+
+void haliullin::CommandDispatcher::cmdDisconnect(std::istream& in, std::ostream& out)
+{
+  std::string from, to;
+  in >> from >> to;
+  require(in);
+  require(isNumberValid(from) && isNumberValid(to));
+
+  core_.disconnect(from, to);
+  out << "Rating from " << from << " to " << to << " removed.\n";
+}
+
+void haliullin::CommandDispatcher::cmdShowConnections(std::istream& in, std::ostream& out)
+{
+  std::string number, mode = "all";
+  in >> number;
+  require(in);
+  require(isNumberValid(number));
+
+  in >> mode;
+  if (!in || (mode != "all" && mode != "in" && mode != "out"))
+  {
+    mode = "all";
+  }
+
+  core_.showConnections(number, mode, out);
+}
+
+void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& out)
+{
+  std::string book, number;
+  double minRating = 4.0;
+  int maxSpam = -1;
+  size_t depth = 2;
+  in >> book >> number;
+  require(in);
+  require(isNumberValid(number));
+
+  if (in.peek() != EOF && in.peek() != '\n')
+  {
+    in >> minRating;
+    require(in);
+  }
+  if (in.peek() != EOF && in.peek() != '\n')
+  {
+    in >> maxSpam;
+    require(in);
+  }
+  if (in.peek() != EOF && in.peek() != '\n')
+  {
+    in >> depth;
+    require(in);
+    require(depth >= 2);
+  }
+
+  core_.recommend(book, number, minRating, maxSpam, depth, out);
+}
+
+void haliullin::CommandDispatcher::cmdSave(std::istream& in, std::ostream& out)
+{
+  std::string filename;
+  in >> filename;
+  require(in);
+  // TODO: FileManager::save(filename, core_);
+  out << "the current session is saved to " << filename << "\n";
+}
+
+void haliullin::CommandDispatcher::cmdLoad(std::istream& in, std::ostream& out)
+{
+  std::string filename;
+  in >> filename;
+  require(in);
+  // TODO: FileManager::load(filename, core_);
+  out << "session loaded from " << filename << "\n";
+}
+
+void haliullin::CommandDispatcher::cmdExit(std::istream& in, std::ostream& out)
+{
+  out << "Do you want to save the current session? (y/n)\n";
+  std::string answer;
+  in >> answer;
+  if (answer == "y" || answer == "Y")
+  {
+    out << "Enter the filename\n";
+    std::string filename;
+    in >> filename;
+    // TODO: FileManager::save(filename, core_);
+    out << "The current session is saved to " << filename << "\n";
+  }
+  out << "Session ended, data cleared\n";
+  throw std::runtime_error("exit");
+}
