@@ -75,3 +75,29 @@ void haliullin::AppCore::renameBook(const std::string& oldName, const std::strin
     throw;
   }
 }
+
+void haliullin::AppCore::mergeBooks(const std::string& newName, const std::string& book1, const std::string& book2)
+{
+  if (books_.has(newName))
+  {
+    throw std::logic_error("Target phonebook already exists");
+  }
+
+  const PhoneBook& b1 = getBook(book1);
+  const PhoneBook& b2 = getBook(book2);
+
+  PhoneBook merged;
+  for (auto it = b1.cbegin(); it != b1.cend(); ++it)
+  {
+    merged.add((*it).first, (*it).second);
+  }
+  for (auto it = b2.cbegin(); it != b2.cend(); ++it)
+  {
+    if (!merged.has((*it).first))
+    {
+      merged.add((*it).first, (*it).second);
+    }
+  }
+  books_.add(newName, merged);
+}
+
