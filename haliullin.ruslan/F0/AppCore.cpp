@@ -193,3 +193,29 @@ void haliullin::AppCore::showContact(const std::string& book, const std::string&
     out << "\n";
   }
 }
+
+void haliullin::AppCore::reportSpam(const std::string& number)
+{
+  if (spam_.has(number))
+  {
+    spam_.get(number) += 1;
+  }
+  else
+  {
+    spam_.add(number, 1);
+  }
+}
+
+void haliullin::AppCore::grade(const std::string& from, const std::string& to, double value)
+{
+  if (value < 0.0 || value > 5.0)
+  {
+    throw std::logic_error("Grade must be between 0 and 5");
+  }
+  graph_.addEdge(from, to, value);
+}
+
+void haliullin::AppCore::disconnect(const std::string& from, const std::string& to)
+{
+  graph_.removeEdges(from, to);
+}
