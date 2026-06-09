@@ -17,8 +17,8 @@ namespace haliullin
 
     SocialGraph() = default;
     ~SocialGraph() = default;
-    SocialGraph(const SocialGraph& other) = default;
-    SocialGraph(SocialGraph&& other) noexcept = default;
+    SocialGraph(const SocialGraph&) = default;
+    SocialGraph(SocialGraph&&) noexcept = default;
 
     SocialGraph& operator=(const SocialGraph& other);
     SocialGraph& operator=(SocialGraph&& other) noexcept;
