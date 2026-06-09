@@ -14,6 +14,7 @@ namespace haliullin
   public:
     using EdgeKey = std::pair< std::string, std::string >;
     using EdgeTable = RobinHashTable< EdgeKey, Vector< double >, detail::MurMurHash, std::equal_to< EdgeKey > >;
+    using EdgeVector = Vector< std::pair< EdgeKey, Vector< double > > >;
 
     SocialGraph() = default;
     ~SocialGraph() = default;
@@ -26,9 +27,9 @@ namespace haliullin
 
     void addEdge(const std::string& from, const std::string& to, double weight);
     void removeEdges(const std::string& from, const std::string& to);
-    bool hasEdge(const std::string& from, const std::string& to) const;
+    bool hasEdges(const std::string& from, const std::string& to) const;
     double getAverageWeight(const std::string& from, const std::string& to) const;
-    Vector< std::pair< EdgeKey, Vector< double > > > getAllEdges() const;
+    EdgeVector getAllEdges() const;
 
     Vector< std::string > getVertexes() const;
     Vector< std::pair< std::string, double > > getOutbound(const std::string& v) const;
