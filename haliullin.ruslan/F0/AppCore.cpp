@@ -10,6 +10,13 @@ haliullin::AppCore::AppCore():
   graph_()
 {}
 
+void haliullin::AppCore::swap(AppCore& other) noexcept
+{
+  books_.swap(other.books_);
+  spam_.swap(other.spam_);
+  graph_.swap(other.graph_);
+}
+
 haliullin::AppCore::PhoneBook& haliullin::AppCore::getBook(const std::string& name)
 {
   if (!books_.has(name))
@@ -339,7 +346,6 @@ int maxSpam, size_t depth) const
     double avg = sum / count;
     result.pushBack(std::make_pair(candidate, avg));
   }
-
   return std::make_pair(std::move(subgraph), std::move(result));
 }
 

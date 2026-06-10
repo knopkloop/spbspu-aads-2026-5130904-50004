@@ -19,6 +19,7 @@ namespace haliullin
     using RecommendationResult = std::pair< SocialGraph, Vector< std::pair< std::string, double > > >;
 
     AppCore();
+    void swap(AppCore& other) noexcept;
 
     void createPhonebook(const std::string& name);
     void removePhonebook(const std::string& name);
