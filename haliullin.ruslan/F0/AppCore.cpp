@@ -256,6 +256,93 @@ void haliullin::AppCore::showConnections(const std::string& number, const std::s
   }
 }
 
+haliullin::AppCore::RecommendationResult haliullin::AppCore::recommend(const std::string& book, const std::string& number, double minRating,
+int maxSpam, size_t depth) const
+{
+  const PhoneBook& pb = getBook(book);
+  if (depth < 2)
+  {
+    throw std::logic_error("Depth must be at least 2");
+  }
+
+  RobinHashTable< std::string, std::pair< double, size_t >, detail::MurMurHash, std::equal_to< std::string > > candidates;
+  SocialGraph subgraph;
+  Vector< std::pair< std::string, double > > current;
+  current.pushBack(std::make_pair(number, 0.0));
+  RobinHashTable< std::string, bool, detail::MurMurHash, std::equal_to< std::string > > visited;
+
+  for (size_t step = 0; step < depth; ++step)
+  {
+    Vector< std::pair< std::string, double > > nextLevel;
+    for (size_t i = 0; i < current.getSize(); ++i)
+    {
+      const std::string& from = current[i].first;
+      double curWeight = current[i].second;
+      visited.add(from, true);
+      auto outbound = graph_.getOutbound(from);
+      for (size_t j = 0; j < outbound.getSize(); ++j)
+      {
+        const std::string& to = outbound[j].first;
+        double edgeWeight = outbound[j].second;
+        if (edgeWeight < minRating)
+        {
+          continue;
+        }
+        if (step == depth - 1)
+        {
+          if (to == number || !pb.has(to))
+          {
+            continue;
+          }
+          if (maxSpam >= 0 && spam_.has(to) && spam_.get(to) > maxSpam)
+          {
+            continue;
+          }
+          double newWeight = curWeight + edgeWeight;
+          subgraph.addEdge(from, to, edgeWeight);
+
+          if (candidates.has(to))
+          {
+            auto& pair = candidates.get(to);
+            pair.first += newWeight;
+            pair.second += 1;
+          }
+          else
+          {
+            candidates.add(to, std::make_pair(newWeight, 1));
+          }
+        }
+        else
+        {
+          if (!pb.has(to) || to == number || visited.has(to))
+          {
+            continue;
+          }
+          if (maxSpam >= 0 && spam_.has(to) && spam_.get(to) > maxSpam)
+          {
+            continue;
+          }
+          subgraph.addEdge(from, to, edgeWeight);
+          nextLevel.pushBack(std::make_pair(to, curWeight + edgeWeight));
+        }
+      }
+    }
+    current.swap(nextLevel);
+  }
+
+  Vector< std::pair< std::string, double > > result;
+  for (auto it = candidates.cbegin(); it != candidates.cend(); ++it)
+  {
+    const std::string& candidate = (*it).first;
+    double sum = (*it).second.first;
+    size_t count = (*it).second.second;
+    double avg = sum / count;
+    result.pushBack(std::make_pair(candidate, avg));
+  }
+
+  return std::make_pair(std::move(subgraph), std::move(result));
+}
+
 const haliullin::AppCore::BookTable& haliullin::AppCore::getBooks() const
 {
   return books_;

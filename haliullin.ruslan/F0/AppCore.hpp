@@ -16,6 +16,7 @@ namespace haliullin
     using PhoneBook = RobinHashTable< std::string, std::string, detail::MurMurHash, std::equal_to< std::string > >;
     using BookTable = RobinHashTable< std::string, PhoneBook, detail::MurMurHash, std::equal_to< std::string > >;
     using SpamTable = RobinHashTable< std::string, int, detail::MurMurHash, std::equal_to< std::string > >;
+    using RecommendationResult = std::pair< SocialGraph, Vector< std::pair< std::string, double > > >;
 
     AppCore();
 
@@ -37,8 +38,8 @@ namespace haliullin
     void disconnect(const std::string& from, const std::string& to);
     void showConnections(const std::string& number, const std::string& mode, std::ostream& out) const;
 
-    void recommend(const std::string& book, const std::string& number, double minRating,
-    int maxSpam, size_t depth, std::ostream& out) const;
+    RecommendationResult recommend(const std::string& book, const std::string& number, double minRating,
+    int maxSpam, size_t depth) const;
 
     const BookTable& getBooks() const;
     const SpamTable& getSpam() const;

@@ -265,7 +265,42 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
     require(depth >= 2);
   }
 
-  core_.recommend(book, number, minRating, maxSpam, depth, out);
+  auto result = core_.recommend(book, number, minRating, maxSpam, depth);
+  auto& subgraph = result.first;
+  auto& candidates = result.second;
+
+  if (candidates.isEmpty())
+  {
+    out << "No recommendations found.\n";
+    return;
+  }
+
+  for (size_t i = 1; i < candidates.getSize(); ++i)
+  {
+    auto key = candidates[i];
+    size_t j = i;
+    while (j > 0 && candidates[j - 1].second < key.second)
+    {
+      candidates[j] = candidates[j - 1];
+      --j;
+    }
+    candidates[j] = key;
+  }
+
+  out << "Recommendations for " << number << " in '" << book << "':\n";
+  for (size_t i = 0; i < candidates.getSize(); ++i)
+  {
+    out << candidates[i].first << " (score: " << candidates[i].second << ")\n";
+  }
+
+  auto allEdges = subgraph.getAllEdges();
+  out << "Recommendation subgraph:\n";
+  for (size_t i = 0; i < allEdges.getSize(); ++i)
+  {
+    const auto& key = allEdges[i].first;
+    double avgW = subgraph.getAverageWeight(key.first, key.second);
+    out << "  " << key.first << " -> " << key.second << " : " << avgW << "\n";
+  }
 }
 
 void haliullin::CommandDispatcher::cmdSave(std::istream& in, std::ostream& out)
