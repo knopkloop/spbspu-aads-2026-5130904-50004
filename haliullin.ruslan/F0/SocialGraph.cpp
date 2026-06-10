@@ -4,6 +4,10 @@
 #include <string>
 #include <stdexcept>
 
+haliullin::SocialGraph::SocialGraph():
+  edges_()
+{}
+
 haliullin::SocialGraph& haliullin::SocialGraph::operator=(const SocialGraph& other)
 {
   if (this != std::addressof(other))

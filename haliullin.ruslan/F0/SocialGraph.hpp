@@ -17,7 +17,7 @@ namespace haliullin
     using EdgeVector = Vector< std::pair< EdgeKey, Vector< double > > >;
     using RatingVector = Vector< std::pair< std::string, double > >;
 
-    SocialGraph() = default;
+    SocialGraph();
     ~SocialGraph() = default;
     SocialGraph(const SocialGraph&) = default;
     SocialGraph(SocialGraph&&) noexcept = default;

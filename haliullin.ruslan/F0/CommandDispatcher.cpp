@@ -1,30 +1,31 @@
 #include "CommandDispatcher.hpp"
+#include <iostream>
 #include <stdexcept>
 #include <string>
-#include <iostream>
 #include <limits>
 #include "AppCore.hpp"
 #include "FileManager.hpp"
 
 haliullin::CommandDispatcher::CommandDispatcher():
-  core_()
+  core_(),
+  commands_()
 {
-  commands_.add("create-phonebook", &cmdCreatePhonebook);
-  commands_.add("remove-phonebook", &cmdRemovePhonebook);
-  commands_.add("add-contact", &cmdAddContact);
-  commands_.add("remove-contact", &cmdRemoveContact);
-  commands_.add("show", &cmdShow);
-  commands_.add("merge", &cmdMerge);
-  commands_.add("copy-contact", &cmdCopyContact);
-  commands_.add("rename-book", &cmdRenameBook);
-  commands_.add("report", &cmdReportSpam);
-  commands_.add("grade", &cmdGrade);
-  commands_.add("disconnect", &cmdDisconnect);
-  commands_.add("show-connections", &cmdShowConnections);
-  commands_.add("recommend", &cmdRecommend);
-  commands_.add("save", &cmdSave);
-  commands_.add("load", &cmdLoad);
-  commands_.add("exit", &cmdExit);
+  commands_.add("create-phonebook", &CommandDispatcher::cmdCreatePhonebook);
+  commands_.add("remove-phonebook", &CommandDispatcher::cmdRemovePhonebook);
+  commands_.add("add-contact", &CommandDispatcher::cmdAddContact);
+  commands_.add("remove-contact", &CommandDispatcher::cmdRemoveContact);
+  commands_.add("show", &CommandDispatcher::cmdShow);
+  commands_.add("merge", &CommandDispatcher::cmdMerge);
+  commands_.add("copy-contact", &CommandDispatcher::cmdCopyContact);
+  commands_.add("rename-book", &CommandDispatcher::cmdRenameBook);
+  commands_.add("report", &CommandDispatcher::cmdReportSpam);
+  commands_.add("grade", &CommandDispatcher::cmdGrade);
+  commands_.add("disconnect", &CommandDispatcher::cmdDisconnect);
+  commands_.add("show-connections", &CommandDispatcher::cmdShowConnections);
+  commands_.add("recommend", &CommandDispatcher::cmdRecommend);
+  commands_.add("save", &CommandDispatcher::cmdSave);
+  commands_.add("load", &CommandDispatcher::cmdLoad);
+  commands_.add("exit", &CommandDispatcher::cmdExit);
 }
 
 void haliullin::CommandDispatcher::execute(std::istream& in, std::ostream& out)
