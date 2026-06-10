@@ -4,6 +4,7 @@
 #include <iostream>
 #include <limits>
 #include "AppCore.hpp"
+#include "FileManager.hpp"
 
 haliullin::CommandDispatcher::CommandDispatcher():
   core_()
@@ -234,7 +235,6 @@ void haliullin::CommandDispatcher::cmdShowConnections(std::istream& in, std::ost
   {
     mode = "all";
   }
-
   core_.showConnections(number, mode, out);
 }
 
@@ -308,7 +308,7 @@ void haliullin::CommandDispatcher::cmdSave(std::istream& in, std::ostream& out)
   std::string filename;
   in >> filename;
   require(in);
-  // TODO: FileManager::save(filename, core_);
+  FileManager::save(filename, core_);
   out << "the current session is saved to " << filename << "\n";
 }
 
@@ -317,7 +317,8 @@ void haliullin::CommandDispatcher::cmdLoad(std::istream& in, std::ostream& out)
   std::string filename;
   in >> filename;
   require(in);
-  // TODO: FileManager::load(filename, core_);
+  AppCore newCore = FileManager::load(filename);
+  core_.swap(newCore);
   out << "session loaded from " << filename << "\n";
 }
 
@@ -331,7 +332,7 @@ void haliullin::CommandDispatcher::cmdExit(std::istream& in, std::ostream& out)
     out << "Enter the filename\n";
     std::string filename;
     in >> filename;
-    // TODO: FileManager::save(filename, core_);
+    FileManager::save(filename, core_);
     out << "The current session is saved to " << filename << "\n";
   }
   out << "Session ended, data cleared\n";
