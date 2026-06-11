@@ -256,7 +256,11 @@ size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::findSlot(const Key&
     {
       return getCapacity();
     }
-    if (slot.psl_ >= static_cast< int >(i) && equal_(slot.kv_.first, k))
+    if (slot.psl_ < static_cast< int >(i))
+    {
+      return getCapacity();
+    }
+    if (equal_(slot.kv_.first, k))
     {
       return idx;
     }

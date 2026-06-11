@@ -42,10 +42,11 @@ void haliullin::CommandDispatcher::execute(std::istream& in, std::ostream& out)
     {
       require(handler != nullptr);
       (this->*handler)(in, out);
+      out << std::flush;
     }
     catch (const std::exception&)
     {
-      out << "<INVALID COMMAND>\n";
+      out << "<INVALID COMMAND>\n" << std::flush;
       in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     }
   }
@@ -135,17 +136,23 @@ void haliullin::CommandDispatcher::cmdShow(std::istream& in, std::ostream& out)
   in >> book;
   require(in);
 
-  std::string nextToken;
-  in >> nextToken;
-  if (!in || nextToken.empty())
+  while (in.peek() == ' ')
   {
-    in.clear();
+    in.get();
+  }
+
+  if (in.peek() == '\n' || in.peek() == '\r' || in.peek() == EOF)
+  {
+    in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     core_.showBook(book, out);
   }
   else
   {
-    require(isNumberValid(nextToken));
-    core_.showContact(book, nextToken, out);
+    std::string number;
+    in >> number;
+    require(isNumberValid(number));
+    in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+    core_.showContact(book, number, out);
   }
 }
 
@@ -201,6 +208,13 @@ void haliullin::CommandDispatcher::cmdGrade(std::istream& in, std::ostream& out)
   require(isNumberValid(from) && isNumberValid(to));
   require(value >= 0.0 && value <= 5.0);
 
+  while (in.peek() == ' ')
+  {
+    in.get();
+  }
+  require(in.peek() == '\n' || in.peek() == '\r' || in.peek() == EOF);
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+
   core_.grade(from, to, value);
   out << "Rating from " << from << " to " << to << " added (" << value << ")\n";
 }
@@ -218,16 +232,22 @@ void haliullin::CommandDispatcher::cmdDisconnect(std::istream& in, std::ostream&
 
 void haliullin::CommandDispatcher::cmdShowConnections(std::istream& in, std::ostream& out)
 {
-  std::string number, mode = "all";
+  std::string number;
   in >> number;
   require(in);
   require(isNumberValid(number));
 
-  in >> mode;
-  if (!in || (mode != "all" && mode != "in" && mode != "out"))
+  while (in.peek() == ' ')
   {
-    mode = "all";
+    in.get();
   }
+  std::string mode = "all";
+  if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+  {
+    in >> mode;
+    if (mode != "all" && mode != "in" && mode != "out") mode = "all";
+  }
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   core_.showConnections(number, mode, out);
 }
 
@@ -241,22 +261,34 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
   require(in);
   require(isNumberValid(number));
 
+  auto skipSpaces = [&in]()
+  {
+    while (in.peek() == ' ')
+    {
+      in.get();
+    }
+  };
+
+  skipSpaces();
   if (in.peek() != EOF && in.peek() != '\n')
   {
     in >> minRating;
     require(in);
   }
+  skipSpaces();
   if (in.peek() != EOF && in.peek() != '\n')
   {
     in >> maxSpam;
     require(in);
   }
+  skipSpaces();
   if (in.peek() != EOF && in.peek() != '\n')
   {
     in >> depth;
     require(in);
     require(depth >= 2);
   }
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 
   auto result = core_.recommend(book, number, minRating, maxSpam, depth);
   auto& subgraph = result.first;

@@ -1,4 +1,7 @@
 #include "MurMurHash.hpp"
+#include <memory>
+#include <cstdint>
+#include <cstring>
 
 size_t haliullin::detail::MurMurHash::operator()(const std::string& key) const noexcept
 {
@@ -11,7 +14,9 @@ size_t haliullin::detail::MurMurHash::operator()(const std::string& key) const n
 
   while (len >= 4)
   {
-    size_t k = *reinterpret_cast< const size_t* >(data);
+    uint32_t k32 = 0;
+    std::memcpy(std::addressof(k32), data, 4);
+    size_t k = k32;
     k *= m;
     k ^= k >> r;
     k *= m;
