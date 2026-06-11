@@ -165,8 +165,10 @@ void haliullin::AppCore::showBook(const std::string& book, std::ostream& out) co
   {
     contacts.pushBack(*it);
   }
-  contacts.insSort();
-
+  if (!contacts.isEmpty())
+  {
+    contacts.insSort();
+  }
   for (size_t i = 0; i < contacts.getSize(); ++i)
   {
     const auto& c = contacts[i];

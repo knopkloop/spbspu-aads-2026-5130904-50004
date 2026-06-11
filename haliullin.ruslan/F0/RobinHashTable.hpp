@@ -297,6 +297,7 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::insertInternal(const 
     if (curSlot.psl_ > slot.psl_)
     {
       slot.swap(curSlot);
+      hash = hasher_(curSlot.kv_.first);
     }
     ++curSlot.psl_;
   }

@@ -38,10 +38,9 @@ void haliullin::CommandDispatcher::execute(std::istream& in, std::ostream& out)
     {
       handler = commands_.get(command);
     }
-    require(handler != nullptr);
-
     try
     {
+      require(handler != nullptr);
       (this->*handler)(in, out);
     }
     catch (const std::exception&)
@@ -140,6 +139,7 @@ void haliullin::CommandDispatcher::cmdShow(std::istream& in, std::ostream& out)
   in >> nextToken;
   if (!in || nextToken.empty())
   {
+    in.clear();
     core_.showBook(book, out);
   }
   else
