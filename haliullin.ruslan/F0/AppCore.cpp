@@ -256,6 +256,10 @@ haliullin::AppCore::RecommendationResult haliullin::AppCore::recommend(const std
 int maxSpam, size_t depth) const
 {
   const PhoneBook& pb = getBook(book);
+  if (!pb.has(number))
+  {
+    throw std::logic_error("Contact not found in the specified book");
+  }
   if (depth < 2)
   {
     throw std::logic_error("Depth must be at least 2");
@@ -266,15 +270,15 @@ int maxSpam, size_t depth) const
   Vector< std::pair< std::string, double > > current;
   current.pushBack(std::make_pair(number, 0.0));
   RobinHashTable< std::string, bool, detail::MurMurHash, std::equal_to< std::string > > visited;
-
+  visited.add(number, true);
   for (size_t step = 0; step < depth; ++step)
   {
+    RobinHashTable< std::string, double, detail::MurMurHash, std::equal_to< std::string > > nextLevelMap;
     Vector< std::pair< std::string, double > > nextLevel;
     for (size_t i = 0; i < current.getSize(); ++i)
     {
       const std::string& from = current[i].first;
       double curWeight = current[i].second;
-      visited.add(from, true);
       auto outbound = graph_.getOutbound(from);
       for (size_t j = 0; j < outbound.getSize(); ++j)
       {
@@ -284,19 +288,25 @@ int maxSpam, size_t depth) const
         {
           continue;
         }
+        if (maxSpam >= 0 && spam_.has(to) && spam_.get(to) > maxSpam)
+        {
+          continue;
+        }
+        if (to == number || visited.has(to))
+        {
+          continue;
+        }
+        if (step == 0 && !pb.has(to))
+        {
+          continue;
+        }
+        if (!subgraph.hasEdges(from, to))
+        {
+          subgraph.addEdge(from, to, edgeWeight);
+        }
         if (step == depth - 1)
         {
-          if (to == number || !pb.has(to))
-          {
-            continue;
-          }
-          if (maxSpam >= 0 && spam_.has(to) && spam_.get(to) > maxSpam)
-          {
-            continue;
-          }
           double newWeight = curWeight + edgeWeight;
-          subgraph.addEdge(from, to, edgeWeight);
-
           if (candidates.has(to))
           {
             auto pair = candidates.get(to);
@@ -311,18 +321,17 @@ int maxSpam, size_t depth) const
         }
         else
         {
-          if (!pb.has(to) || to == number || visited.has(to))
+          if (!nextLevelMap.has(to))
           {
-            continue;
+            nextLevelMap.add(to, curWeight + edgeWeight);
           }
-          if (maxSpam >= 0 && spam_.has(to) && spam_.get(to) > maxSpam)
-          {
-            continue;
-          }
-          subgraph.addEdge(from, to, edgeWeight);
-          nextLevel.pushBack(std::make_pair(to, curWeight + edgeWeight));
         }
       }
+    }
+    for (auto it = nextLevelMap.cbegin(); it != nextLevelMap.cend(); ++it)
+    {
+      nextLevel.pushBack(std::make_pair((*it).first, (*it).second));
+      visited.add((*it).first, true);
     }
     current.swap(nextLevel);
   }
