@@ -35,7 +35,7 @@ const haliullin::AppCore::PhoneBook& haliullin::AppCore::getBook(const std::stri
   return books_.get(name);
 }
 
-void haliullin::AppCore::createPhonebook(const std::string& name)
+void haliullin::AppCore::createBook(const std::string& name)
 {
   if (books_.has(name))
   {
@@ -49,7 +49,7 @@ void haliullin::AppCore::createPhonebook(const std::string& name)
   books_.add(name, emptyBook);
 }
 
-void haliullin::AppCore::removePhonebook(const std::string& name)
+void haliullin::AppCore::removeBook(const std::string& name)
 {
   if (name == "global")
   {
@@ -69,18 +69,11 @@ void haliullin::AppCore::renameBook(const std::string& oldName, const std::strin
   {
     throw std::logic_error("Target name already exists");
   }
-  PhoneBook& book = getBook(oldName);
-  PhoneBook temp(book);
-  books_.erase(oldName);
-  try
-  {
-    books_.add(newName, temp);
-  }
-  catch (...)
-  {
-    books_.add(oldName, temp);
-    throw;
-  }
+  BookTable tempBooks(books_);
+  PhoneBook tempBook = tempBooks.get(oldName);
+  tempBooks.erase(oldName);
+  tempBooks.add(newName, tempBook);
+  books_.swap(tempBooks);
 }
 
 void haliullin::AppCore::mergeBooks(const std::string& newName, const std::string& book1, const std::string& book2)
@@ -205,14 +198,8 @@ void haliullin::AppCore::showContact(const std::string& book, const std::string&
 
 void haliullin::AppCore::reportSpam(const std::string& number)
 {
-  if (spam_.has(number))
-  {
-    spam_.get(number) += 1;
-  }
-  else
-  {
-    spam_.add(number, 1);
-  }
+  int curSpam = spam_.has(number) ? spam_.get(number) : 0;
+  spam_.add(number, curSpam + 1);
 }
 
 void haliullin::AppCore::grade(const std::string& from, const std::string& to, double value)
@@ -312,9 +299,10 @@ int maxSpam, size_t depth) const
 
           if (candidates.has(to))
           {
-            auto& pair = candidates.get(to);
+            auto pair = candidates.get(to);
             pair.first += newWeight;
             pair.second += 1;
+            candidates.add(to, pair);
           }
           else
           {

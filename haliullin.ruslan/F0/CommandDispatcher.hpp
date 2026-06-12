@@ -20,8 +20,8 @@ namespace haliullin
     AppCore core_;
     RobinHashTable< std::string, func_t, detail::MurMurHash, std::equal_to< std::string > > commands_;
 
-    void cmdCreatePhonebook(std::istream& in, std::ostream& out);
-    void cmdRemovePhonebook(std::istream& in, std::ostream& out);
+    void cmdCreateBook(std::istream& in, std::ostream& out);
+    void cmdRemoveBook(std::istream& in, std::ostream& out);
     void cmdAddContact(std::istream& in, std::ostream& out);
     void cmdRemoveContact(std::istream& in, std::ostream& out);
     void cmdShow(std::istream& in, std::ostream& out);

@@ -21,8 +21,8 @@ namespace haliullin
     AppCore();
     void swap(AppCore& other) noexcept;
 
-    void createPhonebook(const std::string& name);
-    void removePhonebook(const std::string& name);
+    void createBook(const std::string& name);
+    void removeBook(const std::string& name);
     void renameBook(const std::string& oldName, const std::string& newName);
     void mergeBooks(const std::string& newName, const std::string& book1, const std::string& book2);
 

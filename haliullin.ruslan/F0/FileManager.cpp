@@ -1,6 +1,7 @@
 #include "FileManager.hpp"
 #include <fstream>
 #include <stdexcept>
+#include <limits>
 #include <string>
 
 void haliullin::FileManager::save(const std::string& filename, const AppCore& core)
@@ -72,7 +73,7 @@ haliullin::AppCore haliullin::FileManager::load(const std::string& filename)
       {
         throw std::runtime_error("Invalid BOOK format");
       }
-      core.createPhonebook(bookName);
+      core.createBook(bookName);
     }
     else if (token == "CONTACT")
     {
@@ -108,16 +109,29 @@ haliullin::AppCore haliullin::FileManager::load(const std::string& filename)
       {
         throw std::runtime_error("Invalid EDGE format");
       }
-      double weight;
-      while (file >> weight)
+      while (file.peek() == ' ')
       {
-        core.grade(from, to, weight);
+        file.get();
       }
-      if (file.fail() && !file.eof())
+      while (file.peek() != '\n' && file.peek() != EOF)
       {
-        throw std::runtime_error("Invalid weight in EDGE");
+        double weight;
+        if (file >> weight)
+        {
+          core.grade(from, to, weight);
+        }
+        else
+        {
+          file.clear();
+          file.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+          throw std::runtime_error("Invalid weight in EDGE");
+        }
+        while (file.peek() == ' ')
+        {
+          file.get();
+        }
       }
-      file.clear();
+      file.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     }
     else
     {

@@ -311,7 +311,10 @@ void haliullin::Vector< T >::reallocate(size_t newCap)
     throw;
   }
 
-  clear();
+  for (size_t i = 0; i < size_; ++i)
+  {
+    data_[i].~T();
+  }
   ::operator delete(data_);
   data_ = newData;
   capacity_ = newCap;

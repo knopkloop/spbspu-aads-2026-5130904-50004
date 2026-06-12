@@ -10,8 +10,8 @@ haliullin::CommandDispatcher::CommandDispatcher():
   core_(),
   commands_()
 {
-  commands_.add("create-phonebook", &CommandDispatcher::cmdCreatePhonebook);
-  commands_.add("remove-phonebook", &CommandDispatcher::cmdRemovePhonebook);
+  commands_.add("create-book", &CommandDispatcher::cmdCreateBook);
+  commands_.add("remove-book", &CommandDispatcher::cmdRemoveBook);
   commands_.add("add-contact", &CommandDispatcher::cmdAddContact);
   commands_.add("remove-contact", &CommandDispatcher::cmdRemoveContact);
   commands_.add("show", &CommandDispatcher::cmdShow);
@@ -84,26 +84,26 @@ bool haliullin::CommandDispatcher::isNumberValid(const std::string& number) cons
   return number.size() == 12;
 }
 
-void haliullin::CommandDispatcher::cmdCreatePhonebook(std::istream& in, std::ostream& out)
+void haliullin::CommandDispatcher::cmdCreateBook(std::istream& in, std::ostream& out)
 {
   std::string name;
   in >> name;
   require(in);
   require(name != "global");
-
-  core_.createPhonebook(name);
+  core_.createBook(name);
   out << "phonebook <" << name << "> created\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
-void haliullin::CommandDispatcher::cmdRemovePhonebook(std::istream& in, std::ostream& out)
+void haliullin::CommandDispatcher::cmdRemoveBook(std::istream& in, std::ostream& out)
 {
   std::string name;
   in >> name;
   require(in);
   require(name != "global");
-
-  core_.removePhonebook(name);
+  core_.removeBook(name);
   out << "phonebook <" << name << "> removed\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdAddContact(std::istream& in, std::ostream& out)
@@ -111,12 +111,19 @@ void haliullin::CommandDispatcher::cmdAddContact(std::istream& in, std::ostream&
   std::string book, number, name;
   in >> book >> number;
   require(in);
-  std::getline(in >> std::ws, name);
-  require(!name.empty());
   require(isNumberValid(number));
-
+  while (in.peek() == ' ')
+  {
+    in.get();
+  }
+  while (in.peek() != '\n' && in.peek() != EOF)
+  {
+    name += static_cast< char >(in.get());
+  }
+  require(!name.empty());
   core_.addContact(book, number, name);
   out << "contact " << number << " added to <" << book << ">\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdRemoveContact(std::istream& in, std::ostream& out)
@@ -125,9 +132,9 @@ void haliullin::CommandDispatcher::cmdRemoveContact(std::istream& in, std::ostre
   in >> book >> number;
   require(in);
   require(isNumberValid(number));
-
   core_.removeContact(book, number);
   out << "contact " << number << " removed from <" << book << ">\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdShow(std::istream& in, std::ostream& out)
@@ -135,24 +142,23 @@ void haliullin::CommandDispatcher::cmdShow(std::istream& in, std::ostream& out)
   std::string book;
   in >> book;
   require(in);
-
   while (in.peek() == ' ')
   {
     in.get();
   }
 
-  if (in.peek() == '\n' || in.peek() == '\r' || in.peek() == EOF)
+  if (in.peek() == '\n' || in.peek() == EOF)
   {
-    in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     core_.showBook(book, out);
+    in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
   else
   {
     std::string number;
     in >> number;
     require(isNumberValid(number));
-    in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     core_.showContact(book, number, out);
+    in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   }
 }
 
@@ -161,9 +167,9 @@ void haliullin::CommandDispatcher::cmdMerge(std::istream& in, std::ostream& out)
   std::string newBook, book1, book2;
   in >> newBook >> book1 >> book2;
   require(in);
-
   core_.mergeBooks(newBook, book1, book2);
   out << "merged <" << book1 << "> and <" << book2 << "> into <" << newBook << ">\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdCopyContact(std::istream& in, std::ostream& out)
@@ -172,9 +178,9 @@ void haliullin::CommandDispatcher::cmdCopyContact(std::istream& in, std::ostream
   in >> fromBook >> toBook >> number;
   require(in);
   require(isNumberValid(number));
-
   core_.copyContact(fromBook, toBook, number);
   out << "contact " << number << " has been copied to <" << toBook << "> from <" << fromBook << ">\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdRenameBook(std::istream& in, std::ostream& out)
@@ -183,9 +189,9 @@ void haliullin::CommandDispatcher::cmdRenameBook(std::istream& in, std::ostream&
   in >> oldName >> newName;
   require(in);
   require(oldName != "global");
-
   core_.renameBook(oldName, newName);
   out << "renamed phonebook <" << oldName << "> into <" << newName << ">\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdReportSpam(std::istream& in, std::ostream& out)
@@ -194,9 +200,9 @@ void haliullin::CommandDispatcher::cmdReportSpam(std::istream& in, std::ostream&
   in >> number;
   require(in);
   require(isNumberValid(number));
-
   core_.reportSpam(number);
   out << "Spam report recorded for " << number << "\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdGrade(std::istream& in, std::ostream& out)
@@ -207,16 +213,14 @@ void haliullin::CommandDispatcher::cmdGrade(std::istream& in, std::ostream& out)
   require(in);
   require(isNumberValid(from) && isNumberValid(to));
   require(value >= 0.0 && value <= 5.0);
-
   while (in.peek() == ' ')
   {
     in.get();
   }
-  require(in.peek() == '\n' || in.peek() == '\r' || in.peek() == EOF);
-  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-
+  require(in.peek() == '\n' || in.peek() == EOF);
   core_.grade(from, to, value);
   out << "Rating from " << from << " to " << to << " added (" << value << ")\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdDisconnect(std::istream& in, std::ostream& out)
@@ -225,9 +229,9 @@ void haliullin::CommandDispatcher::cmdDisconnect(std::istream& in, std::ostream&
   in >> from >> to;
   require(in);
   require(isNumberValid(from) && isNumberValid(to));
-
   core_.disconnect(from, to);
-  out << "Rating from " << from << " to " << to << " removed.\n";
+  out << "Rating from " << from << " to " << to << " removed\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdShowConnections(std::istream& in, std::ostream& out)
@@ -242,13 +246,14 @@ void haliullin::CommandDispatcher::cmdShowConnections(std::istream& in, std::ost
     in.get();
   }
   std::string mode = "all";
-  if (in.peek() != '\n' && in.peek() != '\r' && in.peek() != EOF)
+  if (in.peek() != '\n' && in.peek() != EOF)
   {
     in >> mode;
-    if (mode != "all" && mode != "in" && mode != "out") mode = "all";
+    require(in);
+    require(mode == "in" || mode == "out");
   }
-  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
   core_.showConnections(number, mode, out);
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& out)
@@ -288,7 +293,6 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
     require(in);
     require(depth >= 2);
   }
-  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 
   auto result = core_.recommend(book, number, minRating, maxSpam, depth);
   auto& subgraph = result.first;
@@ -296,7 +300,8 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
 
   if (candidates.isEmpty())
   {
-    out << "No recommendations found.\n";
+    out << "No recommendations found\n";
+    in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     return;
   }
 
@@ -312,7 +317,7 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
     candidates[j] = key;
   }
 
-  out << "Recommendations for " << number << " in '" << book << "':\n";
+  out << "Recommendations for " << number << " in <" << book << ">:\n";
   for (size_t i = 0; i < candidates.getSize(); ++i)
   {
     out << candidates[i].first << " (score: " << candidates[i].second << ")\n";
@@ -326,6 +331,7 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
     double avgW = subgraph.getAverageWeight(key.first, key.second);
     out << "  " << key.first << " -> " << key.second << " : " << avgW << "\n";
   }
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdSave(std::istream& in, std::ostream& out)
@@ -335,6 +341,7 @@ void haliullin::CommandDispatcher::cmdSave(std::istream& in, std::ostream& out)
   require(in);
   FileManager::save(filename, core_);
   out << "the current session is saved to " << filename << "\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdLoad(std::istream& in, std::ostream& out)
@@ -345,16 +352,17 @@ void haliullin::CommandDispatcher::cmdLoad(std::istream& in, std::ostream& out)
   AppCore newCore = FileManager::load(filename);
   core_.swap(newCore);
   out << "session loaded from " << filename << "\n";
+  in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 
 void haliullin::CommandDispatcher::cmdExit(std::istream& in, std::ostream& out)
 {
-  out << "Do you want to save the current session? (y/n)\n";
+  out << "Do you want to save the current session? (y/n)\n" << std::flush;
   std::string answer;
   in >> answer;
   if (answer == "y" || answer == "Y")
   {
-    out << "Enter the filename\n";
+    out << "Enter the filename\n" << std::flush;
     std::string filename;
     in >> filename;
     FileManager::save(filename, core_);
