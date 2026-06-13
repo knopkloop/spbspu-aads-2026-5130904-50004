@@ -10,6 +10,9 @@ namespace haliullin
   class BiList;
 
   template< class T >
+  class LCIter;
+
+  template< class T >
   class LIter: public std::iterator< std::bidirectional_iterator_tag, T, std::ptrdiff_t, T*, T& >
   {
   public:
