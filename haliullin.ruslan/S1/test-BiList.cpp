@@ -183,6 +183,43 @@ BOOST_AUTO_TEST_CASE(splice)
   }
 }
 
+BOOST_AUTO_TEST_CASE(sort)
+{
+  haliullin::BiList< int > lst;
+  lst.emplace_back(5);
+  lst.emplace_back(2);
+  lst.emplace_back(8);
+  lst.emplace_back(1);
+  lst.emplace_back(9);
+  lst.emplace_back(3);
+
+  lst.sort();
+
+  int expected[] = {1, 2, 3, 5, 8, 9};
+  int idx = 0;
+  for (auto it = lst.begin(); it != lst.end(); ++it, ++idx)
+  {
+    BOOST_CHECK_EQUAL(*it, expected[idx]);
+  }
+
+  haliullin::BiList< int > empty;
+  empty.sort();
+  BOOST_CHECK(empty.is_empty());
+
+  haliullin::BiList< int > single;
+  single.emplace_back(42);
+  single.sort();
+  BOOST_CHECK_EQUAL(single.front(), 42);
+
+  haliullin::BiList< int > desc;
+  desc.emplace_back(5);
+  desc.emplace_back(2);
+  desc.emplace_back(8);
+  desc.sort(std::greater< int >());
+  BOOST_CHECK_EQUAL(desc.front(), 8);
+  BOOST_CHECK_EQUAL(desc.back(), 2);
+}
+
 BOOST_AUTO_TEST_CASE(merge)
 {
   haliullin::BiList< int > a;
@@ -228,43 +265,6 @@ BOOST_AUTO_TEST_CASE(merge)
   BOOST_CHECK_EQUAL(d.get_size(), 6);
   BOOST_CHECK_EQUAL(d.front(), 6);
   BOOST_CHECK_EQUAL(d.back(), 1);
-}
-
-BOOST_AUTO_TEST_CASE(sort)
-{
-  haliullin::BiList< int > lst;
-  lst.emplace_back(5);
-  lst.emplace_back(2);
-  lst.emplace_back(8);
-  lst.emplace_back(1);
-  lst.emplace_back(9);
-  lst.emplace_back(3);
-
-  lst.sort();
-
-  int expected[] = {1, 2, 3, 5, 8, 9};
-  int idx = 0;
-  for (auto it = lst.begin(); it != lst.end(); ++it, ++idx)
-  {
-    BOOST_CHECK_EQUAL(*it, expected[idx]);
-  }
-
-  haliullin::BiList< int > empty;
-  empty.sort();
-  BOOST_CHECK(empty.is_empty());
-
-  haliullin::BiList< int > single;
-  single.emplace_back(42);
-  single.sort();
-  BOOST_CHECK_EQUAL(single.front(), 42);
-
-  haliullin::BiList< int > desc;
-  desc.emplace_back(5);
-  desc.emplace_back(2);
-  desc.emplace_back(8);
-  desc.sort(std::greater< int >());
-  BOOST_CHECK_EQUAL(desc.front(), 8);
-  BOOST_CHECK_EQUAL(desc.back(), 2);
 }
 
 BOOST_AUTO_TEST_CASE(partition)

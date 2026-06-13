@@ -386,13 +386,24 @@ void haliullin::BiList< T >::transfer(node* pos, BiList< T >& other, node* first
   before_first->next_ = after_last;
   after_last->prev_ = before_first;
 
-  if (other.head_ == first)
+  if (count == other.size_)
   {
-    if (count == other.size_)
+    other.head_ = nullptr;
+  }
+  else
+  {
+    node* curr = first;
+    bool head_removed = false;
+    for (size_t i = 0; i < count; ++i)
     {
-      other.head_ = nullptr;
+      if (curr == other.head_)
+      {
+        head_removed = true;
+        break;
+      }
+      curr = curr->next_;
     }
-    else
+    if (head_removed)
     {
       other.head_ = after_last;
     }
