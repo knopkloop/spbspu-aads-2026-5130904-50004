@@ -18,6 +18,9 @@ namespace haliullin
     void pop();
     void clear();
 
+    template< class... Args >
+    T& emplace(Args&&... args);
+
   private:
     BiList< T > data_;
   };
@@ -75,6 +78,13 @@ template< class T >
 void haliullin::Stack< T >::clear()
 {
   data_.clear();
+}
+
+template< class T >
+template< class... Args >
+T& haliullin::Stack< T >::emplace(Args&&... args)
+{
+  return data_.emplace_back(std::forward< Args >(args)...);
 }
 
 #endif
