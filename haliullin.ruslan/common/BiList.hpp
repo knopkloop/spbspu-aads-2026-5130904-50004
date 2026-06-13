@@ -70,6 +70,8 @@ namespace haliullin
     node* head_;
     size_t size_;
     void transfer(node* pos, BiList< T >& other, node* first, node* last, size_t count) noexcept;
+    friend class LIter< T >;
+    friend class LCIter< T >;
   };
 }
 
@@ -88,23 +90,15 @@ haliullin::BiList< T >::BiList(const BiList< T >& other):
   {
     return;
   }
+  BiList< T > tmp;
   node* cur = other.head_;
-  node* first = new node(nullptr, nullptr, cur->val_);
-  head_ = first;
-  size_ = 1;
-  cur = cur->next_;
-  node* prev = first;
-  while (cur != other.head_)
+  do
   {
-    node* newNode = new node(nullptr, nullptr, cur->val_);
-    prev->next_ = newNode;
-    newNode->prev_ = prev;
-    prev = newNode;
+    tmp.emplace_back(cur->val_);
     cur = cur->next_;
-    ++size_;
   }
-  prev->next_ = head_;
-  head_->prev_ = prev;
+  while (cur != other.head_);
+  swap(tmp);
 }
 
 template< class T >
@@ -285,7 +279,7 @@ haliullin::LIter< T > haliullin::BiList< T >::erase(LIter< T > pos)
     toDelete->next_->prev_ = toDelete->prev_;
     delete toDelete;
     --size_;
-    return LIter< T >(nextNode, head_);
+    return LIter< T >(nextNode, this);
   }
 }
 
@@ -369,7 +363,7 @@ haliullin::LIter< T > haliullin::BiList< T >::emplace(LCIter< T > pos, Args&&...
   pos_node->prev_ = newNode;
 
   ++size_;
-  return LIter< T >(newNode, head_);
+  return LIter< T >(newNode, this);
 }
 
 template< class T >
@@ -586,7 +580,7 @@ haliullin::LIter< T > haliullin::BiList< T >::partition(Predicate pred)
   {
     node* first_false = false_list.head_;
     splice(end(), false_list);
-    partition_point = LIter< T >(first_false, head_);
+    partition_point = LIter< T >(first_false, this);
   }
 
   return partition_point;
@@ -595,13 +589,13 @@ haliullin::LIter< T > haliullin::BiList< T >::partition(Predicate pred)
 template< class T >
 haliullin::LIter< T > haliullin::BiList< T >::begin() noexcept
 {
-  return LIter< T >(head_, head_);
+  return LIter< T >(head_, this);
 }
 
 template< class T >
 haliullin::LCIter< T > haliullin::BiList< T >::begin() const noexcept
 {
-  return LCIter< T >(head_, head_);
+  return LCIter< T >(head_, this);
 }
 
 template< class T >
@@ -613,13 +607,13 @@ haliullin::LCIter< T > haliullin::BiList< T >::cbegin() const noexcept
 template< class T >
 haliullin::LIter< T > haliullin::BiList< T >::end() noexcept
 {
-  return LIter< T >(nullptr, head_);
+  return LIter< T >(nullptr, this);
 }
 
 template< class T >
 haliullin::LCIter< T > haliullin::BiList< T >::end() const noexcept
 {
-  return LCIter< T >(nullptr, head_);
+  return LCIter< T >(nullptr, this);
 }
 
 template< class T >

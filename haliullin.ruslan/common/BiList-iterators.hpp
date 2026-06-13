@@ -32,9 +32,9 @@ namespace haliullin
 
   private:
     node_t* cur_;
-    node_t* head_;
+    BiList< T >* list_;
 
-    explicit LIter(node_t* node, node_t* head);
+    explicit LIter(node_t* node, BiList< T >* list);
     friend class BiList< T >;
     friend class LCIter< T >;
   };
@@ -60,9 +60,9 @@ namespace haliullin
 
   private:
     const node_t* cur_;
-    const node_t* head_;
+    const BiList< T >* list_;
 
-    explicit LCIter(const node_t* node, const node_t* head);
+    explicit LCIter(const node_t* node, const BiList< T >* list);
     friend class BiList< T >;
   };
 }
@@ -70,13 +70,13 @@ namespace haliullin
 template< class T >
 haliullin::LIter< T >::LIter():
   cur_(nullptr),
-  head_(nullptr)
+  list_(nullptr)
 {}
 
 template< class T >
-haliullin::LIter< T >::LIter(node_t* node, node_t* head):
+haliullin::LIter< T >::LIter(node_t* node, BiList< T >* list):
   cur_(node),
-  head_(head)
+  list_(list)
 {}
 
 template< class T >
@@ -95,7 +95,7 @@ template< class T >
 haliullin::LIter< T >& haliullin::LIter< T >::operator++() noexcept
 {
   cur_ = cur_->next_;
-  if (cur_ == head_)
+  if (cur_ == list_->head_)
   {
     cur_ = nullptr;
   }
@@ -115,9 +115,9 @@ haliullin::LIter< T >& haliullin::LIter< T >::operator--() noexcept
 {
   if (cur_ == nullptr)
   {
-    cur_ = head_->prev_;
+    cur_ = list_->head_->prev_;
   }
-  else if (cur_ == head_)
+  else if (cur_ == list_->head_)
   {
     cur_ = nullptr;
   }
@@ -151,19 +151,19 @@ bool haliullin::LIter< T >::operator!=(const LIter& other) const noexcept
 template< class T >
 haliullin::LCIter< T >::LCIter():
   cur_(nullptr),
-  head_(nullptr)
+  list_(nullptr)
 {}
 
 template< class T >
-haliullin::LCIter< T >::LCIter(const node_t* node, const node_t* head):
+haliullin::LCIter< T >::LCIter(const node_t* node, const BiList< T >* list):
   cur_(node),
-  head_(head)
+  list_(list)
 {}
 
 template< class T >
 haliullin::LCIter< T >::LCIter(const LIter< T >& other):
   cur_(other.cur_),
-  head_(other.head_)
+  list_(other.list_)
 {}
 
 template< class T >
@@ -182,7 +182,7 @@ template< class T >
 haliullin::LCIter< T >& haliullin::LCIter< T >::operator++() noexcept
 {
   cur_ = cur_->next_;
-  if (cur_ == head_)
+  if (cur_ == list_->head_)
   {
     cur_ = nullptr;
   }
@@ -202,9 +202,9 @@ haliullin::LCIter< T >& haliullin::LCIter< T >::operator--() noexcept
 {
   if (cur_ == nullptr)
   {
-    cur_ = head_->prev_;
+    cur_ = list_->head_->prev_;
   }
-  else if (cur_ == head_)
+  else if (cur_ == list_->head_)
   {
     cur_ = nullptr;
   }
