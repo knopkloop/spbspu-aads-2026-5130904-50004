@@ -82,7 +82,7 @@ void haliullin::Stack< T >::clear()
 
 template< class T >
 template< class... Args >
-T& haliullin::Queue< T >::emplace(Args&&... args)
+T& haliullin::Stack< T >::emplace(Args&&... args)
 {
   return data_.emplace_back(std::forward< Args >(args)...);
 }
