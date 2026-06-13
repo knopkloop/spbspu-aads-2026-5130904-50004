@@ -453,6 +453,11 @@ void haliullin::BiList< T >::splice(LCIter< T > pos, BiList< T >& other, LIter< 
   {
     return;
   }
+  if (first == other.begin() && last == other.end())
+  {
+    splice(pos, other);
+    return;
+  }
   size_t count = 0;
   for (auto it = first; it != last; ++it)
   {
