@@ -59,6 +59,34 @@ void haliullin::AppCore::removeBook(const std::string& name)
   books_.erase(name);
 }
 
+void haliullin::AppCore::addContact(const std::string& book, const std::string& number, const std::string& name)
+{
+  if (book == "global")
+  {
+    throw std::logic_error("Cannot add contacts to global phonebook");
+  }
+  PhoneBook& pb = getBook(book);
+  if (pb.has(number))
+  {
+    throw std::logic_error("Number already exists in this phonebook");
+  }
+  pb.add(number, name);
+}
+
+void haliullin::AppCore::removeContact(const std::string& book, const std::string& number)
+{
+  if (book == "global")
+  {
+    throw std::logic_error("Cannot remove contacts from global phonebook");
+  }
+  PhoneBook& pb = getBook(book);
+  if (!pb.has(number))
+  {
+    throw std::logic_error("Number not found in phonebook");
+  }
+  pb.erase(number);
+}
+
 void haliullin::AppCore::renameBook(const std::string& oldName, const std::string& newName)
 {
   if (oldName == "global")
@@ -99,34 +127,6 @@ void haliullin::AppCore::mergeBooks(const std::string& newName, const std::strin
     }
   }
   books_.add(newName, merged);
-}
-
-void haliullin::AppCore::addContact(const std::string& book, const std::string& number, const std::string& name)
-{
-  if (book == "global")
-  {
-    throw std::logic_error("Cannot add contacts to global phonebook");
-  }
-  PhoneBook& pb = getBook(book);
-  if (pb.has(number))
-  {
-    throw std::logic_error("Number already exists in this phonebook");
-  }
-  pb.add(number, name);
-}
-
-void haliullin::AppCore::removeContact(const std::string& book, const std::string& number)
-{
-  if (book == "global")
-  {
-    throw std::logic_error("Cannot remove contacts from global phonebook");
-  }
-  PhoneBook& pb = getBook(book);
-  if (!pb.has(number))
-  {
-    throw std::logic_error("Number not found in phonebook");
-  }
-  pb.erase(number);
 }
 
 void haliullin::AppCore::copyContact(const std::string& fromBook, const std::string& toBook, const std::string& number)
@@ -211,11 +211,6 @@ void haliullin::AppCore::grade(const std::string& from, const std::string& to, d
   graph_.addEdge(from, to, value);
 }
 
-void haliullin::AppCore::disconnect(const std::string& from, const std::string& to)
-{
-  graph_.removeEdges(from, to);
-}
-
 void haliullin::AppCore::showConnections(const std::string& number, const std::string& mode, std::ostream& out) const
 {
   if (mode == "out" || mode == "all")
@@ -252,6 +247,11 @@ void haliullin::AppCore::showConnections(const std::string& number, const std::s
   }
 }
 
+void haliullin::AppCore::disconnect(const std::string& from, const std::string& to)
+{
+  graph_.removeEdges(from, to);
+}
+
 haliullin::AppCore::RecommendationResult haliullin::AppCore::recommend(const std::string& book, const std::string& number, double minRating,
 int maxSpam, size_t depth) const
 {
@@ -271,6 +271,7 @@ int maxSpam, size_t depth) const
   current.pushBack(std::make_pair(number, 0.0));
   RobinHashTable< std::string, bool, detail::MurMurHash, std::equal_to< std::string > > visited;
   visited.add(number, true);
+
   for (size_t step = 0; step < depth; ++step)
   {
     RobinHashTable< std::string, double, detail::MurMurHash, std::equal_to< std::string > > nextLevelMap;
@@ -304,7 +305,7 @@ int maxSpam, size_t depth) const
         {
           subgraph.addEdge(from, to, edgeWeight);
         }
-        if (step == depth - 1)
+        if (step >= 1)
         {
           double newWeight = curWeight + edgeWeight;
           if (candidates.has(to))
@@ -319,7 +320,7 @@ int maxSpam, size_t depth) const
             candidates.add(to, std::make_pair(newWeight, 1));
           }
         }
-        else
+        if (step < depth - 1)
         {
           if (!nextLevelMap.has(to))
           {

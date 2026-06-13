@@ -24,14 +24,14 @@ namespace haliullin
     void cmdRemoveBook(std::istream& in, std::ostream& out);
     void cmdAddContact(std::istream& in, std::ostream& out);
     void cmdRemoveContact(std::istream& in, std::ostream& out);
-    void cmdShow(std::istream& in, std::ostream& out);
+    void cmdRenameBook(std::istream& in, std::ostream& out);
     void cmdMerge(std::istream& in, std::ostream& out);
     void cmdCopyContact(std::istream& in, std::ostream& out);
-    void cmdRenameBook(std::istream& in, std::ostream& out);
+    void cmdShow(std::istream& in, std::ostream& out);
     void cmdReportSpam(std::istream& in, std::ostream& out);
     void cmdGrade(std::istream& in, std::ostream& out);
-    void cmdDisconnect(std::istream& in, std::ostream& out);
     void cmdShowConnections(std::istream& in, std::ostream& out);
+    void cmdDisconnect(std::istream& in, std::ostream& out);
     void cmdRecommend(std::istream& in, std::ostream& out);
     void cmdSave(std::istream& in, std::ostream& out);
     void cmdLoad(std::istream& in, std::ostream& out);

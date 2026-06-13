@@ -1,11 +1,10 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
+#include <utility>
+#include <new>
 #include <stdexcept>
 #include <memory>
-#include <new>
-#include <utility>
-#include <cassert>
 #include "Vector-iterators.hpp"
 
 namespace haliullin
@@ -26,13 +25,17 @@ namespace haliullin
     Vector& operator=(Vector&& rhs) noexcept;
     void swap(Vector& rhs) noexcept;
 
+    T& at(size_t id);
+    const T& at(size_t id) const;
     T& operator[](size_t id) noexcept;
     const T& operator[](size_t id) const noexcept;
 
     bool isEmpty() const noexcept;
     size_t getSize() const noexcept;
     size_t getCapacity() const noexcept;
-    void pushBack(const T& val);
+
+    template< class U >
+    void pushBack(U&& val);
     void insert(size_t id, const T& val);
     void erase(size_t id);
     void insSort();
@@ -102,6 +105,8 @@ haliullin::Vector< T >::Vector(size_t size):
   {
     clear();
     ::operator delete(data_);
+    data_ = nullptr;
+    capacity_ = 0;
     throw;
   }
 }
@@ -123,6 +128,8 @@ haliullin::Vector< T >::Vector(size_t size, const T& value):
   {
     clear();
     ::operator delete(data_);
+    data_ = nullptr;
+    capacity_ = 0;
     throw;
   }
 }
@@ -144,6 +151,8 @@ haliullin::Vector< T >::Vector(const Vector& rhs):
   {
     clear();
     ::operator delete(data_);
+    data_ = nullptr;
+    capacity_ = 0;
     throw;
   }
 }
@@ -186,16 +195,30 @@ void haliullin::Vector< T >::swap(Vector& rhs) noexcept
 }
 
 template< class T >
+T& haliullin::Vector< T >::at(size_t id)
+{
+  return const_cast< T& >(static_cast< const Vector& >(*this).at(id));
+}
+
+template< class T >
+const T& haliullin::Vector< T >::at(size_t id) const
+{
+  if (id < getSize())
+  {
+    return (*this)[id];
+  }
+  throw std::out_of_range("id out of bound");
+}
+
+template< class T >
 T& haliullin::Vector< T >::operator[](size_t id) noexcept
 {
-  assert(id < size_);
   return data_[id];
 }
 
 template< class T >
 const T& haliullin::Vector< T >::operator[](size_t id) const noexcept
 {
-  assert(id < size_);
   return data_[id];
 }
 
@@ -218,14 +241,15 @@ size_t haliullin::Vector< T >::getCapacity() const noexcept
 }
 
 template< class T >
-void haliullin::Vector< T >::pushBack(const T& val)
+template< class U >
+void haliullin::Vector< T >::pushBack(U&& val)
 {
   Vector tmp(*this);
   if (tmp.size_ == tmp.capacity_)
   {
     tmp.reserve(tmp.capacity_ ? tmp.capacity_ * 2 : 1);
   }
-  new (tmp.data_ + tmp.size_) T(val);
+  new (tmp.data_ + tmp.size_) T(std::forward< U >(val));
   ++tmp.size_;
   swap(tmp);
 }
@@ -237,17 +261,17 @@ void haliullin::Vector< T >::insert(size_t id, const T& val)
   {
     throw std::out_of_range("id out of bound");
   }
-  Vector v;
+  Vector tmp;
   for (size_t i = 0; i < id; ++i)
   {
-    v.pushBack((*this)[i]);
+    tmp.pushBack((*this)[i]);
   }
-  v.pushBack(val);
+  tmp.pushBack(val);
   for (size_t i = id; i < size_; ++i)
   {
-    v.pushBack((*this)[i]);
+    tmp.pushBack((*this)[i]);
   }
-  swap(v);
+  swap(tmp);
 }
 
 template< class T >
@@ -257,16 +281,16 @@ void haliullin::Vector< T >::erase(size_t id)
   {
     throw std::out_of_range("id out of bound");
   }
-  Vector v;
+  Vector tmp;
   for (size_t i = 0; i < id; ++i)
   {
-    v.pushBack((*this)[i]);
+    tmp.pushBack((*this)[i]);
   }
   for (size_t i = id + 1; i < size_; ++i)
   {
-    v.pushBack((*this)[i]);
+    tmp.pushBack((*this)[i]);
   }
-  swap(v);
+  swap(tmp);
 }
 
 template< class T >
@@ -336,7 +360,6 @@ void haliullin::Vector< T >::shrinkToFit()
   {
     return;
   }
-
   if (size_ == 0)
   {
     ::operator delete(data_);

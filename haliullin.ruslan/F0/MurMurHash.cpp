@@ -5,55 +5,74 @@
 
 size_t haliullin::detail::MurMurHash::operator()(const std::string& key) const noexcept
 {
-  const size_t seed = 0x9e3779b9;
-  const size_t m = 0x5bd1e995;
-  const int r = 24;
-  size_t h = seed ^ key.size();
+  const uint64_t m = 0xc6a4a7935bd1e995ULL;
+  const int r = 47;
+  const uint64_t seed = 0x9e3779b97f4a7c15ULL;
+  uint64_t h = seed ^ (key.size() * m);
   const unsigned char* data = reinterpret_cast< const unsigned char* >(key.data());
   size_t len = key.size();
 
-  while (len >= 4)
+  while (len >= 8)
   {
-    uint32_t k32 = 0;
-    std::memcpy(std::addressof(k32), data, 4);
-    size_t k = k32;
+    uint64_t k = 0;
+    std::memcpy(std::addressof(k), data, 8);
     k *= m;
     k ^= k >> r;
     k *= m;
-    h *= m;
     h ^= k;
-    data += 4;
-    len -= 4;
+    h *= m;
+    data += 8;
+    len -= 8;
   }
 
   switch (len)
   {
+    case 7:
+    {
+      h^= static_cast< uint64_t >(data[6]) << 48;
+      [[fallthrough]];
+    }
+    case 6:
+    {
+      h^= static_cast< uint64_t >(data[5]) << 40;
+      [[fallthrough]];
+    }
+    case 5:
+    {
+      h^= static_cast< uint64_t >(data[4]) << 32;
+      [[fallthrough]];
+    }
+    case 4:
+    {
+      h^= static_cast< uint64_t >(data[3]) << 24;
+      [[fallthrough]];
+    }
     case 3:
     {
-      h ^= static_cast< size_t >(data[2]) << 16;
+      h^= static_cast< uint64_t >(data[2]) << 16;
       [[fallthrough]];
     }
     case 2:
     {
-      h ^= static_cast< size_t >(data[1]) << 8;
+      h^= static_cast< uint64_t >(data[1]) << 8;
       [[fallthrough]];
     }
     case 1:
     {
-      h ^= data[0];
+      h^= static_cast< uint64_t >(data[0]);
       h *= m;
     }
   }
 
-  h ^= h >> 13;
+  h ^= h >> r;
   h *= m;
-  h ^= h >> 15;
-  return h;
+  h ^= h >> r;
+  return static_cast< size_t >(h);
 }
 
 size_t haliullin::detail::MurMurHash::operator()(const std::pair< std::string, std::string >& key) const noexcept
 {
   size_t h1 = (*this)(key.first);
   size_t h2 = (*this)(key.second);
-  return h1 ^ (h2 << 1) ^ (h2 >> (sizeof(size_t) * 8 - 1));
+  return h1 ^ ((h2 << 1) | (h2 >> (sizeof(size_t) * 8 - 1)));
 }
