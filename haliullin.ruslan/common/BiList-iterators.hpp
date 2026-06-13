@@ -33,6 +33,7 @@ namespace haliullin
 
     explicit LIter(node_t* node, node_t* head);
     friend class BiList< T >;
+    friend class LCIter< T >;
   };
 
   template< class T >
