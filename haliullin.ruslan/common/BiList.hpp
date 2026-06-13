@@ -36,10 +36,10 @@ namespace haliullin
     void clear();
 
     template< class... Args >
-    void emplace_front(Args&&... args);
+    T& emplace_front(Args&&... args);
 
     template< class... Args >
-    void emplace_back(Args&&... args);
+    T& emplace_back(Args&&... args);
 
     template< class... Args >
     LIter< T > emplace(LCIter< T > pos, Args&&... args);
@@ -294,10 +294,9 @@ void haliullin::BiList< T >::clear()
 
 template< class T >
 template< class... Args >
-void haliullin::BiList< T >::emplace_front(Args&&... args)
+T& haliullin::BiList< T >::emplace_front(Args&&... args)
 {
   node* newNode = new node(nullptr, nullptr, std::forward< Args >(args)...);
-
   if (is_empty())
   {
     head_ = newNode;
@@ -313,18 +312,17 @@ void haliullin::BiList< T >::emplace_front(Args&&... args)
     head_ = newNode;
   }
   ++size_;
+  return head_->val_;
 }
 
 template< class T >
 template< class... Args >
-void haliullin::BiList< T >::emplace_back(Args&&... args)
+T& haliullin::BiList< T >::emplace_back(Args&&... args)
 {
   if (is_empty())
   {
-    emplace_front(std::forward< Args >(args)...);
-    return;
+    return emplace_front(std::forward< Args >(args)...);
   }
-
   node* newNode = new node(nullptr, nullptr, std::forward< Args >(args)...);
   node* last = head_->prev_;
   newNode->next_ = head_;
@@ -332,6 +330,7 @@ void haliullin::BiList< T >::emplace_back(Args&&... args)
   last->next_ = newNode;
   head_->prev_ = newNode;
   ++size_;
+  return newNode->val_;
 }
 
 template< class T >
