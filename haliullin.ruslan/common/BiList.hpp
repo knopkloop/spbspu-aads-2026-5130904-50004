@@ -353,7 +353,7 @@ haliullin::LIter< T > haliullin::BiList< T >::emplace(LCIter< T > pos, Args&&...
   if (pos_node == nullptr)
   {
     emplace_back(std::forward< Args >(args)...);
-    return LIter< T >(head_->prev_, head_);
+    return LIter< T >(head_->prev_, this);
   }
 
   node* prevNode = pos_node->prev_;
