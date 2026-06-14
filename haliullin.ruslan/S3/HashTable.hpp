@@ -38,6 +38,11 @@ namespace haliullin
     size_t getSize() const noexcept;
     size_t getCapacity() const noexcept;
 
+    double getLoadFactor() const noexcept;
+    double getTombstoneFactor() const noexcept;
+    void setMaxLoadFactor(double factor);
+    void setMaxTombstoneFactor(double factor);
+
     HtIter< Key, Value, Hash, Equal > begin() noexcept;
     HtCIter< Key, Value, Hash, Equal > begin() const noexcept;
     HtCIter< Key, Value, Hash, Equal > cbegin() const noexcept;
@@ -48,8 +53,12 @@ namespace haliullin
   private:
     Vector< detail::Slot< Key, Value> > slots_;
     size_t size_;
+    size_t tombstones_;
     Hash hasher_;
     Equal equal_;
+    double maxLoadFactor_;
+    double maxTombstoneFactor_;
+    bool needsRehash_;
 
     size_t findIdx(const Key& k) const noexcept;
     size_t probe(size_t hash, size_t i) const noexcept;
@@ -60,24 +69,36 @@ template< class Key, class Value, class Hash, class Equal >
 haliullin::HashTable< Key, Value, Hash, Equal >::HashTable(size_t capacity):
   slots_(capacity),
   size_(0),
+  tombstones_(0),
   hasher_(),
-  equal_()
+  equal_(),
+  maxLoadFactor_(0.75),
+  maxTombstoneFactor_(0.5),
+  needsRehash_(false)
 {}
 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HashTable< Key, Value, Hash, Equal >::HashTable(const HashTable& other):
   slots_(other.slots_),
   size_(other.size_),
+  tombstones_(other.tombstones_),
   hasher_(other.hasher_),
-  equal_(other.equal_)
+  equal_(other.equal_),
+  maxLoadFactor_(other.maxLoadFactor_),
+  maxTombstoneFactor_(other.maxTombstoneFactor_),
+  needsRehash_(other.needsRehash_)
 {}
 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HashTable< Key, Value, Hash, Equal >::HashTable(HashTable&& other) noexcept:
   slots_(),
   size_(0),
+  tombstones_(0),
   hasher_(),
-  equal_()
+  equal_(),
+  maxLoadFactor_(0.75),
+  maxTombstoneFactor_(0.5),
+  needsRehash_(false)
 {
   swap(other);
 }
@@ -109,39 +130,77 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::swap(HashTable& other) noe
 {
   slots_.swap(other.slots_);
   std::swap(size_, other.size_);
+  std::swap(tombstones_, other.tombstones_);
   std::swap(hasher_, other.hasher_);
   std::swap(equal_, other.equal_);
+  std::swap(maxLoadFactor_, other.maxLoadFactor_);
+  std::swap(maxTombstoneFactor_, other.maxTombstoneFactor_);
+  std::swap(needsRehash_, other.needsRehash_);
 }
 
 template< class Key, class Value, class Hash, class Equal >
 void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Value& v)
 {
-  size_t hash = hasher_(k);
-  size_t insertIdx = slots_.getSize();
+  Key keyCp(k);
+  Value valCp(v);
+  bool needsRehash = needsRehash_;
+  if (!needsRehash && getCapacity() > 0)
+  {
+    if (static_cast< double >(size_ + 1) / getCapacity() > maxLoadFactor_)
+    {
+      needsRehash = true;
+    }
+    else if (size_ + tombstones_ == getCapacity())
+    {
+      needsRehash = true;
+    }
+  }
+  if (needsRehash)
+  {
+    size_t newCap = getCapacity() == 0 ? 16 : getCapacity() * 2;
+    while (newCap > 0 && (static_cast< double >(size_ + 1) / newCap > maxLoadFactor_))
+    {
+      newCap *= 2;
+    }
+    rehash(newCap);
+  }
 
-  for (size_t i = 0; i < slots_.getSize(); ++i)
+  size_t hash = hasher_(k);
+  size_t firstTombstone = getCapacity();
+  size_t emptyIdx = getCapacity();
+  size_t existingIdx = getCapacity();
+
+  for (size_t i = 0; i < getCapacity(); ++i)
   {
     size_t idx = probe(hash, i);
     detail::SlotState state = slots_[idx].info_;
-
-    if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].kv_.first, k))
+    if (state == detail::SlotState::EMPTY)
     {
-      throw std::invalid_argument("Key already exists");
-    }
-    if (state != detail::SlotState::OCCUPIED && insertIdx == slots_.getSize())
-    {
-      insertIdx = idx;
+      emptyIdx = idx;
       break;
     }
+    if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].kv_.first, k))
+    {
+      existingIdx = idx;
+      break;
+    }
+    if (state == detail::SlotState::TOMBSTONE && firstTombstone == getCapacity())
+    {
+      firstTombstone = idx;
+    }
   }
 
-  if (insertIdx == slots_.getSize())
+  if (existingIdx != getCapacity())
   {
-    throw std::runtime_error("Need to rehash hashtable");
+    slots_[existingIdx].kv_.second = std::move(valCp);
+    return;
   }
 
-  Key keyCp(k);
-  Value valCp(v);
+  size_t insertIdx = (firstTombstone != getCapacity()) ? firstTombstone : emptyIdx;
+  if (slots_[insertIdx].info_ == detail::SlotState::TOMBSTONE)
+  {
+    --tombstones_;
+  }
   slots_[insertIdx].kv_.first = std::move(keyCp);
   slots_[insertIdx].kv_.second = std::move(valCp);
   slots_[insertIdx].info_ = detail::SlotState::OCCUPIED;
@@ -158,7 +217,7 @@ template< class Key, class Value, class Hash, class Equal >
 Value& haliullin::HashTable< Key, Value, Hash, Equal >::get(const Key& k)
 {
   size_t idx = findIdx(k);
-  if (idx == slots_.getSize())
+  if (idx == getCapacity())
   {
     throw std::out_of_range("Key not found");
   }
@@ -169,7 +228,7 @@ template< class Key, class Value, class Hash, class Equal >
 const Value& haliullin::HashTable< Key, Value, Hash, Equal >::get(const Key& k) const
 {
   size_t idx = findIdx(k);
-  if (idx == slots_.getSize())
+  if (idx == getCapacity())
   {
     throw std::out_of_range("Key not found");
   }
@@ -180,7 +239,7 @@ template< class Key, class Value, class Hash, class Equal >
 haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::find(const Key& k) noexcept
 {
   size_t idx = findIdx(k);
-  if (idx == slots_.getSize())
+  if (idx == getCapacity())
   {
     return end();
   }
@@ -191,7 +250,7 @@ template< class Key, class Value, class Hash, class Equal >
 haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::find(const Key& k) const noexcept
 {
   size_t idx = findIdx(k);
-  if (idx == slots_.getSize())
+  if (idx == getCapacity())
   {
     return end();
   }
@@ -202,12 +261,17 @@ template< class Key, class Value, class Hash, class Equal >
 void haliullin::HashTable< Key, Value, Hash, Equal >::erase(const Key& k)
 {
   size_t idx = findIdx(k);
-  if (idx == slots_.getSize())
+  if (idx == getCapacity())
   {
     throw std::out_of_range("Key not found");
   }
   slots_[idx].info_ = detail::SlotState::TOMBSTONE;
   --size_;
+  ++tombstones_;
+  if (getCapacity() > 0 && (static_cast< double >(tombstones_) / getCapacity() > maxTombstoneFactor_))
+  {
+    needsRehash_ = true;
+  }
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -217,8 +281,14 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::rehash(size_t newSlots)
   {
     throw std::invalid_argument("Cannot rehash the table: new capacity is too small");
   }
+
   HashTable tmp(newSlots);
-  for (size_t i = 0; i < slots_.getSize(); ++i)
+  tmp.hasher_ = hasher_;
+  tmp.equal_ = equal_;
+  tmp.maxLoadFactor_ = maxLoadFactor_;
+  tmp.maxTombstoneFactor_ = maxTombstoneFactor_;
+
+  for (size_t i = 0; i < getCapacity(); ++i)
   {
     if (slots_[i].info_ == detail::SlotState::OCCUPIED)
     {
@@ -250,21 +320,21 @@ template< class Key, class Value, class Hash, class Equal >
 size_t haliullin::HashTable< Key, Value, Hash, Equal >::findIdx(const Key& k) const noexcept
 {
   size_t hash = hasher_(k);
-  for (size_t i = 0; i < slots_.getSize(); ++i)
+  for (size_t i = 0; i < getCapacity(); ++i)
   {
     size_t idx = probe(hash, i);
     detail::SlotState state = slots_[idx].info_;
 
     if (state == detail::SlotState::EMPTY)
     {
-      return slots_.getSize();
+      return getCapacity();
     }
     else if (state == detail::SlotState::OCCUPIED && equal_(slots_[idx].kv_.first, k))
     {
       return idx;
     }
   }
-  return slots_.getSize();
+  return getCapacity();
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -274,9 +344,49 @@ size_t haliullin::HashTable< Key, Value, Hash, Equal >::probe(size_t hash, size_
 }
 
 template< class Key, class Value, class Hash, class Equal >
+double haliullin::HashTable< Key, Value, Hash, Equal >::getLoadFactor() const noexcept
+{
+  return getCapacity() == 0 ? 0.0 : static_cast< double >(size_) / getCapacity();
+}
+
+template< class Key, class Value, class Hash, class Equal >
+double haliullin::HashTable< Key, Value, Hash, Equal >::getTombstoneFactor() const noexcept
+{
+  return getCapacity() == 0 ? 0.0 : static_cast< double >(tombstones_) / getCapacity();
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::HashTable< Key, Value, Hash, Equal >::setMaxLoadFactor(double factor)
+{
+  if (factor <= 0.0 || factor > 1.0)
+  {
+    throw std::invalid_argument("Invalid value of load factor");
+  }
+  maxLoadFactor_ = factor;
+  if (getCapacity() > 0 && getLoadFactor() > maxLoadFactor_)
+  {
+    needsRehash_ = true;
+  }
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::HashTable< Key, Value, Hash, Equal >::setMaxTombstoneFactor(double factor)
+{
+  if (factor <= 0.0 || factor > 1.0)
+  {
+    throw std::invalid_argument("Invalid value of tombstone factor");
+  }
+  maxTombstoneFactor_ = factor;
+  if (getCapacity() > 0 && getTombstoneFactor() > maxTombstoneFactor_)
+  {
+    needsRehash_ = true;
+  }
+}
+
+template< class Key, class Value, class Hash, class Equal >
 haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::begin() noexcept
 {
-  for (size_t i = 0; i < slots_.getSize(); ++i)
+  for (size_t i = 0; i < getCapacity(); ++i)
   {
     if (slots_[i].info_ == detail::SlotState::OCCUPIED)
     {
@@ -289,7 +399,7 @@ haliullin::HtIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, H
 template< class Key, class Value, class Hash, class Equal >
 haliullin::HtCIter< Key, Value, Hash, Equal > haliullin::HashTable< Key, Value, Hash, Equal >::begin() const noexcept
 {
-  for (size_t i = 0; i < slots_.getSize(); ++i)
+  for (size_t i = 0; i < getCapacity(); ++i)
   {
     if (slots_[i].info_ == detail::SlotState::OCCUPIED)
     {

@@ -17,7 +17,7 @@ namespace haliullin
 
   template< class Key, class Value, class Hash, class Equal >
   class HtIter: public std::iterator< std::bidirectional_iterator_tag, std::pair< Key, Value >, std::ptrdiff_t,
-  std::pair< Key, Value >*, std::pair< Key, Value >& >
+    std::pair< Key, Value >*, std::pair< Key, Value >& >
   {
   public:
    ~HtIter() = default;
@@ -45,7 +45,7 @@ namespace haliullin
 
   template< class Key, class Value, class Hash, class Equal >
   class HtCIter: public std::iterator< std::bidirectional_iterator_tag, std::pair< Key, Value >, std::ptrdiff_t,
-  const std::pair< Key, Value >*, const std::pair< Key, Value >& >
+    const std::pair< Key, Value >*, const std::pair< Key, Value >& >
   {
   public:
     ~HtCIter() = default;

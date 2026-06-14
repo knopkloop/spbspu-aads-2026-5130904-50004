@@ -31,7 +31,6 @@ BOOST_AUTO_TEST_CASE(test_add_and_size)
   ht.add("a", 5);
   BOOST_CHECK_EQUAL(ht.getSize(), 1);
   BOOST_CHECK(!ht.isEmpty());
-
   ht.add("b", 7);
   BOOST_CHECK_EQUAL(ht.getSize(), 2);
 }
@@ -41,7 +40,6 @@ BOOST_AUTO_TEST_CASE(test_has)
   Table ht(47);
   ht.add("c", 10);
   ht.add("d", 20);
-
   BOOST_CHECK(ht.has("c"));
   BOOST_CHECK(ht.has("d"));
   BOOST_CHECK(!ht.has("e"));
@@ -52,10 +50,8 @@ BOOST_AUTO_TEST_CASE(test_get)
   Table ht(61);
   ht.add("f", 15);
   ht.add("g", 25);
-
   BOOST_CHECK_EQUAL(ht.get("f"), 15);
   BOOST_CHECK_EQUAL(ht.get("g"), 25);
-
   ht.get("f") = 99;
   BOOST_CHECK_EQUAL(ht.get("f"), 99);
 }
@@ -65,21 +61,17 @@ BOOST_AUTO_TEST_CASE(test_find)
   Table ht(83);
   ht.add("x", 33);
   ht.add("y", 44);
-
   auto it = ht.find("x");
   BOOST_CHECK(it != ht.end());
   BOOST_CHECK_EQUAL((*it).first, "x");
   BOOST_CHECK_EQUAL((*it).second, 33);
-
   auto it2 = ht.find("z");
   BOOST_CHECK(it2 == ht.end());
-
   const Table& cht = ht;
   auto cit = cht.find("y");
   BOOST_CHECK(cit != cht.cend());
   BOOST_CHECK_EQUAL((*cit).first, "y");
   BOOST_CHECK_EQUAL((*cit).second, 44);
-
   auto cit2 = cht.find("w");
   BOOST_CHECK(cit2 == cht.cend());
 }
@@ -89,7 +81,6 @@ BOOST_AUTO_TEST_CASE(test_erase)
   Table ht(73);
   ht.add("first", 111);
   ht.add("second", 222);
-
   ht.erase("first");
   BOOST_CHECK_EQUAL(ht.getSize(), 1);
   BOOST_CHECK(!ht.has("first"));
@@ -100,9 +91,11 @@ BOOST_AUTO_TEST_CASE(test_add_update_existing)
 {
   Table ht(83);
   ht.add("x", 33);
-  BOOST_CHECK_THROW(ht.add("x", 44), std::invalid_argument);
   BOOST_CHECK_EQUAL(ht.getSize(), 1);
   BOOST_CHECK_EQUAL(ht.get("x"), 33);
+  ht.add("x", 44);
+  BOOST_CHECK_EQUAL(ht.getSize(), 1);
+  BOOST_CHECK_EQUAL(ht.get("x"), 44);
 }
 
 BOOST_AUTO_TEST_CASE(test_copy_constructor)
@@ -110,9 +103,7 @@ BOOST_AUTO_TEST_CASE(test_copy_constructor)
   Table ht1(67);
   ht1.add("m", 7);
   ht1.add("n", 14);
-
   Table ht2 = ht1;
-
   BOOST_CHECK_EQUAL(ht2.getSize(), 2);
   BOOST_CHECK(ht2.has("m"));
   BOOST_CHECK(ht2.has("n"));
@@ -125,9 +116,7 @@ BOOST_AUTO_TEST_CASE(test_move_constructor)
   Table ht1(79);
   ht1.add("first", 50);
   ht1.add("second", 60);
-
   Table ht2 = std::move(ht1);
-
   BOOST_CHECK_EQUAL(ht2.getSize(), 2);
   BOOST_CHECK(ht2.has("first"));
   BOOST_CHECK(ht2.has("second"));
@@ -143,7 +132,6 @@ BOOST_AUTO_TEST_CASE(test_rehash)
   ht.add("r", 4);
   ht.add("t", 5);
   ht.add("y", 6);
-
   ht.rehash(37);
   BOOST_CHECK_EQUAL(ht.getSize(), 6);
   BOOST_CHECK(ht.has("q"));
@@ -152,6 +140,41 @@ BOOST_AUTO_TEST_CASE(test_rehash)
   BOOST_CHECK(ht.has("r"));
   BOOST_CHECK(ht.has("t"));
   BOOST_CHECK(ht.has("y"));
+}
+
+BOOST_AUTO_TEST_CASE(test_auto_rehash_on_load_factor)
+{
+  Table ht(16);
+  ht.setMaxLoadFactor(0.5);
+  for (int i = 0; i < 8; ++i)
+  {
+    ht.add("key" + std::to_string(i), i);
+  }
+  BOOST_CHECK_EQUAL(ht.getCapacity(), 16);
+  ht.add("trigger_key", 100);
+  BOOST_CHECK(ht.getCapacity() > 16);
+  BOOST_CHECK_EQUAL(ht.getSize(), 9);
+  BOOST_CHECK(ht.has("trigger_key"));
+}
+
+BOOST_AUTO_TEST_CASE(test_auto_rehash_on_tombstones)
+{
+  Table ht(16);
+  ht.setMaxLoadFactor(1.0);
+  ht.setMaxTombstoneFactor(0.3);
+  for (int i = 0; i < 6; ++i)
+  {
+    ht.add("del" + std::to_string(i), i);
+  }
+  for (int i = 0; i < 6; ++i)
+  {
+    ht.erase("del" + std::to_string(i));
+  }
+  BOOST_CHECK_EQUAL(ht.getSize(), 0);
+  BOOST_CHECK_EQUAL(ht.getCapacity(), 16);
+  ht.add("new_key", 999);
+  BOOST_CHECK_EQUAL(ht.getSize(), 1);
+  BOOST_CHECK(ht.has("new_key"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

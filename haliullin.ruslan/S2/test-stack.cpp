@@ -79,4 +79,24 @@ BOOST_AUTO_TEST_CASE(exceptions)
   BOOST_CHECK_THROW(stack.top(), std::runtime_error);
 }
 
+BOOST_AUTO_TEST_CASE(emplace)
+{
+  haliullin::Stack< std::string > stack;
+  std::string& ref = stack.emplace(5, 'a');
+
+  BOOST_CHECK_EQUAL(stack.get_size(), 1);
+  BOOST_CHECK_EQUAL(stack.top(), "aaaaa");
+  BOOST_CHECK_EQUAL(&ref, &stack.top());
+
+  ref += "b";
+  BOOST_CHECK_EQUAL(stack.top(), "aaaaab");
+
+  stack.emplace(3, 'x');
+  BOOST_CHECK_EQUAL(stack.get_size(), 2);
+  BOOST_CHECK_EQUAL(stack.top(), "xxx");
+
+  stack.pop();
+  BOOST_CHECK_EQUAL(stack.top(), "aaaaab");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

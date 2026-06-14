@@ -80,7 +80,16 @@ long long haliullin::mod(long long a, long long b)
   {
     throw std::logic_error("division by zero");
   }
-  return (a % b + b) % b;
+  long long r = a % b;
+  if (r < 0)
+  {
+    r += (b > 0 ? b : -b);
+  }
+  if (r == 0 && a < 0)
+  {
+    r = (b > 0 ? b : -b);
+  }
+  return r;
 }
 
 long long haliullin::gcd(long long a, long long b)

@@ -79,4 +79,24 @@ BOOST_AUTO_TEST_CASE(exceptions)
   BOOST_CHECK_THROW(queue.front(), std::runtime_error);
 }
 
+BOOST_AUTO_TEST_CASE(emplace)
+{
+  haliullin::Queue< std::string > queue;
+  std::string& ref = queue.emplace(5, 'a');
+
+  BOOST_CHECK_EQUAL(queue.get_size(), 1);
+  BOOST_CHECK_EQUAL(queue.front(), "aaaaa");
+  BOOST_CHECK_EQUAL(&ref, &queue.front());
+
+  ref += "b";
+  BOOST_CHECK_EQUAL(queue.front(), "aaaaab");
+
+  queue.emplace(3, 'x');
+  BOOST_CHECK_EQUAL(queue.get_size(), 2);
+  BOOST_CHECK_EQUAL(queue.front(), "aaaaab");
+
+  queue.pop();
+  BOOST_CHECK_EQUAL(queue.front(), "xxx");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
