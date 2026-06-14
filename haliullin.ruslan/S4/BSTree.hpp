@@ -96,7 +96,7 @@ haliullin::BSTree< Key, Value, Compare >::BSTree(BSTree&& other) noexcept:
 
 template< class Key, class Value, class Compare >
 haliullin::BSTree< Key, Value, Compare >&
-haliullin::BSTree< Key, Value, Compare >::operator=(const BSTree& other)
+  haliullin::BSTree< Key, Value, Compare >::operator=(const BSTree& other)
 {
   if (this != std::addressof(other))
   {
@@ -108,7 +108,7 @@ haliullin::BSTree< Key, Value, Compare >::operator=(const BSTree& other)
 
 template< class Key, class Value, class Compare >
 haliullin::BSTree< Key, Value, Compare >&
-haliullin::BSTree< Key, Value, Compare >::operator=(BSTree&& other) noexcept
+  haliullin::BSTree< Key, Value, Compare >::operator=(BSTree&& other) noexcept
 {
   if (this != std::addressof(other))
   {
@@ -333,7 +333,7 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
 
 template< class Key, class Value, class Compare >
 haliullin::BSTConstIterator< Key, Value >
-haliullin::BSTree< Key, Value, Compare >::rotateLargeLeft(const_iterator it)
+  haliullin::BSTree< Key, Value, Compare >::rotateLargeLeft(const_iterator it)
 {
   Node* node = it.node_;
   if (!node || node->isFake())
@@ -359,7 +359,7 @@ haliullin::BSTree< Key, Value, Compare >::rotateLargeLeft(const_iterator it)
 
 template< class Key, class Value, class Compare >
 haliullin::BSTConstIterator< Key, Value >
-haliullin::BSTree< Key, Value, Compare >::rotateLargeRight(const_iterator it)
+  haliullin::BSTree< Key, Value, Compare >::rotateLargeRight(const_iterator it)
 {
   Node* node = it.node_;
   if (!node || node->isFake())
