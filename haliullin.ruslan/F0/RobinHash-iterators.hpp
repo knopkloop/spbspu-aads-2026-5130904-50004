@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <memory>
+#include <iterator>
 #include "Vector-iterators.hpp"
 #include "Slot.hpp"
 
@@ -12,7 +13,8 @@ namespace haliullin
   class RHTableConstIterator;
 
   template< class Key, class Value >
-  class RHTableIterator
+  class RHTableIterator: public std::iterator< std::forward_iterator_tag, std::pair< Key, Value >,
+    std::ptrdiff_t, std::pair< Key, Value >*, std::pair< Key, Value >& >
   {
   public:
     using slot_t = detail::Slot< Key, Value >;
@@ -32,7 +34,6 @@ namespace haliullin
   private:
     VIter< slot_t > cur_;
     VIter< slot_t > end_;
-
     RHTableIterator(VIter< slot_t > cur, VIter< slot_t > end) noexcept;
 
     template< class K, class V, class H, class E >
@@ -41,13 +42,15 @@ namespace haliullin
   };
 
   template< class Key, class Value >
-  class RHTableConstIterator
+  class RHTableConstIterator: public std::iterator< std::forward_iterator_tag, std::pair< Key, Value >,
+    std::ptrdiff_t, const std::pair< Key, Value >*, const std::pair< Key, Value >& >
   {
   public:
     using slot_t = detail::Slot< Key, Value >;
     using cpair_t = const std::pair< Key, Value >;
 
     RHTableConstIterator() noexcept;
+    explicit RHTableConstIterator(const RHTableIterator< Key, Value >& it) noexcept;
 
     cpair_t& operator*() const noexcept;
     cpair_t* operator->() const noexcept;
@@ -61,9 +64,7 @@ namespace haliullin
   private:
     VCIter< slot_t > cur_;
     VCIter< slot_t > end_;
-
     RHTableConstIterator(VCIter< slot_t > cur, VCIter< slot_t > end) noexcept;
-    explicit RHTableConstIterator(const RHTableIterator< Key, Value >& it) noexcept;
 
     template< class K, class V, class H, class E >
     friend class RobinHashTable;

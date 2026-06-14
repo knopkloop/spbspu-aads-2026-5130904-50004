@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <iterator>
 
 namespace haliullin
 {
@@ -13,7 +14,7 @@ namespace haliullin
   class VCIter;
 
   template< class T >
-  class VIter
+  class VIter: public std::iterator< std::forward_iterator_tag, T, std::ptrdiff_t, T*, T& >
   {
   public:
     VIter() noexcept;
@@ -29,19 +30,18 @@ namespace haliullin
 
   private:
     T* ptr_;
-
     VIter(T* ptr) noexcept;
     VIter(Vector< T >& vec, size_t idx) noexcept;
-
     friend class VCIter< T >;
     friend class Vector< T >;
   };
 
   template< class T >
-  class VCIter
+  class VCIter: public std::iterator< std::forward_iterator_tag, T, std::ptrdiff_t, const T*, const T& >
   {
   public:
     VCIter() noexcept;
+    explicit VCIter(const VIter< T >& other) noexcept;
 
     const T& operator*() const noexcept;
     const T* operator->() const noexcept;
@@ -54,11 +54,8 @@ namespace haliullin
 
   private:
     const T* cptr_;
-
     VCIter(const T* ptr) noexcept;
     VCIter(const Vector< T >& vec, size_t idx) noexcept;
-    explicit VCIter(const VIter< T >& other) noexcept;
-
     friend class Vector< T >;
   };
 }

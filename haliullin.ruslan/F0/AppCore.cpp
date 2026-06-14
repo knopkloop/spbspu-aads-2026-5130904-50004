@@ -252,8 +252,8 @@ void haliullin::AppCore::disconnect(const std::string& from, const std::string& 
   graph_.removeEdges(from, to);
 }
 
-haliullin::AppCore::RecommendationResult haliullin::AppCore::recommend(const std::string& book, const std::string& number, double minRating,
-int maxSpam, size_t depth) const
+haliullin::AppCore::RecommendationResult
+  haliullin::AppCore::recommend(const std::string& book, const std::string& number, double minRating, int maxSpam, size_t depth) const
 {
   const PhoneBook& pb = getBook(book);
   if (!pb.has(number))
@@ -267,8 +267,10 @@ int maxSpam, size_t depth) const
 
   RobinHashTable< std::string, std::pair< double, size_t >, detail::MurMurHash, std::equal_to< std::string > > candidates;
   SocialGraph subgraph;
+
   Vector< std::pair< std::string, double > > current;
   current.pushBack(std::make_pair(number, 0.0));
+
   RobinHashTable< std::string, bool, detail::MurMurHash, std::equal_to< std::string > > visited;
   visited.add(number, true);
 
