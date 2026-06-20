@@ -15,8 +15,8 @@ namespace haliullin
   class BSTConstIterator;
 
   template< class Key, class Value >
-  class BSTIterator: public std::iterator< std::bidirectional_iterator_tag, std::pair< const Key, Value >, std::ptrdiff_t,
-    std::pair< const Key, Value >*, std::pair< const Key, Value >& >
+  class BSTIterator: public std::iterator< std::bidirectional_iterator_tag, std::pair< const Key, Value >,
+    std::ptrdiff_t, std::pair< const Key, Value >*, std::pair< const Key, Value >& >
   {
   public:
     using Node = detail::TreeNode< Key, Value >;
@@ -43,8 +43,8 @@ namespace haliullin
   };
 
   template< class Key, class Value >
-  class BSTConstIterator: public std::iterator< std::bidirectional_iterator_tag, std::pair< const Key, Value >, std::ptrdiff_t,
-    const std::pair< const Key, Value >*, const std::pair< const Key, Value >& >
+  class BSTConstIterator: public std::iterator< std::bidirectional_iterator_tag, std::pair< const Key, Value >,
+    std::ptrdiff_t, const std::pair< const Key, Value >*, const std::pair< const Key, Value >& >
   {
   public:
     using Node = detail::TreeNode< Key, Value >;
