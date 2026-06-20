@@ -264,7 +264,7 @@ haliullin::BSTConstIterator< Key, Value > haliullin::BSTree< Key, Value, Compare
   Node* leftChild = cur->left_;
   Node* grand = parent->parent_;
 
-  if (grand == nullptr)
+  if (!grand)
   {
     root_ = cur;
   }
@@ -485,8 +485,10 @@ size_t haliullin::BSTree< Key, Value, Compare >::heightNode(const Node* node) co
 template< class Key, class Value, class Compare >
 void haliullin::BSTree< Key, Value, Compare >::removeNode(Node* node)
 {
-  if (node->isFake()) return;
-
+  if (node->isFake())
+  {
+    return;
+  }
   if (node->left_->isFake() && node->right_->isFake())
   {
     if (node == root_)
