@@ -36,6 +36,7 @@ namespace haliullin
     void cmdSave(std::istream& in, std::ostream& out);
     void cmdLoad(std::istream& in, std::ostream& out);
     void cmdExit(std::istream& in, std::ostream& out);
+    void cmdHelp(std::istream&, std::ostream& out);
 
     void require(bool condition) const;
     void require(std::istream& in) const;

@@ -5,7 +5,6 @@
 #include <limits>
 #include "AppCore.hpp"
 #include "FileManager.hpp"
-#include "IOGuard.hpp"
 
 haliullin::CommandDispatcher::CommandDispatcher():
   core_(),
@@ -27,6 +26,7 @@ haliullin::CommandDispatcher::CommandDispatcher():
   commands_.add("save", &CommandDispatcher::cmdSave);
   commands_.add("load", &CommandDispatcher::cmdLoad);
   commands_.add("exit", &CommandDispatcher::cmdExit);
+  commands_.add("help", &CommandDispatcher::cmdHelp);
 }
 
 void haliullin::CommandDispatcher::execute(std::istream& in, std::ostream& out)
@@ -42,7 +42,6 @@ void haliullin::CommandDispatcher::execute(std::istream& in, std::ostream& out)
     try
     {
       require(handler != nullptr);
-      detail::IOGuard guard(out);
       (this->*handler)(in, out);
       out << std::flush;
     }
@@ -371,4 +370,33 @@ void haliullin::CommandDispatcher::cmdExit(std::istream& in, std::ostream& out)
   }
   out << "Session ended, data cleared\n";
   in.setstate(std::ios_base::eofbit);
+}
+
+void haliullin::CommandDispatcher::cmdHelp(std::istream&, std::ostream& out)
+{
+  out << "Contact Manager — менеджер контактов с графом социальных связей\n\n";
+  out << "Available commands:\n";
+  out << "  create-book <book>                      — создать новую телефонную книгу\n";
+  out << "  remove-book <book>                      — удалить книгу и все её контакты\n";
+  out << "  add-contact <book> <number> <name>      — добавить контакт в книгу\n";
+  out << "  remove-contact <book> <number>          — удалить контакт из книги\n";
+  out << "  rename-book <old> <new>                 — переименовать книгу\n";
+  out << "  merge <new> <book1> <book2>             — слить две книги в новую\n";
+  out << "  copy-contact <from> <to> <number>       — скопировать контакт между книгами\n";
+  out << "  show <book>                             — показать все контакты книги\n";
+  out << "  show <book> <number>                    — показать детали контакта\n";
+  out << "  report <number>                         — пожаловаться на спам-номер\n";
+  out << "  grade <from> <to> <rating>              — оценить доверие между контактами\n";
+  out << "  show-connections <number> [in|out]      — показать связи контакта в графе\n";
+  out << "  disconnect <from> <to>                  — удалить все оценки между номерами\n";
+  out << "  recommend <book> <num> [min][spam][dep] — найти рекомендации (друзья друзей)\n";
+  out << "  save <filename>                         — сохранить сессию в файл\n";
+  out << "  load <filename>                         — загрузить сессию из файла\n";
+  out << "  exit                                    — завершить работу программы\n";
+  out << "  help                                    — показать эту справку\n\n";
+  out << "Notes:\n";
+  out << "  * Номера должны начинаться с '+' и содержать ровно 11 цифр\n";
+  out << "  * Книга 'global' — системная, только для спам-репортов\n";
+  out << "  * В recommend: depth >= 2, 0.0 <= min_rating <= 5.0, max_spam = -1 для отключения\n";
+  out << "  * При merge приоритет отдаётся контактам из первой книги\n\n";
 }
