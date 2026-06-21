@@ -313,7 +313,6 @@ BOOST_AUTO_TEST_CASE(test_reserve)
   BOOST_CHECK_EQUAL(v.getSize(), 0);
   BOOST_CHECK_EQUAL(v.getCapacity(), 100);
 
-  v.pushBack(1);
   v.reserve(50);
   BOOST_CHECK_EQUAL(v.getCapacity(), 100);
 }
@@ -384,6 +383,7 @@ BOOST_AUTO_TEST_CASE(test_operator_not_equal)
 {
   Vec v1;
   v1.pushBack(1);
+  v1.pushBack(2);
   Vec v2;
   v2.pushBack(2);
   Vec v3;
