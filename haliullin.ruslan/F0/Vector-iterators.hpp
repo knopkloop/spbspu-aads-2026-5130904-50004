@@ -18,6 +18,7 @@ namespace haliullin
   {
   public:
     VIter() noexcept;
+    VIter(T* ptr) noexcept;
 
     T& operator*() const noexcept;
     T* operator->() const noexcept;
@@ -30,7 +31,6 @@ namespace haliullin
 
   private:
     T* ptr_;
-    VIter(T* ptr) noexcept;
     VIter(Vector< T >& vec, size_t idx) noexcept;
     friend class VCIter< T >;
     friend class Vector< T >;
@@ -41,6 +41,7 @@ namespace haliullin
   {
   public:
     VCIter() noexcept;
+    VCIter(const T* ptr) noexcept;
     explicit VCIter(const VIter< T >& other) noexcept;
 
     const T& operator*() const noexcept;
@@ -54,7 +55,6 @@ namespace haliullin
 
   private:
     const T* cptr_;
-    VCIter(const T* ptr) noexcept;
     VCIter(const Vector< T >& vec, size_t idx) noexcept;
     friend class Vector< T >;
   };
