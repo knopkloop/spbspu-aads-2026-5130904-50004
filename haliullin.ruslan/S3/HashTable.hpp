@@ -15,8 +15,13 @@ namespace haliullin
   class HashTable
   {
   public:
+    static constexpr size_t DEFAULT_CAPACITY = 16;
+    static constexpr double DEFAULT_MAX_LOAD_FACTOR = 0.75;
+    static constexpr double DEFAULT_MAX_TOMBSTONE_FACTOR = 0.5;
+    static constexpr size_t CAPACITY_MULTIPLIER = 2;
+
     ~HashTable() = default;
-    HashTable(size_t capacity = 16);
+    HashTable(size_t capacity = DEFAULT_CAPACITY);
 
     HashTable(const HashTable& other);
     HashTable(HashTable&& other) noexcept;
@@ -72,8 +77,8 @@ haliullin::HashTable< Key, Value, Hash, Equal >::HashTable(size_t capacity):
   tombstones_(0),
   hasher_(),
   equal_(),
-  maxLoadFactor_(0.75),
-  maxTombstoneFactor_(0.5),
+  maxLoadFactor_(DEFAULT_MAX_LOAD_FACTOR),
+  maxTombstoneFactor_(DEFAULT_MAX_TOMBSTONE_FACTOR),
   needsRehash_(false)
 {}
 
@@ -96,8 +101,8 @@ haliullin::HashTable< Key, Value, Hash, Equal >::HashTable(HashTable&& other) no
   tombstones_(0),
   hasher_(),
   equal_(),
-  maxLoadFactor_(0.75),
-  maxTombstoneFactor_(0.5),
+  maxLoadFactor_(DEFAULT_MAX_LOAD_FACTOR),
+  maxTombstoneFactor_(DEFAULT_MAX_TOMBSTONE_FACTOR),
   needsRehash_(false)
 {
   swap(other);
@@ -157,10 +162,10 @@ void haliullin::HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Va
   }
   if (needsRehash)
   {
-    size_t newCap = getCapacity() == 0 ? 16 : getCapacity() * 2;
+    size_t newCap = getCapacity() == 0 ? DEFAULT_CAPACITY : getCapacity() * CAPACITY_MULTIPLIER;
     while (newCap > 0 && (static_cast< double >(size_ + 1) / newCap > maxLoadFactor_))
     {
-      newCap *= 2;
+      newCap *= CAPACITY_MULTIPLIER;
     }
     rehash(newCap);
   }
