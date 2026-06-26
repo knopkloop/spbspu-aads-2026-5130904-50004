@@ -19,8 +19,12 @@ namespace haliullin
     using iterator = RHTableIterator< Key, Value >;
     using const_iterator = RHTableConstIterator< Key, Value >;
 
+    static constexpr size_t DEFAULT_CAPACITY = 16;
+    static constexpr double DEFAULT_MAX_LOAD_FACTOR = 0.9;
+    static constexpr size_t CAPACITY_MULTIPLIER = 2;
+
     ~RobinHashTable() = default;
-    RobinHashTable(size_t capacity = 16, double maxLoadFactor = 0.9);
+    RobinHashTable(size_t capacity = DEFAULT_CAPACITY);
 
     RobinHashTable(const RobinHashTable& other);
     RobinHashTable(RobinHashTable&& other) noexcept;
@@ -36,6 +40,11 @@ namespace haliullin
     const Value& get(const Key& k) const;
     iterator find(const Key& k) noexcept;
     const_iterator find(const Key& k) const noexcept;
+
+    double getLoadFactor() const noexcept;
+    double getMaxLoadFactor() const noexcept;
+    void setMaxLoadFactor(double factor);
+    void rehash(size_t newCap);
 
     bool isEmpty() const noexcept;
     size_t getSize() const noexcept;
@@ -56,18 +65,17 @@ namespace haliullin
     double maxLoadFactor_;
 
     size_t findSlot(const Key& k) const noexcept;
-    void rehash(size_t newCap);
     void insertInternal(const Key& k, const Value& v);
   };
 }
 
 template< class Key, class Value, class Hash, class Equal >
-haliullin::RobinHashTable< Key, Value, Hash, Equal >::RobinHashTable(size_t capacity, double maxLoadFactor):
+haliullin::RobinHashTable< Key, Value, Hash, Equal >::RobinHashTable(size_t capacity):
   slots_(capacity),
   size_(0),
   hasher_(),
   equal_(),
-  maxLoadFactor_(maxLoadFactor)
+  maxLoadFactor_(DEFAULT_MAX_LOAD_FACTOR)
 {}
 
 template< class Key, class Value, class Hash, class Equal >
@@ -122,6 +130,70 @@ void haliullin::RobinHashTable< Key, Value, Hash, Equal >::swap(RobinHashTable& 
   std::swap(hasher_, other.hasher_);
   std::swap(equal_, other.equal_);
   std::swap(maxLoadFactor_, other.maxLoadFactor_);
+}
+
+template< class Key, class Value, class Hash, class Equal >
+size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::findSlot(const Key& k) const noexcept
+{
+  size_t hash = hasher_(k);
+  for (size_t i = 0; i < getCapacity(); ++i)
+  {
+    size_t idx = (hash + i) % getCapacity();
+    const slot_t& slot = slots_[idx];
+    if (slot.psl_ == -1)
+    {
+      return getCapacity();
+    }
+    if (slot.psl_ < static_cast< int >(i))
+    {
+      return getCapacity();
+    }
+    if (equal_(slot.kv_.first, k))
+    {
+      return idx;
+    }
+  }
+  return getCapacity();
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::RobinHashTable< Key, Value, Hash, Equal >::insertInternal(const Key& k, const Value& v)
+{
+  if (findSlot(k) != getCapacity())
+  {
+    throw std::invalid_argument("Key already exists");
+  }
+  if (size_ + 1 > static_cast< size_t >(maxLoadFactor_ * getCapacity()))
+  {
+    size_t newCap = getCapacity() * CAPACITY_MULTIPLIER;
+    newCap = newCap < DEFAULT_CAPACITY ? DEFAULT_CAPACITY : newCap;
+    rehash(newCap);
+  }
+
+  size_t hash = hasher_(k);
+  slot_t curSlot(k, v);
+
+  for (size_t i = 0; i < getCapacity(); ++i)
+  {
+    size_t idx = (hash + curSlot.psl_) % getCapacity();
+    slot_t& slot = slots_[idx];
+
+    if (slot.psl_ == -1)
+    {
+      slot.kv_.first = std::move(curSlot.kv_.first);
+      slot.kv_.second = std::move(curSlot.kv_.second);
+      slot.psl_ = curSlot.psl_;
+      ++size_;
+      return;
+    }
+    if (curSlot.psl_ > slot.psl_)
+    {
+      slot.swap(curSlot);
+      hash = hasher_(curSlot.kv_.first);
+    }
+    ++curSlot.psl_;
+  }
+  throw std::runtime_error("Unexpected full table");
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -227,6 +299,61 @@ haliullin::RHTableConstIterator< Key, Value > haliullin::RobinHashTable< Key, Va
 }
 
 template< class Key, class Value, class Hash, class Equal >
+double haliullin::RobinHashTable< Key, Value, Hash, Equal >::getLoadFactor() const noexcept
+{
+  return getCapacity() == 0 ? 0.0 : static_cast< double >(size_) / getCapacity();
+}
+
+template< class Key, class Value, class Hash, class Equal >
+double haliullin::RobinHashTable< Key, Value, Hash, Equal >::getMaxLoadFactor() const noexcept
+{
+  return maxLoadFactor_;
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::RobinHashTable< Key, Value, Hash, Equal >::setMaxLoadFactor(double factor)
+{
+  if (factor <= 0.0 || factor > 1.0)
+  {
+    throw std::invalid_argument("Invalid value of max load factor");
+  }
+  maxLoadFactor_ = factor;
+  if (getCapacity() > 0 && getLoadFactor() > maxLoadFactor_)
+  {
+    size_t newCap = getCapacity();
+    while (static_cast< double >(size_) / newCap > maxLoadFactor_)
+    {
+      newCap *= CAPACITY_MULTIPLIER;
+    }
+    rehash(newCap);
+  }
+}
+
+template< class Key, class Value, class Hash, class Equal >
+void haliullin::RobinHashTable< Key, Value, Hash, Equal >::rehash(size_t newCap)
+{
+  if (newCap < size_)
+  {
+    throw std::invalid_argument("New capacity too small");
+  }
+
+  RobinHashTable tmp(newCap);
+  tmp.hasher_ = hasher_;
+  tmp.equal_ = equal_;
+  tmp.maxLoadFactor_ = maxLoadFactor_;
+
+  for (size_t i = 0; i < getCapacity(); ++i)
+  {
+    if (slots_[i].psl_ != -1)
+    {
+      const std::pair< Key, Value >& kv = slots_[i].kv_;
+      tmp.insertInternal(kv.first, kv.second);
+    }
+  }
+  swap(tmp);
+}
+
+template< class Key, class Value, class Hash, class Equal >
 bool haliullin::RobinHashTable< Key, Value, Hash, Equal >::isEmpty() const noexcept
 {
   return !size_;
@@ -244,92 +371,6 @@ size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::getCapacity() const
   return slots_.getSize();
 }
 
-template< class Key, class Value, class Hash, class Equal >
-size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::findSlot(const Key& k) const noexcept
-{
-  size_t hash = hasher_(k);
-  for (size_t i = 0; i < getCapacity(); ++i)
-  {
-    size_t idx = (hash + i) % getCapacity();
-    const slot_t& slot = slots_[idx];
-    if (slot.psl_ == -1)
-    {
-      return getCapacity();
-    }
-    if (slot.psl_ < static_cast< int >(i))
-    {
-      return getCapacity();
-    }
-    if (equal_(slot.kv_.first, k))
-    {
-      return idx;
-    }
-  }
-  return getCapacity();
-}
-
-template< class Key, class Value, class Hash, class Equal >
-void haliullin::RobinHashTable< Key, Value, Hash, Equal >::insertInternal(const Key& k, const Value& v)
-{
-  if (findSlot(k) != getCapacity())
-  {
-    throw std::invalid_argument("Key already exists");
-  }
-  if (size_ + 1 > static_cast< size_t >(maxLoadFactor_ * getCapacity()))
-  {
-    size_t newCap = getCapacity() * 2;
-    newCap = newCap < 16 ? 16 : newCap;
-    rehash(newCap);
-  }
-
-  size_t hash = hasher_(k);
-  slot_t curSlot(k, v);
-
-  for (size_t i = 0; i < getCapacity(); ++i)
-  {
-    size_t idx = (hash + curSlot.psl_) % getCapacity();
-    slot_t& slot = slots_[idx];
-
-    if (slot.psl_ == -1)
-    {
-      slot.kv_.first = std::move(curSlot.kv_.first);
-      slot.kv_.second = std::move(curSlot.kv_.second);
-      slot.psl_ = curSlot.psl_;
-      ++size_;
-      return;
-    }
-    if (curSlot.psl_ > slot.psl_)
-    {
-      slot.swap(curSlot);
-      hash = hasher_(curSlot.kv_.first);
-    }
-    ++curSlot.psl_;
-  }
-  throw std::runtime_error("Unexpected full table");
-}
-
-template< class Key, class Value, class Hash, class Equal >
-void haliullin::RobinHashTable< Key, Value, Hash, Equal >::rehash(size_t newCap)
-{
-  if (newCap < size_)
-  {
-    throw std::invalid_argument("New capacity too small");
-  }
-
-  RobinHashTable tmp(newCap, maxLoadFactor_);
-  tmp.hasher_ = hasher_;
-  tmp.equal_ = equal_;
-
-  for (size_t i = 0; i < getCapacity(); ++i)
-  {
-    if (slots_[i].psl_ != -1)
-    {
-      const std::pair< Key, Value >& kv = slots_[i].kv_;
-      tmp.insertInternal(kv.first, kv.second);
-    }
-  }
-  swap(tmp);
-}
 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::RHTableIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::begin() noexcept

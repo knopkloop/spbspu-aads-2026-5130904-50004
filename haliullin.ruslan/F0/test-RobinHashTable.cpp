@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(test_constructor)
   BOOST_CHECK_EQUAL(t1.getSize(), 0);
   BOOST_CHECK(t1.getCapacity() >= 16);
 
-  Table t2(32, 0.5);
+  Table t2(32);
   BOOST_CHECK_EQUAL(t2.getCapacity(), 32);
 }
 
@@ -167,6 +167,89 @@ BOOST_AUTO_TEST_CASE(test_find)
 
   auto cit2 = ct.find("missing");
   BOOST_CHECK(cit2 == ct.cend());
+}
+
+BOOST_AUTO_TEST_CASE(test_getLoadFactor)
+{
+  Table t(16);
+  BOOST_CHECK_EQUAL(t.getLoadFactor(), 0.0);
+
+  t.add("a", 1);
+  BOOST_CHECK_EQUAL(t.getLoadFactor(), 1.0 / 16.0);
+
+  t.add("b", 2);
+  BOOST_CHECK_EQUAL(t.getLoadFactor(), 2.0 / 16.0);
+
+  t.erase("a");
+  BOOST_CHECK_EQUAL(t.getLoadFactor(), 1.0 / 16.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_getMaxLoadFactor)
+{
+  Table t1;
+  BOOST_CHECK_EQUAL(t1.getMaxLoadFactor(), 0.9);
+
+  Table t2(32);
+  BOOST_CHECK_EQUAL(t2.getMaxLoadFactor(), 0.9);
+}
+
+BOOST_AUTO_TEST_CASE(test_setMaxLoadFactor)
+{
+  Table t(32);
+
+  t.setMaxLoadFactor(0.5);
+  BOOST_CHECK_EQUAL(t.getMaxLoadFactor(), 0.5);
+
+  BOOST_CHECK_THROW(t.setMaxLoadFactor(0.0), std::invalid_argument);
+  BOOST_CHECK_THROW(t.setMaxLoadFactor(-0.1), std::invalid_argument);
+  BOOST_CHECK_THROW(t.setMaxLoadFactor(1.1), std::invalid_argument);
+
+  BOOST_CHECK_EQUAL(t.getMaxLoadFactor(), 0.5);
+}
+
+BOOST_AUTO_TEST_CASE(test_setMaxLoadFactor_triggers_rehash)
+{
+  Table t(16);
+  for (int i = 0; i < 12; ++i)
+  {
+    t.add("key" + std::to_string(i), i);
+  }
+
+  BOOST_CHECK_EQUAL(t.getSize(), 12);
+  BOOST_CHECK_EQUAL(t.getCapacity(), 16);
+  BOOST_CHECK_CLOSE(t.getLoadFactor(), 12.0 / 16.0, 0.001);
+
+  t.setMaxLoadFactor(0.5);
+
+  BOOST_CHECK_EQUAL(t.getSize(), 12);
+  BOOST_CHECK(t.getCapacity() > 16);
+  BOOST_CHECK(t.getLoadFactor() <= 0.5);
+
+  for (int i = 0; i < 12; ++i)
+  {
+    BOOST_CHECK(t.has("key" + std::to_string(i)));
+    BOOST_CHECK_EQUAL(t.get("key" + std::to_string(i)), i);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_rehash)
+{
+  Table t(16);
+  t.add("a", 1);
+  t.add("b", 2);
+  t.add("c", 3);
+
+  t.rehash(64);
+  BOOST_CHECK_EQUAL(t.getCapacity(), 64);
+  BOOST_CHECK_EQUAL(t.getSize(), 3);
+  BOOST_CHECK(t.has("a"));
+  BOOST_CHECK(t.has("b"));
+  BOOST_CHECK(t.has("c"));
+  BOOST_CHECK_EQUAL(t.get("a"), 1);
+  BOOST_CHECK_EQUAL(t.get("b"), 2);
+  BOOST_CHECK_EQUAL(t.get("c"), 3);
+
+  BOOST_CHECK_THROW(t.rehash(1), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(test_isEmpty)
