@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <limits>
 #include <utility>
-#include "vector.hpp"
+#include <vector.hpp>
 
 haliullin::Cmd::Cmd()
 {

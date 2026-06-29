@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <utility>
 #include <memory>
-#include "vector.hpp"
+#include <Vector.hpp>
 #include "slot.hpp"
 #include "HashTable-iterators.hpp"
 

@@ -127,7 +127,7 @@ haliullin::Vector< std::string > haliullin::Graph::getVertexes() const
 
 haliullin::Graph::EdgeVec haliullin::Graph::getOutbound(const std::string& fromVert) const
 {
-  HashTable< std::string, Vector< unsigned long long >, detail::SipHash, std::equal_to< std::string > > temp;
+  HashTable< std::string, Vector< unsigned long long >, SipHash, std::equal_to< std::string > > temp;
   for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
   {
     const auto& key = (*it).first;
@@ -168,7 +168,7 @@ haliullin::Graph::EdgeVec haliullin::Graph::getOutbound(const std::string& fromV
 
 haliullin::Graph::EdgeVec haliullin::Graph::getInbound(const std::string& toVert) const
 {
-  HashTable< std::string, Vector< unsigned long long >, detail::SipHash, std::equal_to< std::string > > temp;
+  HashTable< std::string, Vector< unsigned long long >, SipHash, std::equal_to< std::string > > temp;
   for (auto it = edges_.cbegin(); it != edges_.cend(); ++it)
   {
     const auto& key = (*it).first;

@@ -21,8 +21,8 @@ namespace haliullin
     bool getCommand(const std::string& name, func_t& out) const;
 
   private:
-    HashTable< std::string, Graph, detail::SipHash, std::equal_to< std::string > > graphs_;
-    HashTable< std::string, func_t, detail::SipHash, std::equal_to< std::string > > commands_;
+    HashTable< std::string, Graph, SipHash, std::equal_to< std::string > > graphs_;
+    HashTable< std::string, func_t, SipHash, std::equal_to< std::string > > commands_;
 
     void require(bool condition) const;
     void require(std::istream& in) const;
