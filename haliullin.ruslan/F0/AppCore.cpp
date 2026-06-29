@@ -291,7 +291,7 @@ haliullin::AppCore::RecommendationResult
         {
           continue;
         }
-        if (maxSpam >= 0 && spam_.has(to) && spam_.get(to) > maxSpam)
+        if (spam_.has(to) && spam_.get(to) > maxSpam)
         {
           continue;
         }
