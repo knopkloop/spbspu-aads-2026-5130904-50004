@@ -242,7 +242,7 @@ haliullin::Graph haliullin::Graph::extract(const Vector< std::string >& verts) c
     result.addVertex(verts[i]);
   }
 
-  HashTable< std::string, bool, detail::SipHash, std::equal_to< std::string > > vset;
+  HashTable< std::string, bool, SipHash, std::equal_to< std::string > > vset;
   for (size_t i = 0; i < verts.getSize(); ++i)
   {
     vset.add(verts[i], true);

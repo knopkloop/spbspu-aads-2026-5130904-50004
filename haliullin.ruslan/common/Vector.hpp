@@ -5,6 +5,7 @@
 #include <new>
 #include <stdexcept>
 #include <memory>
+#include <type_traits>
 #include "Vector-iterators.hpp"
 
 namespace haliullin
@@ -36,6 +37,13 @@ namespace haliullin
 
     template< class U >
     void pushBack(U&& val);
+
+    template< class... Args >
+    void emplace_back(Args&&... args);
+
+    template< class... Args >
+    void emplace(size_t id, Args&&... args);
+
     void insert(size_t id, const T& val);
     void erase(size_t id);
     void insSort();
@@ -67,11 +75,13 @@ namespace haliullin
 template< class T >
 void haliullin::Vector< T >::clear() noexcept
 {
-  for (size_t i = 0; i < size_; ++i)
+  if (!std::is_trivially_destructible< T >::value)
   {
-    data_[i].~T();
+    for (size_t i = 0; i < size_; ++i)
+    {
+      data_[i].~T();
+    }
   }
-  size_ = 0;
 }
 
 template< class T >
@@ -105,8 +115,6 @@ haliullin::Vector< T >::Vector(size_t size):
   {
     clear();
     ::operator delete(data_);
-    data_ = nullptr;
-    capacity_ = 0;
     throw;
   }
 }
@@ -128,8 +136,6 @@ haliullin::Vector< T >::Vector(size_t size, const T& value):
   {
     clear();
     ::operator delete(data_);
-    data_ = nullptr;
-    capacity_ = 0;
     throw;
   }
 }
@@ -151,8 +157,6 @@ haliullin::Vector< T >::Vector(const Vector& rhs):
   {
     clear();
     ::operator delete(data_);
-    data_ = nullptr;
-    capacity_ = 0;
     throw;
   }
 }
@@ -165,7 +169,7 @@ haliullin::Vector< T >::Vector(Vector&& rhs) noexcept:
 }
 
 template< class T >
-haliullin::Vector< T >& haliullin::Vector<T>::operator=(const Vector& rhs)
+haliullin::Vector< T >& haliullin::Vector< T >::operator=(const Vector& rhs)
 {
   if (this != std::addressof(rhs))
   {
@@ -251,6 +255,41 @@ void haliullin::Vector< T >::pushBack(U&& val)
   }
   new (tmp.data_ + tmp.size_) T(std::forward< U >(val));
   ++tmp.size_;
+  swap(tmp);
+}
+
+template< class T >
+template< class... Args >
+void haliullin::Vector< T >::emplace_back(Args&&... args)
+{
+  Vector tmp(*this);
+  if (tmp.size_ == tmp.capacity_)
+  {
+    tmp.reserve(tmp.capacity_ ? tmp.capacity_ * 2 : 1);
+  }
+  new (tmp.data_ + tmp.size_) T(std::forward< Args >(args)...);
+  ++tmp.size_;
+  swap(tmp);
+}
+
+template< class T >
+template< class... Args >
+void haliullin::Vector< T >::emplace(size_t id, Args&&... args)
+{
+  if (id > size_)
+  {
+    throw std::out_of_range("id out of bound");
+  }
+  Vector tmp;
+  for (size_t i = 0; i < id; ++i)
+  {
+    tmp.pushBack((*this)[i]);
+  }
+  tmp.emplace_back(std::forward< Args >(args)...);
+  for (size_t i = id; i < size_; ++i)
+  {
+    tmp.pushBack((*this)[i]);
+  }
   swap(tmp);
 }
 
