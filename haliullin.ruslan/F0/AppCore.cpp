@@ -198,7 +198,7 @@ void haliullin::AppCore::showContact(const std::string& book, const std::string&
 
 void haliullin::AppCore::reportSpam(const std::string& number)
 {
-  int curSpam = spam_.has(number) ? spam_.get(number) : 0;
+  size_t curSpam = spam_.has(number) ? spam_.get(number) : 0;
   spam_.add(number, curSpam + 1);
 }
 

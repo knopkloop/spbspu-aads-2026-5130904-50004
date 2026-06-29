@@ -13,9 +13,9 @@ namespace haliullin
   class AppCore
   {
   public:
-    using PhoneBook = RobinHashTable< std::string, std::string, detail::MurMurHash, std::equal_to< std::string > >;
-    using BookTable = RobinHashTable< std::string, PhoneBook, detail::MurMurHash, std::equal_to< std::string > >;
-    using SpamTable = RobinHashTable< std::string, int, detail::MurMurHash, std::equal_to< std::string > >;
+    using PhoneBook = RobinHashTable< std::string, std::string, MurMurHash, std::equal_to< std::string > >;
+    using BookTable = RobinHashTable< std::string, PhoneBook, MurMurHash, std::equal_to< std::string > >;
+    using SpamTable = RobinHashTable< std::string, size_t, MurMurHash, std::equal_to< std::string > >;
     using RecommendationResult = std::pair< SocialGraph, Vector< std::pair< std::string, double > > >;
 
     AppCore();
