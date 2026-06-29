@@ -3,8 +3,8 @@
 
 #include <utility>
 #include <string>
+#include <Vector.hpp>
 #include "HashTable.hpp"
-#include "vector.hpp"
 #include "SipHash.hpp"
 
 namespace haliullin
@@ -38,7 +38,7 @@ namespace haliullin
 
   private:
     Vector< std::string > vertexes_;
-    HashTable< pair_str, Vector< unsigned long long >, detail::SipHash, std::equal_to< pair_str > > edges_;
+    HashTable< pair_str, Vector< unsigned long long >, SipHash, std::equal_to< pair_str > > edges_;
   };
 }
 
