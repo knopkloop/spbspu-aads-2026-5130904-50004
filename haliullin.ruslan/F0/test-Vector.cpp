@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <string>
 #include <stdexcept>
-#include "Vector.hpp"
+#include <Vector.hpp>
 
 BOOST_AUTO_TEST_SUITE(Vector_tests)
 
