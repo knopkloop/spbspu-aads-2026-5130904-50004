@@ -6,27 +6,14 @@
 #include "AppCore.hpp"
 #include "FileManager.hpp"
 
-haliullin::CommandDispatcher::CommandDispatcher():
+haliullin::CommandDispatcher::CommandDispatcher(std::initializer_list< cmd_pair_t > cmds):
   core_(),
   commands_()
 {
-  commands_.add("create-book", &CommandDispatcher::cmdCreateBook);
-  commands_.add("remove-book", &CommandDispatcher::cmdRemoveBook);
-  commands_.add("add-contact", &CommandDispatcher::cmdAddContact);
-  commands_.add("remove-contact", &CommandDispatcher::cmdRemoveContact);
-  commands_.add("rename-book", &CommandDispatcher::cmdRenameBook);
-  commands_.add("merge", &CommandDispatcher::cmdMerge);
-  commands_.add("copy-contact", &CommandDispatcher::cmdCopyContact);
-  commands_.add("show", &CommandDispatcher::cmdShow);
-  commands_.add("report", &CommandDispatcher::cmdReportSpam);
-  commands_.add("grade", &CommandDispatcher::cmdGrade);
-  commands_.add("show-connections", &CommandDispatcher::cmdShowConnections);
-  commands_.add("disconnect", &CommandDispatcher::cmdDisconnect);
-  commands_.add("recommend", &CommandDispatcher::cmdRecommend);
-  commands_.add("save", &CommandDispatcher::cmdSave);
-  commands_.add("load", &CommandDispatcher::cmdLoad);
-  commands_.add("exit", &CommandDispatcher::cmdExit);
-  commands_.add("help", &CommandDispatcher::cmdHelp);
+  for (const auto& cmd: cmds)
+  {
+    commands_.add(cmd.first, cmd.second);
+  }
 }
 
 void haliullin::CommandDispatcher::execute(std::istream& in, std::ostream& out)

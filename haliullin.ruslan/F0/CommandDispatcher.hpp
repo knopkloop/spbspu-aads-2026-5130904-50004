@@ -13,12 +13,10 @@ namespace haliullin
   {
   public:
     using func_t = void (CommandDispatcher::*)(std::istream&, std::ostream&);
-    CommandDispatcher();
-    void execute(std::istream& in, std::ostream& out);
+    using cmd_pair_t = std::pair< std::string, func_t >;
 
-  private:
-    AppCore core_;
-    RobinHashTable< std::string, func_t, detail::MurMurHash, std::equal_to< std::string > > commands_;
+    CommandDispatcher(std::initializer_list< cmd_pair_t > cmds);
+    void execute(std::istream& in, std::ostream& out);
 
     void cmdCreateBook(std::istream& in, std::ostream& out);
     void cmdRemoveBook(std::istream& in, std::ostream& out);
@@ -37,6 +35,10 @@ namespace haliullin
     void cmdLoad(std::istream& in, std::ostream& out);
     void cmdExit(std::istream& in, std::ostream& out);
     void cmdHelp(std::istream&, std::ostream& out);
+
+  private:
+    AppCore core_;
+    RobinHashTable< std::string, func_t, MurMurHash, std::equal_to< std::string > > commands_;
 
     void require(bool condition) const;
     void require(std::istream& in) const;

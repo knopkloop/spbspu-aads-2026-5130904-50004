@@ -3,9 +3,9 @@
 
 #include <utility>
 #include <string>
+#include <Vector.hpp>
 #include "RobinHashTable.hpp"
 #include "MurMurHash.hpp"
-#include "Vector.hpp"
 
 namespace haliullin
 {
@@ -13,7 +13,7 @@ namespace haliullin
   {
   public:
     using EdgeKey = std::pair< std::string, std::string >;
-    using EdgeTable = RobinHashTable< EdgeKey, Vector< double >, detail::MurMurHash, std::equal_to< EdgeKey > >;
+    using EdgeTable = RobinHashTable< EdgeKey, Vector< double >, MurMurHash, std::equal_to< EdgeKey > >;
     using EdgeVector = Vector< std::pair< EdgeKey, Vector< double > > >;
     using RatingVector = Vector< std::pair< std::string, double > >;
 

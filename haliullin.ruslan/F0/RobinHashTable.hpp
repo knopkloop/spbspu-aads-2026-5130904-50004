@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <utility>
 #include <memory>
-#include "Vector.hpp"
+#include <Vector.hpp>
 #include "Slot.hpp"
 #include "RobinHash-iterators.hpp"
 
@@ -370,7 +370,6 @@ size_t haliullin::RobinHashTable< Key, Value, Hash, Equal >::getCapacity() const
 {
   return slots_.getSize();
 }
-
 
 template< class Key, class Value, class Hash, class Equal >
 haliullin::RHTableIterator< Key, Value > haliullin::RobinHashTable< Key, Value, Hash, Equal >::begin() noexcept
