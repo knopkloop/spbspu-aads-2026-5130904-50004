@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <string>
+#include <ostream>
 #include <Vector.hpp>
 #include "RobinHashTable.hpp"
 #include "MurMurHash.hpp"
@@ -39,6 +40,8 @@ namespace haliullin
   private:
     EdgeTable edges_;
   };
+
+  std::ostream& operator<<(std::ostream& os, const AppCore& core);
 }
 
 #endif

@@ -166,7 +166,7 @@ void haliullin::AppCore::showBook(const std::string& book, std::ostream& out) co
   {
     const auto& c = contacts[i];
     out << c.first << " " << c.second;
-    int spamCount = spam_.has(c.first) ? spam_.get(c.first) : 0;
+    size_t spamCount = spam_.has(c.first) ? spam_.get(c.first) : 0;
     out << " [spam: " << spamCount << "]\n";
   }
 }
@@ -181,7 +181,7 @@ void haliullin::AppCore::showContact(const std::string& book, const std::string&
 
   out << "Number: " << number << "\n";
   out << "Name: " << pb.get(number) << "\n";
-  int spamCount = spam_.has(number) ? spam_.get(number) : 0;
+  size_t spamCount = spam_.has(number) ? spam_.get(number) : 0;
   out << "Spam reports: " << spamCount << "\n";
 
   auto outbound = graph_.getOutbound(number);

@@ -160,3 +160,26 @@ haliullin::SocialGraph::RatingVector haliullin::SocialGraph::getInbound(const st
   }
   return result;
 }
+
+std::ostream& haliullin::operator<<(std::ostream& os, const AppCore& core)
+{
+  std::ostream::sentry s(os);
+  if (!s)
+  {
+    return os;
+  }
+
+  auto allEdges = graph.getAllEdges();
+  if (allEdges.isEmpty())
+  {
+    return os;
+  }
+
+  for (size_t i = 0; i < allEdges.getSize(); ++i)
+  {
+    const auto& key = allEdges[i].first;
+    double avgW = graph.getAverageWeight(key.first, key.second);
+    os << " " << key.first << " -> " << key.second << " : " << avgW << "\n";
+  }
+  return os;
+}

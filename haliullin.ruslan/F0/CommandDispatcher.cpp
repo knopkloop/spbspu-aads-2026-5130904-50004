@@ -101,10 +101,6 @@ void haliullin::CommandDispatcher::cmdAddContact(std::istream& in, std::ostream&
   in >> book >> number;
   require(in);
   require(isNumberValid(number));
-  while (in.peek() == ' ')
-  {
-    in.get();
-  }
   while (in.peek() != '\n' && in.peek() != EOF)
   {
     name += static_cast< char >(in.get());
@@ -163,10 +159,6 @@ void haliullin::CommandDispatcher::cmdShow(std::istream& in, std::ostream& out)
   std::string book;
   in >> book;
   require(in);
-  while (in.peek() == ' ')
-  {
-    in.get();
-  }
   if (in.peek() == '\n' || in.peek() == EOF)
   {
     core_.showBook(book, out);
@@ -201,10 +193,6 @@ void haliullin::CommandDispatcher::cmdGrade(std::istream& in, std::ostream& out)
   require(in);
   require(isNumberValid(from) && isNumberValid(to));
   require(value >= 0.0 && value <= 5.0);
-  while (in.peek() == ' ')
-  {
-    in.get();
-  }
   require(in.peek() == '\n' || in.peek() == EOF);
   core_.grade(from, to, value);
   out << "Rating from " << from << " to " << to << " added (" << value << ")\n";
@@ -217,10 +205,6 @@ void haliullin::CommandDispatcher::cmdShowConnections(std::istream& in, std::ost
   in >> number;
   require(in);
   require(isNumberValid(number));
-  while (in.peek() == ' ')
-  {
-    in.get();
-  }
   std::string mode = "all";
   if (in.peek() != '\n' && in.peek() != EOF)
   {
@@ -253,27 +237,16 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
   require(in);
   require(isNumberValid(number));
 
-  auto skipSpaces = [&in]()
-  {
-    while (in.peek() == ' ')
-    {
-      in.get();
-    }
-  };
-
-  skipSpaces();
   if (in.peek() != EOF && in.peek() != '\n')
   {
     in >> minRating;
     require(in);
   }
-  skipSpaces();
   if (in.peek() != EOF && in.peek() != '\n')
   {
     in >> maxSpam;
     require(in);
   }
-  skipSpaces();
   if (in.peek() != EOF && in.peek() != '\n')
   {
     in >> depth;
@@ -312,12 +285,7 @@ void haliullin::CommandDispatcher::cmdRecommend(std::istream& in, std::ostream& 
 
   auto allEdges = subgraph.getAllEdges();
   out << "Recommendation subgraph:\n";
-  for (size_t i = 0; i < allEdges.getSize(); ++i)
-  {
-    const auto& key = allEdges[i].first;
-    double avgW = subgraph.getAverageWeight(key.first, key.second);
-    out << "  " << key.first << " -> " << key.second << " : " << avgW << "\n";
-  }
+  out << subgraph;
   in.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
 }
 

@@ -3,10 +3,10 @@
 
 #include <string>
 #include <ostream>
+#include <Vector.hpp>
 #include "RobinHashTable.hpp"
 #include "MurMurHash.hpp"
 #include "SocialGraph.hpp"
-#include "Vector.hpp"
 
 namespace haliullin
 {

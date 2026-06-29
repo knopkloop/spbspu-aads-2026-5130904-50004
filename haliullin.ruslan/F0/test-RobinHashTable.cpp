@@ -7,7 +7,7 @@
 
 BOOST_AUTO_TEST_SUITE(RobinHashTable_tests)
 
-using Table = haliullin::RobinHashTable< std::string, int, haliullin::detail::MurMurHash, std::equal_to< std::string > >;
+using Table = haliullin::RobinHashTable< std::string, int, haliullin::MurMurHash, std::equal_to< std::string > >;
 
 BOOST_AUTO_TEST_CASE(test_constructor)
 {
