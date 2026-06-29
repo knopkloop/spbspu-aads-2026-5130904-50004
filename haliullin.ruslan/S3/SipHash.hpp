@@ -6,19 +6,16 @@
 
 namespace haliullin
 {
-  namespace detail
+  struct SipHash
   {
-    struct SipHash
+    template< class T >
+    std::size_t operator()(const T& key) const noexcept
     {
-      template< class T >
-      std::size_t operator()(const T& key) const noexcept
-      {
-        boost::hash2::siphash_64 hasher;
-        boost::hash2::hash_append(hasher, {}, key);
-        return hasher.result();
-      }
-    };
-  }
+      boost::hash2::siphash_64 hasher;
+      boost::hash2::hash_append(hasher, {}, key);
+      return hasher.result();
+    }
+  };
 }
 
 #endif
