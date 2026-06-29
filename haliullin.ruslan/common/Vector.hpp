@@ -62,6 +62,8 @@ namespace haliullin
     VIter< T > end() noexcept;
     VCIter< T > end() const noexcept;
     VCIter< T > cend() const noexcept;
+    VIter< T > getIter(size_t idx) noexcept;
+    VCIter< T >getIter(size_t idx) const noexcept;
 
   private:
     T* data_;
@@ -498,6 +500,18 @@ template< class T >
 haliullin::VCIter< T > haliullin::Vector< T >::cend() const noexcept
 {
   return end();
+}
+
+template< class T >
+haliullin::VIter< T > haliullin::Vector< T >::getIter(size_t idx) noexcept
+{
+  return VIter< T >(*this, idx);
+}
+
+template< class T >
+haliullin::VCIter< T > haliullin::Vector< T >::getIter(size_t idx) const noexcept
+{
+  return VCIter< T >(*this, idx);
 }
 
 #endif
