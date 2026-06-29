@@ -93,7 +93,7 @@ haliullin::RobinHashTable< Key, Value, Hash, Equal >::RobinHashTable(RobinHashTa
   size_(0),
   hasher_(),
   equal_(),
-  maxLoadFactor_(0.0)
+  maxLoadFactor_(DEFAULT_MAX_LOAD_FACTOR)
 {
   swap(other);
 }
@@ -282,8 +282,7 @@ haliullin::RHTableIterator< Key, Value > haliullin::RobinHashTable< Key, Value, 
   {
     return end();
   }
-  VIter< slot_t > cur(std::addressof(slots_[idx]));
-  return iterator(cur, slots_.end());
+  return iterator(slots_.getIter(idx), slots_.end());
 }
 
 template< class Key, class Value, class Hash, class Equal >
@@ -294,8 +293,7 @@ haliullin::RHTableConstIterator< Key, Value > haliullin::RobinHashTable< Key, Va
   {
     return cend();
   }
-  VCIter< slot_t > cur(std::addressof(slots_[idx]));
-  return const_iterator(cur, slots_.cend());
+  return const_iterator(slots_.getIter(idx), slots_.cend());
 }
 
 template< class Key, class Value, class Hash, class Equal >

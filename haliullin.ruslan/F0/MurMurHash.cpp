@@ -29,7 +29,7 @@ size_t haliullin::MurMurHash::operator()(const void* data, size_t len) const noe
   {
     case 7:
     {
-      h^= static_cast< uint64_t >(bytes[6]) << 48;
+      h ^= static_cast< uint64_t >(bytes[6]) << 48;
       [[fallthrough]];
     }
     case 6:
