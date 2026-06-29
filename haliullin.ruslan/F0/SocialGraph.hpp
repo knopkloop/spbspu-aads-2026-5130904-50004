@@ -41,7 +41,7 @@ namespace haliullin
     EdgeTable edges_;
   };
 
-  std::ostream& operator<<(std::ostream& os, const AppCore& core);
+  std::ostream& operator<<(std::ostream& os, const SocialGraph& graph);
 }
 
 #endif
