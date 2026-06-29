@@ -37,7 +37,7 @@ namespace haliullin
     void showConnections(const std::string& number, const std::string& mode, std::ostream& out) const;
     void disconnect(const std::string& from, const std::string& to);
     RecommendationResult recommend(const std::string& book, const std::string& number, double minRating,
-      int maxSpam, size_t depth) const;
+      size_t maxSpam, size_t depth) const;
 
     const BookTable& getBooks() const;
     const SpamTable& getSpam() const;

@@ -253,7 +253,7 @@ void haliullin::AppCore::disconnect(const std::string& from, const std::string& 
 }
 
 haliullin::AppCore::RecommendationResult
-  haliullin::AppCore::recommend(const std::string& book, const std::string& number, double minRating, int maxSpam, size_t depth) const
+  haliullin::AppCore::recommend(const std::string& book, const std::string& number, double minRating, size_t maxSpam, size_t depth) const
 {
   const PhoneBook& pb = getBook(book);
   if (!pb.has(number))
@@ -265,18 +265,18 @@ haliullin::AppCore::RecommendationResult
     throw std::logic_error("Depth must be at least 2");
   }
 
-  RobinHashTable< std::string, std::pair< double, size_t >, detail::MurMurHash, std::equal_to< std::string > > candidates;
+  RobinHashTable< std::string, std::pair< double, size_t >, MurMurHash, std::equal_to< std::string > > candidates;
   SocialGraph subgraph;
 
   Vector< std::pair< std::string, double > > current;
   current.pushBack(std::make_pair(number, 0.0));
 
-  RobinHashTable< std::string, bool, detail::MurMurHash, std::equal_to< std::string > > visited;
+  RobinHashTable< std::string, bool, MurMurHash, std::equal_to< std::string > > visited;
   visited.add(number, true);
 
   for (size_t step = 0; step < depth; ++step)
   {
-    RobinHashTable< std::string, double, detail::MurMurHash, std::equal_to< std::string > > nextLevelMap;
+    RobinHashTable< std::string, double, MurMurHash, std::equal_to< std::string > > nextLevelMap;
     Vector< std::pair< std::string, double > > nextLevel;
     for (size_t i = 0; i < current.getSize(); ++i)
     {
