@@ -415,4 +415,36 @@ BOOST_AUTO_TEST_CASE(test_operator_less)
   BOOST_CHECK(!(empty1 < empty2));
 }
 
+BOOST_AUTO_TEST_CASE(test_emplace_back)
+{
+  StrVec sv;
+  sv.emplace_back("hello");
+  sv.emplace_back(5, 'a');
+  BOOST_CHECK_EQUAL(sv.getSize(), 2);
+  BOOST_CHECK_EQUAL(sv[0], "hello");
+  BOOST_CHECK_EQUAL(sv[1], "aaaaa");
+}
+
+BOOST_AUTO_TEST_CASE(test_emplace)
+{
+  StrVec sv;
+  sv.pushBack("a");
+  sv.pushBack("c");
+
+  sv.emplace(1, "b");
+  BOOST_CHECK_EQUAL(sv.getSize(), 3);
+  BOOST_CHECK_EQUAL(sv[0], "a");
+  BOOST_CHECK_EQUAL(sv[1], "b");
+  BOOST_CHECK_EQUAL(sv[2], "c");
+
+  sv.emplace(0, 3, 'z');
+  BOOST_CHECK_EQUAL(sv[0], "zzz");
+  BOOST_CHECK_EQUAL(sv[1], "a");
+
+  sv.emplace(sv.getSize(), "end");
+  BOOST_CHECK_EQUAL(sv[sv.getSize() - 1], "end");
+
+  BOOST_CHECK_THROW(sv.emplace(100, "x"), std::out_of_range);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
